@@ -66,8 +66,11 @@ export default async function EditVehiclePage({
 
       {justCreated ? (
         <Alert tone="success" title="Vehicle created" className="mb-6">
-          It is saved as a draft. Add photos below, then set the status to Published when it is
-          ready to go live.
+          {/* The status is whatever was chosen on the form, so the message has
+              to read it rather than assume a draft. */}
+          {isPublic
+            ? 'It is live on the website now. Add photos below — listings without photography get very few inquiries.'
+            : 'It is saved as a draft and is not visible on the website. Add photos below, then set the status to Published when it is ready to go live.'}
         </Alert>
       ) : null}
 
