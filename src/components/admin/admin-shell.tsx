@@ -10,29 +10,33 @@ import { labelFor } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import type { AdminRole } from '@/types/database'
 
-import { isActiveNavItem, type AdminNavItem } from './navigation'
+import { isActiveNavItem, navigationFor } from './navigation'
 
 /**
  * Admin chrome: fixed sidebar on desktop, slide-over drawer below `lg`.
  *
- * The navigation it receives has already been filtered by the server for the
- * signed-in admin's role, so this component never has to reason about
- * permissions - it just renders what it was given.
+ * The navigation is derived here from the role rather than passed in from the
+ * server layout. Nav items carry a Lucide icon *component*, and React cannot
+ * serialize a function across the server/client boundary - passing the built
+ * list in throws "Only plain objects can be passed to Client Components".
+ *
+ * Deriving it client-side is not a weakening of access control: this only
+ * decides what is rendered. Every page still calls `requireCapability`, and
+ * RLS enforces the same matrix in the database.
  */
 export function AdminShell({
-  navigation,
   businessName,
   adminName,
   adminRole,
   children,
 }: {
-  navigation: AdminNavItem[]
   businessName: string
   adminName: string
   adminRole: AdminRole
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const navigation = React.useMemo(() => navigationFor(adminRole), [adminRole])
 
   // Derived from "which page was open when the drawer was opened", so
   // navigating closes it without an effect watching the route.

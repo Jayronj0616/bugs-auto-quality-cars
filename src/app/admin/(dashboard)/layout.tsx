@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 import { AdminShell } from '@/components/admin/admin-shell'
-import { navigationFor } from '@/components/admin/navigation'
+
 import { requireAdmin } from '@/lib/auth'
 import { getDealershipSettings } from '@/lib/data/settings'
 
@@ -37,7 +37,6 @@ export default async function AdminDashboardLayout({ children }: LayoutProps<'/a
 
   return (
     <AdminShell
-      navigation={navigationFor(session.profile.role)}
       businessName={settings.business_name}
       adminName={session.profile.name}
       adminRole={session.profile.role}
