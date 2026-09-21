@@ -6,6 +6,7 @@ import { revalidateInventory } from '@/lib/actions/revalidate'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import type { ImageCategory, VehicleImageRow } from '@/types/database'
 import { IMAGE_CATEGORIES } from '@/lib/constants'
+import { ALLOWED_IMAGE_TYPES, MEDIA_BUCKET, checkImageFile } from '@/lib/media'
 
 /**
  * Vehicle photo upload.
@@ -20,17 +21,7 @@ import { IMAGE_CATEGORIES } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
 
-const BUCKET = 'vehicle-media'
-const MAX_FILE_BYTES = 10 * 1024 * 1024
 const MAX_FILES_PER_REQUEST = 20
-
-/** Only formats the Next.js image optimizer can actually process. */
-const ALLOWED_TYPES: Record<string, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp',
-  'image/avif': 'avif',
-}
 
 const requestSchema = z.object({
   vehicleId: z.uuid('That vehicle could not be found.'),
@@ -111,34 +102,20 @@ export async function POST(request: Request) {
   const vehicleLabel = `${vehicle.year} ${vehicle.brand} ${vehicle.model}`
 
   for (const file of files) {
-    if (file.size === 0) {
-      failures.push(`${file.name}: the file is empty.`)
-      continue
-    }
-    if (file.size > MAX_FILE_BYTES) {
-      failures.push(`${file.name}: larger than ${MAX_FILE_BYTES / 1024 / 1024}MB.`)
-      continue
-    }
-
-    const extension = ALLOWED_TYPES[file.type]
-    if (!extension) {
-      failures.push(`${file.name}: only JPG, PNG, WebP and AVIF images are accepted.`)
-      continue
-    }
-
     const bytes = new Uint8Array(await file.arrayBuffer())
 
-    // The declared content type is attacker-controlled, so the actual bytes are
-    // checked too - a .exe renamed to .jpg does not get into the bucket.
-    if (!looksLikeImage(bytes)) {
-      failures.push(`${file.name}: does not look like a real image file.`)
+    // The declared content type is attacker-controlled, so the bytes are
+    // checked too - a renamed executable does not get into a public bucket.
+    const check = checkImageFile(file, bytes, ALLOWED_IMAGE_TYPES)
+    if (!check.ok) {
+      failures.push(`${file.name}: ${check.reason}.`)
       continue
     }
 
-    const storagePath = `vehicles/${vehicleId}/images/${crypto.randomUUID()}.${extension}`
+    const storagePath = `vehicles/${vehicleId}/images/${crypto.randomUUID()}.${check.extension}`
 
     const { error: uploadError } = await storage.storage
-      .from(BUCKET)
+      .from(MEDIA_BUCKET)
       .upload(storagePath, bytes, { contentType: file.type, upsert: false })
 
     if (uploadError) {
@@ -149,7 +126,7 @@ export async function POST(request: Request) {
 
     const {
       data: { publicUrl },
-    } = storage.storage.from(BUCKET).getPublicUrl(storagePath)
+    } = storage.storage.from(MEDIA_BUCKET).getPublicUrl(storagePath)
 
     const { data: row, error: insertError } = await session.supabase
       .from('vehicle_images')
@@ -170,7 +147,7 @@ export async function POST(request: Request) {
     if (insertError || !row) {
       // Roll the object back so storage does not accumulate files no row
       // references.
-      await storage.storage.from(BUCKET).remove([storagePath])
+      await storage.storage.from(MEDIA_BUCKET).remove([storagePath])
       console.error('[media.upload] insert:', insertError?.message)
       failures.push(`${file.name}: could not be saved.`)
       continue
@@ -199,34 +176,4 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ uploaded, failures })
-}
-
-/**
- * Magic-byte sniff for the formats we accept.
- *
- * Not a full parse - just enough that the bytes have to agree with the declared
- * type before anything is written to a publicly readable bucket.
- */
-function looksLikeImage(bytes: Uint8Array): boolean {
-  if (bytes.length < 12) return false
-
-  const startsWith = (signature: number[], offset = 0) =>
-    signature.every((byte, index) => bytes[offset + index] === byte)
-
-  // JPEG: FF D8 FF
-  if (startsWith([0xff, 0xd8, 0xff])) return true
-
-  // PNG: 89 50 4E 47 0D 0A 1A 0A
-  if (startsWith([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return true
-
-  const ascii = (offset: number, length: number) =>
-    String.fromCharCode(...bytes.slice(offset, offset + length))
-
-  // WebP: "RIFF" .... "WEBP"
-  if (ascii(0, 4) === 'RIFF' && ascii(8, 4) === 'WEBP') return true
-
-  // AVIF / HEIF: box type "ftyp" at offset 4, brand contains "avif"
-  if (ascii(4, 4) === 'ftyp' && ascii(8, 4).toLowerCase().startsWith('avi')) return true
-
-  return false
 }
