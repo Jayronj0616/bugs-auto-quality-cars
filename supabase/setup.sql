@@ -14,6 +14,9 @@
 --   20260101000100_rls_policies.sql
 --   20260101000200_storage.sql
 --   20260101000300_bootstrap_settings.sql
+--   20260101000400_motorcycle_body_type.sql
+--   20260101000500_raise_media_size_limit.sql
+--   20260101000600_featured_rank.sql
 -- =============================================================================
 
 -- ===========================================================================
@@ -870,7 +873,7 @@ values (
   'vehicle-media',
   'vehicle-media',
   true,
-  15728640, -- 15 MB
+  62914560, -- 60 MB
   array['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'video/mp4', 'video/webm']
 )
 on conflict (id) do update
@@ -955,4 +958,77 @@ values (
   )
 )
 on conflict (singleton) do nothing;
+
+-- ===========================================================================
+-- BEGIN 20260101000400_motorcycle_body_type.sql
+-- ===========================================================================
+
+-- =============================================================================
+-- BUGS Auto Quality Cars - allow motorcycles in the inventory
+-- =============================================================================
+-- The dealership also sells big scooters and motorcycles, which the original
+-- body_type list did not cover. Adding the values here rather than filing them
+-- under 'other' keeps them filterable on the public inventory.
+-- =============================================================================
+
+alter table public.vehicles
+  drop constraint if exists vehicles_body_type_check;
+
+alter table public.vehicles
+  add constraint vehicles_body_type_check check (
+    body_type in (
+      'sedan', 'hatchback', 'suv', 'crossover', 'mpv', 'pickup',
+      'van', 'coupe', 'convertible', 'wagon', 'truck',
+      'motorcycle', 'scooter',
+      'other'
+    )
+  );
+
+-- ===========================================================================
+-- BEGIN 20260101000500_raise_media_size_limit.sql
+-- ===========================================================================
+
+-- =============================================================================
+-- BUGS Auto Quality Cars - raise the media size limit
+-- =============================================================================
+-- The original 15MB cap was sized for photographs. The dealership's walkaround
+-- videos, shot on a phone, run to roughly 30MB, so the bucket now allows 60MB.
+--
+-- The application still enforces its own, much tighter 10MB limit on photo
+-- uploads (src/lib/media.ts); this ceiling only governs what storage itself
+-- will accept, which matters for videos uploaded during an inventory import.
+-- =============================================================================
+
+update storage.buckets
+   set file_size_limit = 62914560 -- 60 MB
+ where id = 'vehicle-media';
+
+-- ===========================================================================
+-- BEGIN 20260101000600_featured_rank.sql
+-- ===========================================================================
+
+-- =============================================================================
+-- Lets the dealership choose which featured vehicle leads the homepage.
+-- =============================================================================
+-- Featured stock was ordered by `published_at` alone, so the hero showed
+-- whichever unit happened to be listed last. That is not a decision anyone
+-- made - it is an accident of data entry, and it changes every time a vehicle
+-- is added.
+--
+-- `featured_rank` makes the order explicit: 1 leads, then 2, and so on. It is
+-- nullable on purpose. A featured vehicle with no rank keeps the old behaviour
+-- and sorts after every ranked one by recency, so nothing has to be ranked for
+-- the homepage to work.
+
+alter table public.vehicles
+  add column if not exists featured_rank smallint
+    check (featured_rank is null or featured_rank between 1 and 999);
+
+comment on column public.vehicles.featured_rank is
+  'Display order among featured vehicles - 1 leads the homepage hero. Null sorts last, by published_at.';
+
+-- Partial: only featured rows are ever read through this path.
+create index if not exists vehicles_featured_rank_idx
+  on public.vehicles (featured_rank)
+  where is_featured and featured_rank is not null;
 

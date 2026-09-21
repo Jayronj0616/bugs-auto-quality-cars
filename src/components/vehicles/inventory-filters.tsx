@@ -6,6 +6,7 @@ import { SlidersHorizontal, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/field'
+import { Portal } from '@/components/ui/portal'
 import {
   BODY_TYPES,
   FUEL_TYPES,
@@ -69,43 +70,51 @@ export function InventoryFilters({
         <FilterForm facets={facets} filters={filters} resultCount={resultCount} />
       </div>
 
-      {/* Mobile drawer */}
+      {/*
+        Mobile drawer, portalled to <body>. The page-transition wrapper in
+        template.tsx keeps a stacking context (its opacity animation fills),
+        so an overlay left inside the page paints *below* the sticky header
+        no matter how high its z-index - which buried this drawer's own
+        heading and close button under the site header.
+      */}
       {drawerOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            className="absolute inset-0 animate-fade-in bg-brand-900/60"
-            onClick={() => setDrawerOpen(false)}
-            aria-label="Close filters"
-            tabIndex={-1}
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Filter vehicles"
-            className="absolute inset-y-0 right-0 flex w-[min(24rem,92vw)] animate-slide-in-right flex-col bg-white shadow-panel"
-          >
-            <div className="flex items-center justify-between border-b border-ink-200 px-4 py-3.5">
-              <h2 className="text-base font-semibold text-ink-900">Filters</h2>
-              <button
-                type="button"
-                onClick={() => setDrawerOpen(false)}
-                className="-m-1.5 rounded-md p-1.5 text-ink-500 hover:bg-ink-100 hover:text-ink-900"
-                aria-label="Close filters"
-              >
-                <X className="size-5" aria-hidden="true" />
-              </button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto p-4">
-              <FilterForm
-                facets={facets}
-                filters={filters}
-                resultCount={resultCount}
-                onApplied={() => setDrawerOpen(false)}
-              />
+        <Portal>
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <button
+              type="button"
+              className="absolute inset-0 animate-fade-in bg-brand-900/60"
+              onClick={() => setDrawerOpen(false)}
+              aria-label="Close filters"
+              tabIndex={-1}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Filter vehicles"
+              className="absolute inset-y-0 right-0 flex w-[min(24rem,92vw)] animate-slide-in-right flex-col bg-white shadow-panel"
+            >
+              <div className="flex items-center justify-between border-b border-ink-200 px-4 py-3.5">
+                <h2 className="text-base font-semibold text-ink-900">Filters</h2>
+                <button
+                  type="button"
+                  onClick={() => setDrawerOpen(false)}
+                  className="-m-1.5 rounded-md p-1.5 text-ink-500 hover:bg-ink-100 hover:text-ink-900"
+                  aria-label="Close filters"
+                >
+                  <X className="size-5" aria-hidden="true" />
+                </button>
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto p-4">
+                <FilterForm
+                  facets={facets}
+                  filters={filters}
+                  resultCount={resultCount}
+                  onApplied={() => setDrawerOpen(false)}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        </Portal>
       ) : null}
     </>
   )

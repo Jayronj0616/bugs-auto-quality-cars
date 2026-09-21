@@ -226,6 +226,8 @@ export type VehicleRow = {
   default_term_months: number | null
   status: VehicleStatus
   is_featured: boolean
+  /** Order among featured vehicles - 1 leads the homepage hero, null sorts last. */
+  featured_rank: number | null
   is_promoted: boolean
   view_count: number
   meta_title: string | null

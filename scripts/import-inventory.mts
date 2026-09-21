@@ -113,6 +113,8 @@ type VehicleImport = {
   features: string[]
   quote?: Quote
   isFeatured?: boolean
+  /** 1 leads the homepage hero; unset orders by newest listing. */
+  featuredRank?: number
   contactPhone?: string
 }
 
@@ -191,6 +193,8 @@ Money back if the unit is tampered, flooded, has any history of accident, or has
     sellingPrice: 2_650_000,
     brandNewPrice: 4_300_000,
     isFeatured: true,
+    // The dealership wants the Camaro to be the first car a visitor sees.
+    featuredRank: 1,
     description: `19,000km only, unlimited scan. Turbocharged 2.0-litre with a Borla exhaust, six-speed automatic and paddle shifters — fresh inside and out, with two original keys and complete, clean papers. LTO verified and HPG verified.
 
 Money back guarantee against flooding, any history of accident, or illegal documents.
@@ -522,6 +526,7 @@ async function run() {
       selling_price: item.sellingPrice,
       status: 'published' as const,
       is_featured: item.isFeatured ?? false,
+      featured_rank: item.isFeatured ? (item.featuredRank ?? null) : null,
       // Derived from the *financed* amount rather than the sheet's down payment
       // percentage. Some ads quote a slightly lower cash price than the JACCS
       // sheet was built on, and anchoring on the financed amount is what makes

@@ -270,6 +270,18 @@ reach `/admin/vehicles` while a `content_manager` cannot read customer details.
 
 ## Decisions worth knowing
 
+- **Overlays are portalled to `<body>`.** `position: fixed` is only relative to the viewport
+  while nothing above it creates a containing block or a stacking context, and two things on
+  this site do: the site header is `backdrop-blur`, and the page-transition wrapper in
+  `template.tsx` keeps a stacking context because its opacity animation fills. Left in place,
+  the mobile menu was sized to the 64px header bar and pushed off-screen, and the inventory
+  filter drawer painted *below* the header — burying its own close button — no matter how high
+  its z-index. `src/components/ui/portal.tsx` moves overlays out to `<body>`, which fixes both
+  and cannot be re-broken by a decorative blur or animation added to a wrapper later.
+- **Featured order is data, not an accident.** `vehicles.featured_rank` decides which featured
+  vehicle leads the homepage hero (1 first, then 2, …); unranked featured stock falls in behind
+  by recency. Previously the hero showed whichever unit happened to be listed last, which is a
+  decision nobody made. The dealership sets it from the vehicle form.
 - **One financing model.** `docs/Database.md` offered both `financing_rates` and
   `financing_terms`; using both would duplicate the same facts. Only `financing_rates` exists —
   one row per provider × term, optionally scoped to a vehicle, which is also how a

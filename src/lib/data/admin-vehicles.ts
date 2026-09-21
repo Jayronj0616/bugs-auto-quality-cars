@@ -31,6 +31,7 @@ export type AdminVehicleListItem = Pick<
   | 'selling_price'
   | 'promo_price'
   | 'is_featured'
+  | 'featured_rank'
   | 'is_promoted'
   | 'updated_at'
 > & {
@@ -65,7 +66,7 @@ export async function listAdminVehicles(
   let query = session.supabase
     .from('vehicles')
     .select(
-      'id, slug, brand, model, variant, year, status, condition, selling_price, promo_price, is_featured, is_promoted, updated_at, images:vehicle_images(url, alt_text, is_primary, sort_order)',
+      'id, slug, brand, model, variant, year, status, condition, selling_price, promo_price, is_featured, featured_rank, is_promoted, updated_at, images:vehicle_images(url, alt_text, is_primary, sort_order)',
       { count: 'exact' },
     )
 

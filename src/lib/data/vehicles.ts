@@ -305,6 +305,10 @@ export async function getFeaturedVehicles(
     .select(LIST_SELECT)
     .in('status', AVAILABLE_STATUSES)
     .eq('is_featured', true)
+    // The dealership's chosen order first - rank 1 is what the homepage hero
+    // shows. Anything left unranked falls in behind by recency, which is how
+    // featured stock was ordered before the rank existed.
+    .order('featured_rank', { ascending: true, nullsFirst: false })
     .order('published_at', { ascending: false, nullsFirst: false })
     .order('sort_order', { referencedTable: 'vehicle_images', ascending: true })
     .limit(limit)

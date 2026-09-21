@@ -110,6 +110,9 @@ export async function saveVehicle(
       default_term_months: values.defaultTermMonths,
       status: values.status,
       is_featured: values.isFeatured,
+      // Only meaningful while the vehicle is featured; clearing the checkbox
+      // drops the rank too, so it cannot resurface stale when re-featured.
+      featured_rank: values.isFeatured ? values.featuredRank : null,
       is_promoted: values.isPromoted,
       meta_title: values.metaTitle,
       meta_description: values.metaDescription,
@@ -248,6 +251,7 @@ export async function duplicateVehicle(
         slug: await uniqueSlug(session, `${source.slug}-copy`, null),
         status: 'draft',
         is_featured: false,
+        featured_rank: null,
         is_promoted: false,
         published_at: null,
         created_by: session.profile.id,

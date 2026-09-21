@@ -95,6 +95,7 @@ export const vehicleSchema = z
 
     status: enumFromOptions(VEHICLE_STATUSES).default('draft'),
     isFeatured: formBoolean,
+    featuredRank: optionalInteger(1, 999, 'featured order'),
     isPromoted: formBoolean,
 
     metaTitle: optionalText(160),

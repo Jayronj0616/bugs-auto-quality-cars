@@ -100,6 +100,7 @@ export function VehicleForm({ vehicle }: { vehicle?: AdminVehicleDetail | null }
       defaultTermMonths: text('defaultTermMonths'),
       status: text('status'),
       isFeatured: form.get('isFeatured') === 'on',
+      featuredRank: text('featuredRank'),
       isPromoted: form.get('isPromoted') === 'on',
       metaTitle: text('metaTitle'),
       metaDescription: text('metaDescription'),
@@ -523,6 +524,24 @@ export function VehicleForm({ vehicle }: { vehicle?: AdminVehicleDetail | null }
             hint="Featured vehicles lead the homepage and the inventory listing."
             defaultChecked={vehicle?.is_featured ?? false}
           />
+
+          <Field
+            label="Featured order"
+            error={fieldErrors.featuredRank}
+            description="1 is the vehicle shown first in the homepage hero, then 2, 3 and so on. Leave blank to order by newest listing."
+          >
+            <Input
+              name="featuredRank"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={999}
+              step="1"
+              defaultValue={vehicle?.featured_rank ?? ''}
+              placeholder="Newest first"
+              className="sm:max-w-xs"
+            />
+          </Field>
 
           <Checkbox
             name="isPromoted"

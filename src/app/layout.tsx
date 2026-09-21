@@ -46,9 +46,26 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={`${inter.variable} ${sora.variable} h-full antialiased`}>
-      {/* White is the 60% of the palette, so the page itself is white and
-          sections tint themselves where separation is actually wanted. */}
-      <body className="flex min-h-full flex-col bg-white text-ink-900">{children}</body>
+      {/*
+        White is the 60% of the palette, so the page itself is white and
+        sections tint themselves where separation is actually wanted.
+
+        `suppressHydrationWarning` is here for browser extensions, not for our
+        own markup. Grammarly and similar tools add attributes to <body>
+        (`data-gr-ext-installed`, `data-new-gr-c-s-check-loaded`) before React
+        hydrates, so the server HTML no longer matches the live DOM and React
+        reports a mismatch the application cannot fix.
+
+        It applies only to this element's own attributes and text - it does not
+        reach into children - so genuine hydration bugs anywhere in the app are
+        still reported normally.
+      */}
+      <body
+        suppressHydrationWarning
+        className="flex min-h-full flex-col bg-white text-ink-900"
+      >
+        {children}
+      </body>
     </html>
   )
 }
