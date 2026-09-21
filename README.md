@@ -23,30 +23,36 @@ crashing, so a fresh clone is immediately runnable.
 
 ### Bring up the database
 
-**Local (needs Docker Desktop running):**
+Create a project at [supabase.com](https://supabase.com), then copy its URL and keys from
+**Project Settings → API** into `.env.local`:
 
-```bash
-npm run db:start
+```
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
+SUPABASE_SERVICE_ROLE_KEY=<service role key>
 ```
 
-It prints `API URL`, `anon key` and `service_role key`. Copy those into `.env.local`, then load
-the schema and demo data:
+Link the project and push the schema:
 
 ```bash
-npm run db:reset
-```
-
-**Hosted Supabase project:**
-
-Put the project URL and keys in `.env.local`, link the project, then push the migrations:
-
-```bash
-npx supabase link --project-ref <your-project-ref>
+npx supabase link --project-ref <project-ref>
 npm run db:push
 ```
 
-`supabase/seed.sql` is development data only and is **not** part of the migration chain — it
-never runs against a hosted project unless you run it deliberately.
+`db:push` talks to the remote database directly — **no Docker required**.
+
+To load the demo inventory as well, paste `supabase/seed.sql` into the Supabase SQL editor and
+run it. That file is development data only and is deliberately **not** part of the migration
+chain, so it never reaches production by accident.
+
+<details>
+<summary>Optional: local stack (requires Docker)</summary>
+
+`npm run db:start` runs Postgres, Auth and Storage locally and prints keys to paste into
+`.env.local`; `npm run db:reset` then applies the migrations plus `seed.sql`. Only these two
+commands and `supabase db diff` need Docker.
+
+</details>
 
 ### Create the first admin
 

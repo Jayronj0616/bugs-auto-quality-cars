@@ -15,25 +15,27 @@ Living status of the implementation. Update as phases land.
 | ESLint | ✅ clean (`npm run lint`) |
 | Unit tests | ✅ 33 passing (`npm run test`) |
 | Production build | ✅ passing (`npm run build`) |
-| **Run against a real database** | ⛔ **not yet done — see [Blocked](#blocked-needs-a-decision)** |
+| **Run against a real database** | ⛔ **not yet done — see [Blocked](#blocked-needs-supabase-credentials)** |
 
-Everything so far is written against Supabase but has **not been executed against a live
+Phases 1–10 are code complete: the public site and the full admin dashboard are built.
+Everything is written against Supabase but has **not yet been executed against a live
 database**. The app is deliberately tolerant of a missing backend: it builds and renders a
 "Backend not configured" state instead of crashing, so the tree stays green until credentials
 exist.
 
 ---
 
-## Blocked: needs a decision
+## Blocked: needs Supabase credentials
 
-**Choose how to get a live Supabase**, then the migrations can be applied and every flow
-verified end to end:
+A **hosted Supabase project** is needed before the migrations can be applied and the flows
+verified end to end. No Docker involved — `supabase db push` connects to the remote database
+directly; only `supabase start` / `db reset` / `db diff` would need it.
 
-1. **Local stack (recommended)** — start Docker Desktop, then
-   `npm run db:start && npm run db:reset`. Full Postgres + Auth + Storage locally, loads the
-   seed data, needs no cloud account or secrets.
-2. **Hosted project** — supply a project URL + anon key + service-role key; they go in
-   `.env.local` (git-ignored) and `npm run db:push` applies the schema.
+1. Create a project at supabase.com.
+2. Put its URL, anon key and service-role key in `.env.local` (git-ignored).
+3. `npx supabase link --project-ref <ref>` then `npm run db:push`.
+4. Optionally paste `supabase/seed.sql` into the SQL editor for the demo inventory.
+5. `npm run create-admin` to create the first dashboard account.
 
 ### Also needed from the business (placeholders until then)
 
@@ -131,11 +133,65 @@ not configured; nothing fake is displayed.
 - Inquiry form (financing section appears only for installment/financing types) and test-drive
   form, both with per-field errors, loading/success states and reference numbers.
 
-### ⬜ Phase 6 — Admin authentication & dashboard
-### ⬜ Phase 7 — Vehicle CRUD + media management
-### ⬜ Phase 8 — Inquiry & test-drive management
-### ⬜ Phase 9 — Dealership settings + financing configuration
-### ⬜ Phase 10 — Remaining public pages (`/financing`, `/about`, `/contact`), sitemap, robots
+### ✅ Phase 6 — Admin authentication & dashboard
+
+- Sign-in as a Server Action, so the form works before hydration. A correct password is not
+  enough: the account must also have an **active `admin_users` row**, or it is signed straight
+  back out. Failure messages are deliberately vague to prevent account enumeration.
+- Open-redirect guard on the post-login `next` parameter.
+- Three-layer protection: `proxy.ts` (is there a session?) → admin layout (is this an active
+  admin, and what may they do?) → RLS (final word on every row).
+- Dashboard with role-filtered navigation, capability-gated stats and panels, and prompts for
+  unconfigured contact details or unpublished drafts.
+- **Bug found and fixed:** `/admin/vehicles` was being prerendered as a *static 307 redirect*
+  to the login page, which would have bounced authenticated admins. The admin segment is now
+  explicitly `force-dynamic`.
+
+### ✅ Phase 7 — Vehicle CRUD + media management
+
+- Full create/edit form in labelled sections, with a live slug preview and server-side slug
+  uniqueness (`-2`, `-3`…) on top of the unique index.
+- Status transitions, publish/unpublish, mark reserved/sold, archive with confirmation, and
+  duplicate-as-draft (copies specs and videos, deliberately **not** photos — shared storage
+  objects would let deleting one listing's photo break another).
+- Photo upload through a **Route Handler**, because Server Action bodies are capped at 1MB.
+  Validates size, MIME type *and* magic bytes, rolls the storage object back if the row insert
+  fails, and never exposes a storage credential to the browser.
+- Reorder by drag or keyboard, set the main photo, per-photo alt text and category, delete
+  (removes the storage object too).
+- Video management for external providers, plus free-form specification rows.
+
+### ✅ Phase 8 — Inquiry & test-drive management
+
+- Filterable lists with status tabs, counts, and search across name, phone, email, reference
+  and vehicle.
+- Inquiry detail: message, the financing snapshot, the linked vehicle, and a status pipeline
+  with optimistic updates.
+- Test drive detail: requested vs confirmed slot, with confirming/rescheduling *requiring* an
+  actual date and time — enforced in the client, in Zod on the server, and surfaced in the UI.
+- Append-only internal notes on both, never exposed publicly.
+
+### ✅ Phase 9 — Dealership settings + financing configuration
+
+- One settings screen driving the entire public site: contact channels, address, Google Maps,
+  business hours, branding, financing defaults and the disclaimer. Saving revalidates
+  site-wide.
+- Logo/hero upload via a `settings`-scoped route handler; the URL is held in form state so an
+  upload can be previewed and still abandoned.
+- Financing providers and per-term rates, including **vehicle-specific override rates** for
+  manufacturer promos, which the public calculator prefers over the general rate.
+
+### ✅ Phase 10 — Remaining public pages, SEO, admin accounts
+
+- `/financing` (standalone calculator, configured providers, how-it-works FAQ), `/about`
+  (built from the dealership's own settings), `/contact` (every configured channel, hours,
+  embedded map, working inquiry form).
+- `sitemap.xml` generated from published inventory; `robots.txt` disallowing `/admin` and
+  `/api`.
+- Admin user management for `super_admin`, with a guard against removing your own access.
+- `npm run create-admin` bootstraps the first account server-side — no public sign-up, and the
+  service-role key never leaves the machine.
+
 ### ⬜ Phase 11 — Responsive QA at all listed breakpoints, a11y pass, performance pass
 ### ⬜ Phase 12 — End-to-end verification against a live database, final polish
 
@@ -149,22 +205,21 @@ npm run check      # typecheck + lint + test
 npm run dev
 ```
 
-The app runs without Supabase and shows a setup notice. To bring the backend up:
+The app runs without Supabase and shows a setup notice. To connect the backend:
 
 ```bash
-cp .env.example .env.local
-npm run db:start   # needs Docker Desktop running
-npm run db:reset   # applies migrations + seed
+cp .env.example .env.local        # then fill in the Supabase URL and keys
+npx supabase link --project-ref <ref>
+npm run db:push                   # applies the migrations to the hosted project
+npm run create-admin              # creates the first dashboard account
 ```
 
-`npm run db:start` prints the local URL, anon key and service-role key to paste into
-`.env.local`.
+### Next thing to do
 
-### Next thing to build
-
-`src/app/admin/login/page.tsx` + the admin layout shell (`src/app/admin/(dashboard)/layout.tsx`).
-`src/lib/auth.ts` is already written and provides `requireAdmin` / `requireCapability` /
-`authorizeAction`; the admin pages just need to consume it.
+Apply the schema to a hosted project, then work through the acceptance checklist against real
+data: publish a vehicle from the dashboard and confirm it reaches `/cars`, submit an inquiry and
+confirm it lands in the dashboard, upload and reorder photos, and confirm a `sales` role cannot
+reach `/admin/vehicles` while a `content_manager` cannot read customer details.
 
 ---
 
