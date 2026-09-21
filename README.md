@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BUGS Auto Quality Cars
 
-## Getting Started
+Dealership platform: a public storefront for browsing vehicles, estimating payments and
+sending inquiries, plus an admin dashboard for managing inventory, media, financing, customer
+inquiries and dealership information.
 
-First, run the development server:
+**Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Supabase (Postgres, Auth, Storage)**
+
+Build status and what is left to do: **[`docs/PROGRESS.md`](docs/PROGRESS.md)**
+
+---
+
+## Getting started
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app runs without Supabase — it shows a "Backend not configured" notice instead of
+crashing, so a fresh clone is immediately runnable.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Bring up the database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Local (needs Docker Desktop running):**
 
-## Learn More
+```bash
+npm run db:start
+```
 
-To learn more about Next.js, take a look at the following resources:
+It prints `API URL`, `anon key` and `service_role key`. Copy those into `.env.local`, then load
+the schema and demo data:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run db:reset
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Hosted Supabase project:**
 
-## Deploy on Vercel
+Put the project URL and keys in `.env.local`, link the project, then push the migrations:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npx supabase link --project-ref <your-project-ref>
+npm run db:push
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`supabase/seed.sql` is development data only and is **not** part of the migration chain — it
+never runs against a hosted project unless you run it deliberately.
+
+### Create the first admin
+
+Admin accounts are provisioned deliberately; there is no public signup. Set
+`ADMIN_BOOTSTRAP_*` in `.env.local` and run:
+
+```bash
+npm run create-admin
+```
+
+---
+
+## Scripts
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run check` | Typecheck + lint + tests |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint |
+| `npm run test` | Vitest |
+| `npm run db:start` / `db:stop` | Local Supabase stack |
+| `npm run db:reset` | Recreate the local database from migrations + seed |
+| `npm run db:push` | Apply migrations to the linked project |
+| `npm run db:types` | Regenerate `src/types/database.generated.ts` |
+
+---
+
+## Layout
+
+```
+docs/                      Product, flow, UI and database specs, plus PROGRESS.md
+supabase/
+  migrations/              Schema, RLS policies, storage, settings bootstrap
+  seed.sql                 Development demo data (never run in production)
+src/
+  app/
+    (public)/              Storefront: home, inventory, vehicle detail, contact…
+    admin/                 Protected dashboard
+  components/
+    ui/                    Design-system primitives
+    layout/                Header, footer, navigation
+    vehicles/              Cards, gallery, filters, specifications
+    financing/             Installment calculator
+    forms/                 Inquiry and test-drive forms
+  lib/
+    supabase/              Browser / server / public / service-role clients
+    data/                  Read layer (vehicles, settings, financing)
+    actions/               Server Actions
+    validation/            Zod schemas shared by client and server
+    financing/             Amortisation maths (+ tests)
+    pricing.ts             The single rule for which price is displayed (+ tests)
+  types/database.ts        Typed schema
+```
+
+---
+
+## Security model
+
+Three layers, each independently sufficient to deny:
+
+| Layer | Answers |
+|---|---|
+| `src/proxy.ts` | Is there a valid session at all? |
+| `src/lib/auth.ts` | Is this user an *active admin*, and what may they do? |
+| Postgres RLS | The final word on every row |
+
+- Anonymous visitors can read published vehicles, their media, active financing configuration
+  and dealership settings. They have **no INSERT policy on any table**.
+- Customer submissions are written server-side with the service-role key *after* Zod
+  validation and rate limiting, so the public key cannot be used to bypass either.
+- `SUPABASE_SERVICE_ROLE_KEY` is never prefixed with `NEXT_PUBLIC_` and is only imported by
+  modules marked `server-only`.
+- Customer contact details, inquiries and internal notes are readable only by admins with the
+  `crm` capability. `activity_logs` is append-only — nobody can edit or erase their own trail.
+
+---
+
+## Dealership information
+
+Phone, email, Facebook, address, Google Maps link, business hours and the financing disclaimer
+all come from the single `dealership_settings` row and are edited at `/admin/settings`. Nothing
+is hard-coded in components, so changing the phone number updates the header, footer, contact
+page, vehicle CTAs and mobile action bar at once.
+
+Values that have not been supplied yet are left **null**, and the UI omits them rather than
+displaying a plausible-looking placeholder.

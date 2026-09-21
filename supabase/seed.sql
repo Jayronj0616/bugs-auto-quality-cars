@@ -268,7 +268,7 @@ insert into public.inquiries (
   'INQ-DEMO01','Marisol Ventura','marisol.ventura@example.com','+63 917 555 0142',
   '5ee1a001-0000-4000-8000-000000000001','2026 BYD Seal 5 DM-i Dynamic',
   'installment','Good day! I am interested in the Seal 5 DM-i. Is the 20% down payment negotiable, and do you have a unit in white available this month?',
-  'phone', 948000, 189600, 20, 60, 7.50, 15196.38,
+  'phone', 948000, 189600, 20, 60, 7.50, 15196.78,
   'f1a0c1a1-0000-4000-8000-000000000001','new','/cars/byd-seal-5-dm-i-dynamic-2026', now() - interval '4 hours'
 ),
 (

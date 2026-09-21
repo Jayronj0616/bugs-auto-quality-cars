@@ -7,10 +7,17 @@ import { cn } from '@/lib/utils'
 /**
  * Scroll reveal.
  *
- * Deliberately tiny: one IntersectionObserver per element, unobserved after it
- * fires, and no animation library. Content is visible by default in CSS, so it
- * is never hidden if JavaScript fails, and `prefers-reduced-motion` short
- * circuits the whole thing (see the `.reveal` utility in globals.css).
+ * Deliberately tiny: one IntersectionObserver per element, disconnected after
+ * it fires, and no animation library.
+ *
+ * The reveal flag is written straight to the DOM rather than held in React
+ * state. The animation is a visual side effect on an element we already have a
+ * ref to, so there is nothing for React to re-render - and it avoids a state
+ * update per element as the visitor scrolls a long inventory page.
+ *
+ * Content is visible by default in CSS, so it is never hidden if JavaScript
+ * fails, and `prefers-reduced-motion` short-circuits the whole thing (see the
+ * `.reveal` utility in globals.css).
  */
 export function Reveal({
   as: Component = 'div',
@@ -24,25 +31,28 @@ export function Reveal({
   delay?: number
 }) {
   const ref = React.useRef<HTMLElement>(null)
-  const [revealed, setRevealed] = React.useState(false)
   const Tag = Component as React.ElementType
 
   React.useEffect(() => {
     const element = ref.current
     if (!element) return
 
+    const reveal = () => {
+      element.dataset.revealed = 'true'
+    }
+
     if (
       typeof IntersectionObserver === 'undefined' ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ) {
-      setRevealed(true)
+      reveal()
       return
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setRevealed(true)
+        if (entry?.isIntersecting) {
+          reveal()
           observer.disconnect()
         }
       },
@@ -56,7 +66,7 @@ export function Reveal({
   return (
     <Tag
       ref={ref}
-      data-revealed={revealed}
+      data-revealed="false"
       className={cn('reveal', className)}
       style={delay ? { transitionDelay: `${delay}ms` } : undefined}
       {...props}

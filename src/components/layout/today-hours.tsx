@@ -1,9 +1,9 @@
 'use client'
 
-import * as React from 'react'
 import { Clock } from 'lucide-react'
 
 import { formatTime } from '@/lib/format'
+import { useIsHydrated } from '@/lib/hooks'
 import type { BusinessHour } from '@/types/database'
 
 const DAY_KEYS: BusinessHour['day'][] = [
@@ -19,9 +19,9 @@ const DAY_KEYS: BusinessHour['day'][] = [
 /**
  * "Open today 8:00 AM – 6:00 PM".
  *
- * Computed in the browser on purpose. Storefront pages are statically rendered
- * with ISR, so "today" resolved on the server would be frozen at build time and
- * could tell a Sunday visitor the Friday hours.
+ * Resolved in the browser on purpose. Storefront pages are statically rendered
+ * with ISR, so a "today" computed on the server would be frozen at build time
+ * and could show a Sunday visitor the Friday hours.
  */
 export function TodayHours({
   hours,
@@ -30,21 +30,17 @@ export function TodayHours({
   hours: BusinessHour[]
   className?: string
 }) {
-  const [label, setLabel] = React.useState<string | null>(null)
+  const hydrated = useIsHydrated()
 
-  React.useEffect(() => {
-    if (hours.length === 0) return
+  if (!hydrated || hours.length === 0) return null
 
-    const today = DAY_KEYS[new Date().getDay()]
-    const entry = hours.find((hour) => hour.day === today)
-    if (!entry) return
+  const today = DAY_KEYS[new Date().getDay()]
+  const entry = hours.find((hour) => hour.day === today)
+  if (!entry) return null
 
-    setLabel(entry.closed ? 'Closed today' : `Open today ${formatTime(entry.open)} – ${formatTime(entry.close)}`)
-  }, [hours])
-
-  // Renders nothing on the server and until the effect runs, so there is no
-  // hydration mismatch and no layout jump beyond one short line.
-  if (!label) return null
+  const label = entry.closed
+    ? 'Closed today'
+    : `Open today ${formatTime(entry.open)} – ${formatTime(entry.close)}`
 
   return (
     <span className={className}>

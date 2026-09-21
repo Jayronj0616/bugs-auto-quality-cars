@@ -25,14 +25,20 @@ export type MobileContact = {
  * behind on the page underneath.
  */
 export function MobileNav({ links, contact }: { links: NavLink[]; contact: MobileContact }) {
-  const [open, setOpen] = React.useState(false)
   const pathname = usePathname()
   const panelRef = React.useRef<HTMLDivElement>(null)
   const triggerRef = React.useRef<HTMLButtonElement>(null)
 
-  React.useEffect(() => {
-    setOpen(false)
-  }, [pathname])
+  // The drawer is derived from "which page was open when it was opened", so a
+  // navigation closes it automatically - no effect watching the pathname, and
+  // no window where the drawer lingers over the new page.
+  const [openedOn, setOpenedOn] = React.useState<string | null>(null)
+  const open = openedOn === pathname
+
+  const setOpen = React.useCallback(
+    (next: boolean) => setOpenedOn(next ? pathname : null),
+    [pathname],
+  )
 
   React.useEffect(() => {
     if (!open) return
@@ -52,7 +58,7 @@ export function MobileNav({ links, contact }: { links: NavLink[]; contact: Mobil
       document.removeEventListener('keydown', onKeyDown)
       document.body.style.overflow = ''
     }
-  }, [open])
+  }, [open, setOpen])
 
   return (
     <>
