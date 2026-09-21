@@ -15,27 +15,33 @@ Living status of the implementation. Update as phases land.
 | ESLint | ✅ clean (`npm run lint`) |
 | Unit tests | ✅ 33 passing (`npm run test`) |
 | Production build | ✅ passing (`npm run build`) |
-| **Run against a real database** | ⛔ **not yet done — see [Blocked](#blocked-needs-supabase-credentials)** |
+| **Run against a real database** | ✅ live on a hosted Supabase project (`npm run db:verify`) |
 
-Phases 1–10 are code complete: the public site and the full admin dashboard are built.
-Everything is written against Supabase but has **not yet been executed against a live
-database**. The app is deliberately tolerant of a missing backend: it builds and renders a
-"Backend not configured" state instead of crashing, so the tree stays green until credentials
-exist.
+Phases 1–10 are code complete and the system now runs against a live hosted Supabase
+project. The customer-to-dashboard loop has been walked end to end with real data:
+a vehicle created and published in the dashboard appears on `/cars` with a correct monthly
+estimate, and an inquiry submitted from its detail page arrives in the dashboard with the
+vehicle attached.
+
+The app also stays runnable without a backend — it renders a "Backend not configured" state
+rather than crashing — so a fresh clone builds green before any credentials exist.
 
 ---
 
-## Blocked: needs Supabase credentials
+## Setup
 
-A **hosted Supabase project** is needed before the migrations can be applied and the flows
-verified end to end. No Docker involved — `supabase db push` connects to the remote database
-directly; only `supabase start` / `db reset` / `db diff` would need it.
+The project is connected. To reproduce it elsewhere:
 
-1. Create a project at supabase.com.
-2. Put its URL, anon key and service-role key in `.env.local` (git-ignored).
-3. `npx supabase link --project-ref <ref>` then `npm run db:push`.
-4. Optionally paste `supabase/seed.sql` into the SQL editor for the demo inventory.
-5. `npm run create-admin` to create the first dashboard account.
+1. Create a project at supabase.com and put its URL, anon key and service-role key in
+   `.env.local`.
+2. Apply the schema, either by pushing (`npx supabase link --project-ref <ref>` then
+   `npm run db:push`) or by pasting `supabase/setup.sql` into the SQL editor.
+3. `npm run db:bootstrap` — creates the storage bucket and settings row.
+4. `npm run create-admin` — provisions the first dashboard account.
+5. `npm run db:verify` — confirms schema, storage and, most importantly, that anonymous
+   access is genuinely restricted.
+
+No Docker at any point: `db push` connects to the database directly.
 
 ### Also needed from the business (placeholders until then)
 
@@ -192,8 +198,36 @@ not configured; nothing fake is displayed.
 - `npm run create-admin` bootstraps the first account server-side — no public sign-up, and the
   service-role key never leaves the machine.
 
-### ⬜ Phase 11 — Responsive QA at all listed breakpoints, a11y pass, performance pass
-### ⬜ Phase 12 — End-to-end verification against a live database, final polish
+### 🟡 Phase 11 — Responsive, accessibility and performance
+
+Done:
+- Palette rebuilt on 60-30-10 (white 60 / brand teal 30 / warm amber 10).
+- Contrast measured in-browser rather than eyeballed, which caught `text-ink-500`
+  failing AA at 4.1:1 across 91 usages, and white-on-amber buttons at 2.9:1. The neutral
+  ramp was retuned and amber fills now carry dark text.
+- Automated contrast audit run over `/`, `/cars`, `/financing` and `/contact`: clean.
+
+Outstanding:
+- Sweep the remaining breakpoints from the UI spec (1920 / 1440 / 1280 / 1024 / 768 / 430 /
+  390 / 375), especially the admin tables and the vehicle gallery.
+- Keyboard-only pass over the gallery, modals and the mobile drawer.
+- Lighthouse pass once real photography is in.
+
+### 🟡 Phase 12 — End-to-end verification
+
+Verified against the live database:
+- Admin sign-in, dashboard, vehicle create + publish
+- Published vehicle reaching `/cars` and its detail page, with a correct monthly estimate
+- Inquiry submitted from the vehicle page arriving in the dashboard, vehicle attached
+- RLS: anon reads published vehicles, sees no rows in `inquiries` / `test_drive_requests` /
+  `admin_notes`, and is refused on insert with `42501`
+
+Still to exercise:
+- Photo upload, reorder and primary selection (needs real image files)
+- Test-drive booking and its confirm/reschedule workflow
+- Settings save propagating to the public header, footer and contact page
+- Financing provider and rate configuration feeding the calculator
+- Role enforcement for `sales` and `content_manager` accounts
 
 ---
 
