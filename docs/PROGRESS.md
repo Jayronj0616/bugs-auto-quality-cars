@@ -2,7 +2,7 @@
 
 Living status of the implementation. Update as phases land.
 
-**Last updated:** 2026-09-21
+**Last updated:** 2026-09-21 (live with real inventory)
 **Stack:** Next.js 16.3.5 (App Router) · React 19.2 · TypeScript · Tailwind v4 · Supabase (Postgres + Auth + Storage)
 
 ---
@@ -13,7 +13,7 @@ Living status of the implementation. Update as phases land.
 |---|---|
 | TypeScript | ✅ clean (`npm run typecheck`) |
 | ESLint | ✅ clean (`npm run lint`) |
-| Unit tests | ✅ 33 passing (`npm run test`) |
+| Unit tests | ✅ 49 passing (`npm run test`) |
 | Production build | ✅ passing (`npm run build`) |
 | **Run against a real database** | ✅ live on a hosted Supabase project (`npm run db:verify`) |
 
@@ -28,32 +28,43 @@ rather than crashing — so a fresh clone builds green before any credentials ex
 
 ---
 
-## Setup
+## Live status
 
-The project is connected. To reproduce it elsewhere:
+Connected to a hosted Supabase project (`ap-southeast-2`) with the dealership's real data:
 
-1. Create a project at supabase.com and put its URL, anon key and service-role key in
-   `.env.local`.
-2. Apply the schema, either by pushing (`npx supabase link --project-ref <ref>` then
-   `npm run db:push`) or by pasting `supabase/setup.sql` into the SQL editor.
-3. `npm run db:bootstrap` — creates the storage bucket and settings row.
-4. `npm run create-admin` — provisions the first dashboard account.
-5. `npm run db:verify` — confirms schema, storage and, most importantly, that anonymous
-   access is genuinely restricted.
+- **5 vehicles published** — Hyundai H350, Chevrolet Camaro RS, Ford Territory, Ford Ranger
+  Sport, FKM Slick 400 — with 72 of their own photographs and 4 walkaround videos.
+- **JACCS financing** configured per vehicle. The quoted monthlies are stored verbatim as
+  specifications, and per-vehicle rates are derived so the on-site calculator reproduces each
+  quote to within a few pesos.
+- **Contact details** applied: both phone numbers, Plaridel/Bulacan location, logo.
+- `npm run db:verify` passes, including that anonymous visitors cannot read customer data or
+  write to any table.
+
+### Reproducing the setup elsewhere
+
+```bash
+cp .env.example .env.local          # then fill in the Supabase URL and keys
+npx supabase link --project-ref <ref>
+npm run db:push                     # schema, RLS, storage, settings row
+npm run db:bootstrap                # bucket + settings singleton
+npm run create-admin                # first dashboard account
+npm run db:verify                   # confirm, including that RLS actually bites
+```
 
 No Docker at any point: `db push` connects to the database directly.
 
-### Also needed from the business (placeholders until then)
+### Still to supply
 
-These are intentionally left **unset** rather than invented. The public site omits whatever is
-not configured; nothing fake is displayed.
+Left **unset** rather than invented — the site omits whatever is not configured:
 
-- Phone number, email address, Facebook Page URL
-- Street address + Google Maps link
-- Logo file
-- Real financing partners and their actual rates/terms (the seeded banks are **illustrative
-  samples**, clearly labelled as such in `supabase/seed.sql`)
-- Confirmation that the seeded business hours (Mon–Fri 8–6, Sat 9–5, Sun closed) are correct
+- Email address
+- Facebook Page URL
+- Exact street address and a Google Maps link (only "Near Sta. Rita Exit from NLEX,
+  Plaridel, Bulacan" is recorded)
+- Confirmation that the default business hours (Mon–Fri 8–6, Sat 9–5, Sun closed) are correct
+
+All editable at `/admin/settings`.
 
 ---
 
