@@ -261,3 +261,33 @@ create policy activity_logs_admin_read on public.activity_logs
 create policy activity_logs_admin_append on public.activity_logs
   for insert to authenticated
   with check (public.is_active_admin() and admin_user_id = (select auth.uid()));
+
+-- -----------------------------------------------------------------------------
+-- Table privileges.
+--
+-- RLS filters *rows*; a GRANT is what makes a table visible to a role at all.
+-- Supabase normally applies these through default privileges, but that only
+-- covers tables created after those defaults were set - so they are stated
+-- explicitly here rather than assumed. Without them PostgREST reports
+-- "Could not find the table in the schema cache" for anon, and the storefront
+-- renders as though the inventory were empty.
+--
+-- Granting broadly is safe precisely because RLS is enabled on every table:
+-- anon holds SELECT on `inquiries`, for instance, but no policy matches it, so
+-- it reads zero rows.
+-- -----------------------------------------------------------------------------
+grant usage on schema public to anon, authenticated, service_role;
+
+grant select on all tables in schema public to anon;
+grant select, insert, update, delete on all tables in schema public to authenticated;
+grant all on all tables in schema public to service_role;
+
+grant usage, select on all sequences in schema public to anon, authenticated, service_role;
+
+-- Anything added later inherits the same shape.
+alter default privileges in schema public
+  grant select on tables to anon;
+alter default privileges in schema public
+  grant select, insert, update, delete on tables to authenticated;
+alter default privileges in schema public
+  grant all on tables to service_role;
