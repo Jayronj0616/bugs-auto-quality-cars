@@ -64,6 +64,8 @@ export const BODY_TYPES: Option<BodyType>[] = [
   option('convertible', 'Convertible'),
   option('wagon', 'Wagon'),
   option('truck', 'Truck'),
+  option('motorcycle', 'Motorcycle'),
+  option('scooter', 'Scooter'),
   option('other', 'Other'),
 ]
 

@@ -10,6 +10,7 @@ import {
   type SortOption,
 } from '@/lib/constants'
 import { estimateMonthlyPayment } from '@/lib/financing/calculator'
+import { getVehicleRates, pickVehicleRate, type VehicleRate } from '@/lib/data/financing'
 import { resolvePricing, type VehiclePricing } from '@/lib/pricing'
 import { createPublicSupabaseClient } from '@/lib/supabase/server'
 import type {
@@ -96,6 +97,7 @@ export function vehicleTitle(vehicle: Pick<VehicleRow, 'year' | 'brand' | 'model
 function decorate(
   row: VehicleRow & { images?: VehicleImageRow[] | null },
   defaults: FinancingDefaults,
+  vehicleRates?: Map<string, VehicleRate[]>,
 ): VehicleSummary {
   const images = [...(row.images ?? [])].sort((a, b) => {
     if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1
@@ -104,11 +106,21 @@ function decorate(
   })
 
   const pricing = resolvePricing(row)
+
+  // A rate configured for this specific vehicle beats the dealership default.
+  // Without it the card can quote a monthly payment well below what the
+  // financing provider actually offers on that unit.
+  const termMonths = row.default_term_months ?? defaults.termMonths
+  const vehicleRate = pickVehicleRate(vehicleRates?.get(row.id), termMonths)
+
   const monthly = estimateMonthlyPayment({
     vehiclePrice: pricing.price,
-    downPaymentPercent: row.default_down_payment_percent ?? defaults.downPaymentPercent,
-    termMonths: row.default_term_months ?? defaults.termMonths,
-    annualInterestRate: defaults.interestRate,
+    downPaymentPercent:
+      row.default_down_payment_percent ??
+      vehicleRate?.minimumDownPaymentPercent ??
+      defaults.downPaymentPercent,
+    termMonths,
+    annualInterestRate: vehicleRate?.interestRate ?? defaults.interestRate,
   })
 
   return {
@@ -232,8 +244,11 @@ export async function listVehicles(
   }
 
   const total = count ?? 0
+  const rows = (data ?? []) as (VehicleRow & { images: VehicleImageRow[] })[]
+  const vehicleRates = await getVehicleRates(rows.map((row) => row.id))
+
   return {
-    vehicles: (data ?? []).map((row) => decorate(row as VehicleRow & { images: VehicleImageRow[] }, defaults)),
+    vehicles: rows.map((row) => decorate(row, defaults, vehicleRates)),
     total,
     page,
     perPage,
@@ -266,8 +281,10 @@ export const getVehicleBySlug = cache(
       specifications: VehicleSpecificationRow[]
     }
 
+    const vehicleRates = await getVehicleRates([row.id])
+
     return {
-      ...decorate(row, defaults),
+      ...decorate(row, defaults, vehicleRates),
       videos: [...(row.videos ?? [])].sort((a, b) => a.sort_order - b.sort_order),
       specifications: [...(row.specifications ?? [])].sort(
         (a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name),
@@ -297,7 +314,9 @@ export async function getFeaturedVehicles(
     return []
   }
 
-  return (data ?? []).map((row) => decorate(row as VehicleRow & { images: VehicleImageRow[] }, defaults))
+  const rows = (data ?? []) as (VehicleRow & { images: VehicleImageRow[] })[]
+  const vehicleRates = await getVehicleRates(rows.map((row) => row.id))
+  return rows.map((row) => decorate(row, defaults, vehicleRates))
 }
 
 export async function getLatestVehicles(
@@ -320,7 +339,9 @@ export async function getLatestVehicles(
     return []
   }
 
-  return (data ?? []).map((row) => decorate(row as VehicleRow & { images: VehicleImageRow[] }, defaults))
+  const rows = (data ?? []) as (VehicleRow & { images: VehicleImageRow[] })[]
+  const vehicleRates = await getVehicleRates(rows.map((row) => row.id))
+  return rows.map((row) => decorate(row, defaults, vehicleRates))
 }
 
 /**
@@ -337,11 +358,14 @@ export async function getRelatedVehicles(
 
   const collected = new Map<string, VehicleSummary>()
 
+  const pending: (VehicleRow & { images: VehicleImageRow[] })[] = []
+
   const push = (rows: unknown[] | null) => {
     for (const row of (rows ?? []) as (VehicleRow & { images: VehicleImageRow[] })[]) {
-      if (collected.size >= limit) break
+      if (collected.size + pending.length >= limit) break
       if (row.id === vehicle.id || collected.has(row.id)) continue
-      collected.set(row.id, decorate(row, defaults))
+      if (pending.some((queued) => queued.id === row.id)) continue
+      pending.push(row)
     }
   }
 
@@ -368,6 +392,9 @@ export async function getRelatedVehicles(
       .limit(limit * 2)
     push(data)
   }
+
+  const vehicleRates = await getVehicleRates(pending.map((row) => row.id))
+  for (const row of pending) collected.set(row.id, decorate(row, defaults, vehicleRates))
 
   return [...collected.values()]
 }

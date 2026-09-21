@@ -44,7 +44,7 @@ export function VehicleCard({
   return (
     <article
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-card border border-ink-200 bg-white shadow-card transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-card-hover',
+        'group lift relative flex flex-col overflow-hidden rounded-card border border-ink-200 bg-white shadow-card hover:border-ink-300 hover:shadow-card-hover',
         className,
       )}
     >
@@ -58,7 +58,7 @@ export function VehicleCard({
             priority={priority}
             loading={priority ? undefined : 'lazy'}
             className={cn(
-              'object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]',
+              'object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.06]',
               isUnavailable && 'opacity-70 grayscale',
             )}
           />
@@ -119,8 +119,14 @@ export function VehicleCard({
           </ul>
         ) : null}
 
-        <p className="mt-4 text-sm font-semibold text-accent-700 transition-colors group-hover:text-accent-800">
-          View vehicle →
+        <p className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-700 transition-colors group-hover:text-accent-800">
+          View vehicle
+          <span
+            aria-hidden="true"
+            className="transition-transform duration-300 group-hover:translate-x-1"
+          >
+            →
+          </span>
         </p>
       </div>
     </article>

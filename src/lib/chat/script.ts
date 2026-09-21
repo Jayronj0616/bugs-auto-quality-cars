@@ -31,6 +31,9 @@ export type ChatVehicle = {
   seatingCapacity: number | null
   engine: string | null
   hasPhotos: boolean
+  /** The terms this vehicle's monthly figure was actually calculated from. */
+  downPaymentPercent: number
+  termMonths: number
 }
 
 export type ChatContext = {
@@ -370,7 +373,8 @@ export const VEHICLE_QUESTIONS: ChatQuestion[] = [
         }
       }
 
-      const { downPaymentPercent, termMonths } = context.financing
+      // The vehicle's own terms, so the sentence matches the figure.
+      const { downPaymentPercent, termMonths } = vehicle
       const downPayment = (vehicle.price * downPaymentPercent) / 100
 
       return {

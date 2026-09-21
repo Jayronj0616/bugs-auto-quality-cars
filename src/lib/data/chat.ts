@@ -2,7 +2,12 @@ import 'server-only'
 
 import { cache } from 'react'
 
-import { defaultsFromSettings, getFinancingProviders } from '@/lib/data/financing'
+import {
+  defaultsFromSettings,
+  getFinancingProviders,
+  getVehicleRates,
+  pickVehicleRate,
+} from '@/lib/data/financing'
 import { formatAddress, getDealershipSettings } from '@/lib/data/settings'
 import { estimateMonthlyPayment } from '@/lib/financing/calculator'
 import { resolvePricing } from '@/lib/pricing'
@@ -67,6 +72,8 @@ export const getChatContext = cache(async (): Promise<ChatContext> => {
     vehicle_images: { id: string }[] | null
   })[]
 
+  const vehicleRates = await getVehicleRates(rows.map((row) => row.id as string))
+
   const vehicles: ChatVehicle[] = rows.map((row) => {
     const pricing = resolvePricing({
       srp: row.srp as number | null,
@@ -77,12 +84,20 @@ export const getChatContext = cache(async (): Promise<ChatContext> => {
       promo_ends_at: row.promo_ends_at as string | null,
     })
 
+    // Quote the rate configured for this unit, not the dealership's generic
+    // default - the assistant must not undercut the real financing offer.
+    const termMonths = (row.default_term_months as number | null) ?? defaults.termMonths
+    const vehicleRate = pickVehicleRate(vehicleRates.get(row.id as string), termMonths)
+    const downPaymentPercent =
+      (row.default_down_payment_percent as number | null) ??
+      vehicleRate?.minimumDownPaymentPercent ??
+      defaults.downPaymentPercent
+
     const monthly = estimateMonthlyPayment({
       vehiclePrice: pricing.price,
-      downPaymentPercent:
-        (row.default_down_payment_percent as number | null) ?? defaults.downPaymentPercent,
-      termMonths: (row.default_term_months as number | null) ?? defaults.termMonths,
-      annualInterestRate: defaults.interestRate,
+      downPaymentPercent,
+      termMonths,
+      annualInterestRate: vehicleRate?.interestRate ?? defaults.interestRate,
     })
 
     return {
@@ -102,6 +117,8 @@ export const getChatContext = cache(async (): Promise<ChatContext> => {
       seatingCapacity: (row.seating_capacity as number | null) ?? null,
       engine: (row.engine as string | null) ?? null,
       hasPhotos: (row.vehicle_images?.length ?? 0) > 0,
+      downPaymentPercent,
+      termMonths,
     }
   })
 

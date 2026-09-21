@@ -56,11 +56,25 @@ function VideoCard({
 }) {
   const embedUrl = toEmbedUrl(video)
   const thumbnail = video.thumbnail_url ?? youtubeThumbnail(video)
+  // Videos the dealership uploaded themselves are served straight from storage,
+  // so they get a native player rather than a third-party embed.
+  const isSelfHosted = video.provider === 'file'
 
   return (
     <figure className="overflow-hidden rounded-card border border-ink-200 bg-white shadow-card">
       <div className="relative aspect-video bg-brand-800">
-        {isPlaying && embedUrl ? (
+        {isSelfHosted ? (
+          <video
+            src={video.video_url}
+            poster={thumbnail ?? undefined}
+            controls
+            playsInline
+            preload="none"
+            className="absolute inset-0 size-full bg-brand-900 object-contain"
+          >
+            <a href={video.video_url}>Download the video</a>
+          </video>
+        ) : isPlaying && embedUrl ? (
           <iframe
             src={embedUrl}
             title={video.title}

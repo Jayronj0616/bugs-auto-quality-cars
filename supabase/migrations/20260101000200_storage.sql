@@ -20,7 +20,7 @@ values (
   'vehicle-media',
   'vehicle-media',
   true,
-  15728640, -- 15 MB
+  62914560, -- 60 MB
   array['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'video/mp4', 'video/webm']
 )
 on conflict (id) do update

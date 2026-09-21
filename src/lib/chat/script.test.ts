@@ -33,6 +33,8 @@ const vehicle = (overrides: Partial<ChatVehicle> = {}): ChatVehicle => ({
   seatingCapacity: 5,
   engine: '1.3L Dual VVT-i',
   hasPhotos: true,
+  downPaymentPercent: 20,
+  termMonths: 60,
   ...overrides,
 })
 

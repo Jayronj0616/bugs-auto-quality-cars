@@ -111,6 +111,7 @@
   --animate-scale-in: scale-in 0.2s var(--ease-out-quint) both;
   --animate-slide-in-right: slide-in-right 0.25s var(--ease-out-quint) both;
   --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-attention: attention 2.4s var(--ease-out-quint) 1.5s 2;
 }
 
 @keyframes fade-up {
@@ -159,6 +160,24 @@
   }
   to {
     background-position: 200% 0;
+  }
+}
+
+/*
+ * A single soft pulse to make the chat launcher noticeable once, shortly after
+ * the page settles. It runs twice and stops - a permanently animating element
+ * in the corner of every page is a distraction, not an invitation.
+ */
+@keyframes attention {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(244 98 58 / 0);
+  }
+  35% {
+    box-shadow: 0 0 0 10px rgb(244 98 58 / 0.28);
+  }
+  70% {
+    box-shadow: 0 0 0 18px rgb(244 98 58 / 0);
   }
 }
 
@@ -260,6 +279,20 @@
   );
   background-size: 200% 100%;
   animation: var(--animate-shimmer);
+}
+
+/**
+ * Lift-on-hover for clickable cards. Kept as a utility so every card in the
+ * app moves by the same amount, with the same easing.
+ */
+@utility lift {
+  transition:
+    transform 0.28s var(--ease-out-quint),
+    box-shadow 0.28s var(--ease-out-quint);
+
+  &:hover {
+    transform: translate3d(0, -3px, 0);
+  }
 }
 
 /**

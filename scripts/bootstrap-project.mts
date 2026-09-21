@@ -53,7 +53,7 @@ const existing = buckets.find((bucket) => bucket.id === 'vehicle-media')
 
 const bucketOptions = {
   public: true,
-  fileSizeLimit: 15 * 1024 * 1024,
+  fileSizeLimit: 60 * 1024 * 1024,
   allowedMimeTypes: [
     'image/jpeg',
     'image/png',

@@ -19,7 +19,11 @@
     "create-admin": "node --experimental-strip-types scripts/create-admin.mts",
     "db:bundle": "node --experimental-strip-types scripts/bundle-migrations.mts",
     "db:verify": "node --experimental-strip-types scripts/verify-db.mts",
-    "db:bootstrap": "node --experimental-strip-types scripts/bootstrap-project.mts"
+    "db:bootstrap": "node --experimental-strip-types scripts/bootstrap-project.mts",
+    "db:seed": "node --experimental-strip-types scripts/run-sql.mts supabase/seed.sql",
+    "db:sql": "node --experimental-strip-types scripts/run-sql.mts",
+    "import:inventory": "node --experimental-strip-types scripts/import-inventory.mts",
+    "import:settings": "node --experimental-strip-types scripts/import-settings.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -36,10 +40,12 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "pg": "^8.23.0",
     "supabase": "^2.117.0",
     "tailwindcss": "^4",
     "typescript": "^5",

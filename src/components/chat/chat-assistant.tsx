@@ -123,6 +123,8 @@ export function ChatAssistant({ context }: { context: ChatContext }) {
           'bg-accent-600 px-4 py-3 text-sm font-semibold text-white hover:bg-accent-700 active:scale-95',
           // Clears the sticky mobile CTA bar on vehicle pages.
           'max-lg:bottom-24',
+          // Pulses twice shortly after load, then stops.
+          !open && 'animate-attention',
         )}
       >
         {open ? (

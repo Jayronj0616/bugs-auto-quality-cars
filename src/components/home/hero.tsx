@@ -37,22 +37,48 @@ export function Hero({
             fill
             priority
             sizes="100vw"
-            className="object-cover opacity-45"
+            className="object-cover opacity-70"
           />
-          {/* Two gradients: one for text contrast on the left, one to seat the
-              image into the page at the bottom. */}
+          {/*
+            Three overlays rather than one flat scrim: the first keeps the
+            headline readable on the left while letting the car stay visible on
+            the right, the second seats the image into the page, and the third
+            lifts overall contrast just enough for white text without muddying
+            the photograph.
+          */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-r from-brand-900 via-brand-900/85 to-brand-900/25"
+            className="absolute inset-0 bg-gradient-to-r from-brand-950 via-brand-950/80 to-brand-950/10"
           />
           <div
             aria-hidden="true"
-            className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-brand-900 to-transparent"
+            className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-brand-950 via-brand-950/60 to-transparent"
           />
+          <div aria-hidden="true" className="absolute inset-0 bg-brand-950/20" />
         </>
       ) : null}
 
-      <div className="container-page relative py-20 sm:py-28 lg:py-36">
+      {/*
+        A faint accent glow behind the headline. Vehicle photography varies
+        wildly in brightness, and a dark shot leaves the hero looking like a
+        flat black rectangle; this gives it depth regardless of the image, and
+        ties the section to the accent colour.
+      */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-24 -left-32 size-[34rem] rounded-full bg-accent-600/18 blur-[120px]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 -bottom-32 size-[26rem] rounded-full bg-accent-500/10 blur-[110px]"
+      />
+
+      {/*
+        A real two-column grid on large screens rather than an absolutely
+        positioned card: the showcase can no longer collide with the floating
+        chat launcher, and the hero grows with its content instead of clipping.
+      */}
+      <div className="container-page relative py-20 sm:py-28 lg:grid lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-center lg:gap-14 lg:py-32">
         <div className="max-w-2xl">
           <p className="eyebrow animate-fade-in text-accent-300">
             {inventoryCount > 0
@@ -103,10 +129,7 @@ export function Hero({
         </div>
 
         {featured.length > 0 ? (
-          <div
-            className="mt-12 animate-fade-up lg:absolute lg:right-8 lg:bottom-16 lg:mt-0 lg:w-80"
-            style={{ animationDelay: '300ms' }}
-          >
+          <div className="mt-12 animate-fade-up lg:mt-0" style={{ animationDelay: '300ms' }}>
             <FeaturedShowcase vehicles={featured} />
           </div>
         ) : null}

@@ -171,3 +171,71 @@ export function defaultsFromSettings(settings: DealershipSettings): FinancingDef
     interestRate: Number(settings.default_interest_rate),
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* Per-vehicle rates for indicative monthly figures                            */
+/* -------------------------------------------------------------------------- */
+
+export type VehicleRate = {
+  termMonths: number
+  interestRate: number
+  minimumDownPaymentPercent: number
+}
+
+/**
+ * Active rates configured for specific vehicles, keyed by vehicle id.
+ *
+ * Vehicle cards and the assistant quote a "from ₱X/month" figure. Without this
+ * they fall back to the dealership's generic default rate, which can differ
+ * wildly from what a provider has actually quoted for that unit - and quoting a
+ * customer a monthly payment lower than the real one is the worst direction to
+ * be wrong in.
+ */
+export async function getVehicleRates(vehicleIds: string[]): Promise<Map<string, VehicleRate[]>> {
+  const map = new Map<string, VehicleRate[]>()
+  if (vehicleIds.length === 0) return map
+
+  const supabase = createPublicSupabaseClient()
+  if (!supabase) return map
+
+  const { data, error } = await supabase
+    .from('financing_rates')
+    .select('vehicle_id, term_months, interest_rate, minimum_down_payment_percent')
+    .in('vehicle_id', vehicleIds)
+    .eq('is_active', true)
+
+  if (error) {
+    console.error('[financing] vehicle rates failed:', error.message)
+    return map
+  }
+
+  for (const row of data ?? []) {
+    if (!row.vehicle_id) continue
+    const rates = map.get(row.vehicle_id) ?? []
+    rates.push({
+      termMonths: row.term_months,
+      interestRate: Number(row.interest_rate),
+      minimumDownPaymentPercent: Number(row.minimum_down_payment_percent),
+    })
+    map.set(row.vehicle_id, rates)
+  }
+
+  return map
+}
+
+/**
+ * The rate to quote for a vehicle at a given term.
+ *
+ * Prefers an exact term match; otherwise takes the longest configured term,
+ * because that is the one a "from ₱X/month" figure should be based on.
+ */
+export function pickVehicleRate(
+  rates: VehicleRate[] | undefined,
+  termMonths: number,
+): VehicleRate | null {
+  if (!rates || rates.length === 0) return null
+  return (
+    rates.find((rate) => rate.termMonths === termMonths) ??
+    [...rates].sort((a, b) => b.termMonths - a.termMonths)[0]
+  )
+}

@@ -54,6 +54,8 @@ export type BodyType =
   | 'convertible'
   | 'wagon'
   | 'truck'
+  | 'motorcycle'
+  | 'scooter'
   | 'other'
 
 export type FuelType =
