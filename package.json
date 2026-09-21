@@ -16,7 +16,8 @@
     "db:reset": "supabase db reset",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --local > src/types/database.generated.ts",
-    "create-admin": "node --experimental-strip-types scripts/create-admin.mts"
+    "create-admin": "node --experimental-strip-types scripts/create-admin.mts",
+    "db:bundle": "node --experimental-strip-types scripts/bundle-migrations.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
