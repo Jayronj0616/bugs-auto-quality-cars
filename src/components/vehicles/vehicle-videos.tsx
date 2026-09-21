@@ -6,6 +6,7 @@ import { ExternalLink, Play } from 'lucide-react'
 
 import { labelFor } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { toEmbedUrl, youtubeThumbnail } from '@/lib/video'
 import type { VehicleVideoRow } from '@/types/database'
 
 /**
@@ -117,47 +118,4 @@ function VideoCard({
       </figcaption>
     </figure>
   )
-}
-
-/**
- * Builds a privacy-friendly embed URL.
- *
- * youtube-nocookie.com avoids setting tracking cookies until the visitor
- * actually plays something, which pairs with the click-to-load facade.
- */
-function toEmbedUrl(video: VehicleVideoRow): string | null {
-  if (video.provider === 'youtube') {
-    const id = video.external_id ?? extractYouTubeId(video.video_url)
-    return id ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0` : null
-  }
-
-  if (video.provider === 'vimeo') {
-    const id = video.external_id ?? video.video_url.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1]
-    return id ? `https://player.vimeo.com/video/${id}?autoplay=1` : null
-  }
-
-  if (video.provider === 'file') return null
-
-  return null
-}
-
-export function extractYouTubeId(url: string): string | null {
-  const patterns = [
-    /(?:youtube\.com\/watch\?[^#]*\bv=)([\w-]{11})/,
-    /(?:youtu\.be\/)([\w-]{11})/,
-    /(?:youtube\.com\/embed\/)([\w-]{11})/,
-    /(?:youtube\.com\/shorts\/)([\w-]{11})/,
-  ]
-
-  for (const pattern of patterns) {
-    const match = url.match(pattern)
-    if (match?.[1]) return match[1]
-  }
-  return null
-}
-
-function youtubeThumbnail(video: VehicleVideoRow): string | null {
-  if (video.provider !== 'youtube') return null
-  const id = video.external_id ?? extractYouTubeId(video.video_url)
-  return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null
 }
