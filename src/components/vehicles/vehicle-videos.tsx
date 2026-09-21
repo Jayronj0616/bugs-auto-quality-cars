@@ -90,7 +90,7 @@ function VideoCard({
             <span
               className={cn(
                 'absolute top-1/2 left-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full',
-                'bg-accent-500 text-ink-950 shadow-panel transition-transform duration-200 group-hover:scale-105',
+                'bg-accent-600 text-white shadow-panel transition-transform duration-200 group-hover:scale-105',
               )}
             >
               <Play className="ml-0.5 size-7 fill-current" aria-hidden="true" />

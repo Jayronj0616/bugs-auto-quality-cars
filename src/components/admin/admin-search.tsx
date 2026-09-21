@@ -64,7 +64,7 @@ export function AdminSearch({
         onChange={(event) => setValue(event.target.value)}
         placeholder={placeholder}
         aria-label={placeholder}
-        className="h-10 w-full rounded-md border border-ink-300 bg-white pr-9 pl-9 text-sm transition-colors placeholder:text-ink-400 hover:border-ink-400 focus:border-accent-500"
+        className="h-10 w-full rounded-md border border-ink-300 bg-white pr-9 pl-9 text-sm transition-colors placeholder:text-ink-400 hover:border-ink-400 focus:border-accent-600"
       />
       {value ? (
         <button

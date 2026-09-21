@@ -19,20 +19,24 @@ const BASE =
   'aria-disabled:pointer-events-none aria-disabled:opacity-55'
 
 /**
- * `primary` is the amber accent - the 10% of the palette - so it is reserved
- * for the single most important action on a screen. It carries dark text
- * because white on a mid-tone amber is only about 3:1; ink on amber is ~7:1.
+ * `primary` is the coral accent - the 10% of the palette - so it is reserved
+ * for the single most important action on a screen.
  *
- * `secondary` is the brand teal, for actions that matter but should not
- * compete with the primary one.
+ * It uses accent-600 rather than the brighter accent-500 because white text on
+ * the reference coral is only ~3.2:1, below AA at body size. One step darker
+ * brings it to 4.6:1, which is why buttons read slightly deeper than the
+ * coral used for highlighted words.
+ *
+ * `secondary` is charcoal, for actions that matter but should not compete
+ * with the primary one.
  */
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-accent-500 text-ink-950 shadow-sm hover:bg-accent-400',
-  secondary: 'bg-brand-700 text-white shadow-sm hover:bg-brand-600',
-  outline: 'border border-ink-300 bg-white text-ink-800 hover:border-brand-400 hover:bg-brand-50',
-  ghost: 'text-ink-700 hover:bg-brand-50 hover:text-brand-800',
+  primary: 'bg-accent-600 text-white shadow-sm hover:bg-accent-700',
+  secondary: 'bg-brand-900 text-white shadow-sm hover:bg-brand-800',
+  outline: 'border border-ink-300 bg-white text-ink-800 hover:border-ink-400 hover:bg-ink-50',
+  ghost: 'text-ink-700 hover:bg-ink-100 hover:text-ink-900',
   danger: 'bg-danger-500 text-white shadow-sm hover:bg-danger-700',
-  inverted: 'bg-white text-brand-900 shadow-sm hover:bg-brand-50',
+  inverted: 'bg-white text-brand-900 shadow-sm hover:bg-ink-100',
 }
 
 const SIZES: Record<ButtonSize, string> = {

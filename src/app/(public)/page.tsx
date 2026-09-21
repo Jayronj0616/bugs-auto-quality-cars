@@ -65,16 +65,16 @@ export default async function HomePage() {
     getInventoryFacets(),
   ])
 
-  // Fall back to the newest listing so the hero still features a real vehicle
+  // Fall back to the newest listings so the hero still features real vehicles
   // when nothing has been flagged as featured yet.
-  const heroVehicle = featured[0] ?? latest[0] ?? null
   const featuredGrid = featured.length > 0 ? featured : latest.slice(0, 6)
+  const heroFeatured = featuredGrid.slice(0, 4)
   const latestGrid = latest.filter((vehicle) => !featuredGrid.some((f) => f.id === vehicle.id)).slice(0, 4)
   const telHref = toTelHref(settings.phone)
 
   return (
     <>
-      <Hero settings={settings} vehicle={heroVehicle} inventoryCount={facets.total} />
+      <Hero settings={settings} featured={heroFeatured} inventoryCount={facets.total} />
 
       {/*
         Search sits half over the hero so the first action is unmissable.
@@ -92,7 +92,7 @@ export default async function HomePage() {
       <section className="container-page py-16 sm:py-20">
         <SectionHeading
           eyebrow="Inventory"
-          title="Featured vehicles"
+          title="Featured cars"
           description="A selection from what is on the lot right now."
           action={
             <ButtonLink href="/cars" variant="outline">

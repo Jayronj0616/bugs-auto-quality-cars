@@ -48,7 +48,7 @@ export default async function TestDriveDetailPage({
           telHref ? (
             <a
               href={telHref}
-              className="inline-flex h-11 items-center gap-2 rounded-md bg-accent-500 px-4 text-sm font-semibold text-ink-950 transition-colors hover:bg-accent-600"
+              className="inline-flex h-11 items-center gap-2 rounded-md bg-accent-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
             >
               <Phone className="size-4" aria-hidden="true" />
               Call customer

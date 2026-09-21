@@ -164,7 +164,7 @@ export function ConfirmDialog({
             disabled={isPending}
             className={cn(
               'inline-flex h-9 items-center rounded-md px-3.5 text-sm font-medium text-white disabled:opacity-55',
-              tone === 'danger' ? 'bg-danger-500 hover:bg-danger-700' : 'bg-accent-500 hover:bg-accent-600',
+              tone === 'danger' ? 'bg-danger-500 hover:bg-danger-700' : 'bg-accent-600 hover:bg-accent-700',
             )}
           >
             {isPending ? 'Working…' : confirmLabel}

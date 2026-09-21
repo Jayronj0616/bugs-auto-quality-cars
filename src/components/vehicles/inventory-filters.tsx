@@ -57,7 +57,7 @@ export function InventoryFilters({
           <SlidersHorizontal className="size-4" aria-hidden="true" />
           Filters
           {activeCount > 0 ? (
-            <span className="ml-1 inline-flex size-5 items-center justify-center rounded-full bg-accent-500 text-[11px] font-semibold text-ink-950">
+            <span className="ml-1 inline-flex size-5 items-center justify-center rounded-full bg-accent-600 text-[11px] font-semibold text-white">
               {activeCount}
             </span>
           ) : null}

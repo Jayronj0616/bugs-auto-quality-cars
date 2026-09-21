@@ -198,7 +198,7 @@ export function MediaManager({
                 }}
                 className={cn(
                   'flex flex-col gap-3 rounded-md border border-ink-200 bg-white p-3 transition-colors sm:flex-row sm:items-center',
-                  dragIndex === index && 'border-accent-500 opacity-60',
+                  dragIndex === index && 'border-accent-600 opacity-60',
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -218,7 +218,7 @@ export function MediaManager({
                       className="object-cover"
                     />
                     {image.is_primary ? (
-                      <span className="absolute inset-x-0 bottom-0 bg-accent-500 py-0.5 text-center text-[10px] font-semibold tracking-wide text-ink-950 uppercase">
+                      <span className="absolute inset-x-0 bottom-0 bg-accent-600 py-0.5 text-center text-[10px] font-semibold tracking-wide text-white uppercase">
                         Main
                       </span>
                     ) : null}

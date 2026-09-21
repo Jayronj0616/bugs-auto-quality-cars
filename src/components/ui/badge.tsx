@@ -14,7 +14,7 @@ export type BadgeTone =
 
 const TONES: Record<BadgeTone, string> = {
   neutral: 'bg-ink-100 text-ink-700',
-  accent: 'bg-accent-500 text-ink-950',
+  accent: 'bg-accent-600 text-white',
   dark: 'bg-brand-800 text-white',
   success: 'bg-success-50 text-success-700',
   warning: 'bg-warning-50 text-warning-700',
@@ -58,7 +58,7 @@ export function StatusDot({
 }) {
   const dotColor: Record<BadgeTone, string> = {
     neutral: 'bg-ink-400',
-    accent: 'bg-accent-500',
+    accent: 'bg-accent-600',
     dark: 'bg-brand-800',
     success: 'bg-success-500',
     warning: 'bg-warning-500',

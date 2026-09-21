@@ -63,7 +63,7 @@ export function AdminShell({
       <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-white/10 px-5">
         <span
           aria-hidden="true"
-          className="flex size-8 items-center justify-center rounded-md bg-accent-500 font-display text-xs font-bold text-ink-950"
+          className="flex size-8 items-center justify-center rounded-md bg-accent-600 font-display text-xs font-bold text-white"
         >
           {businessName.slice(0, 2).toUpperCase()}
         </span>

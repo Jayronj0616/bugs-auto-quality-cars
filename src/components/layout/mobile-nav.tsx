@@ -3,9 +3,10 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Facebook, Mail, Menu, Phone, X } from 'lucide-react'
+import { Mail, Menu, Phone, X } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { FacebookIcon } from '@/components/ui/brand-icons'
 
 export type NavLink = { href: string; label: string }
 
@@ -131,7 +132,7 @@ export function MobileNav({ links, contact }: { links: NavLink[]; contact: Mobil
             <div className="space-y-2 border-t border-white/10 px-5 py-5">
               <Link
                 href="/contact"
-                className="flex h-11 w-full items-center justify-center rounded-md bg-accent-500 text-sm font-semibold text-ink-950 transition-colors hover:bg-accent-600"
+                className="flex h-11 w-full items-center justify-center rounded-md bg-accent-600 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
               >
                 Inquire Now
               </Link>
@@ -163,7 +164,7 @@ export function MobileNav({ links, contact }: { links: NavLink[]; contact: Mobil
                   rel="noopener noreferrer"
                   className="flex h-11 w-full items-center justify-center gap-2 rounded-md border border-white/20 text-sm font-medium text-white transition-colors hover:bg-white/10"
                 >
-                  <Facebook className="size-4" aria-hidden="true" />
+                  <FacebookIcon className="size-4" aria-hidden="true" />
                   Facebook
                 </a>
               ) : null}

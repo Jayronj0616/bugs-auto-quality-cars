@@ -112,7 +112,7 @@ export default async function AdminVehiclesPage({ searchParams }: PageProps<'/ad
             className={cn(
               'inline-flex h-10 items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors',
               featuredOnly
-                ? 'border-accent-500 bg-accent-50 text-accent-800'
+                ? 'border-accent-600 bg-accent-50 text-accent-800'
                 : 'border-ink-300 bg-white text-ink-600 hover:border-ink-400',
             )}
           >

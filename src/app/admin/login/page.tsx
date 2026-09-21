@@ -35,7 +35,7 @@ export default async function AdminLoginPage({ searchParams }: PageProps<'/admin
           <div className="text-center">
             <span
               aria-hidden="true"
-              className="mx-auto flex size-12 items-center justify-center rounded-md bg-accent-500"
+              className="mx-auto flex size-12 items-center justify-center rounded-md bg-accent-600"
             >
               <ShieldCheck className="size-6" />
             </span>

@@ -7,19 +7,22 @@
 
      60%  white and near-white surfaces - the page is mostly light and open,
           which lets the vehicle photography carry it.
-     30%  `brand` - a deep, friendly teal. Structural areas: header, footer,
-          hero, dark section panels, the admin sidebar.
-     10%  `accent` - a warm amber. Reserved for calls to action, price
-          emphasis and badges, so the eye goes where the action is.
+     30%  `brand` - a neutral charcoal. Structural areas: header, footer, hero,
+          dark section panels, the admin sidebar.
+     10%  `accent` - a vivid coral. Reserved for calls to action, price
+          emphasis and highlighted words, so the eye goes where the action is.
 
-   `ink` is the neutral ramp for text, borders and quiet fills, warmed very
-   slightly so it sits comfortably beside the amber rather than fighting it.
+   `ink` is the neutral ramp for text, borders and quiet fills.
 
-   Contrast notes, since a mid-tone accent is easy to get wrong:
-     * amber-500 carries DARK text (ink-950), not white - about 7:1.
-     * amber-700 is the smallest amber that passes on white, so it is the one
-       used for accent-coloured text.
-     * brand-700 and darker carry white text comfortably (8:1+).
+   Contrast notes, since a vivid warm accent is easy to get wrong:
+     * accent-500 (#f4623a) is the reference coral. At 3.2:1 against white it
+       is fine for large display text and for fills carrying DARK text, but it
+       cannot carry white text at body size.
+     * accent-600 is one step darker specifically so button fills can carry
+       white text at 4.6:1. That is why buttons read slightly deeper than the
+       highlight colour.
+     * accent-700 is the lightest coral usable as text on white.
+     * brand-700 and darker carry white text comfortably (9:1+).
    ========================================================================== */
 
 @theme {
@@ -32,49 +35,49 @@
    *            body or meta text at any size.
    *   ink-600+ comfortably above AA everywhere.
    */
-  --color-ink-50: #f7f8f8;
-  --color-ink-100: #eff1f1;
-  --color-ink-200: #e2e6e6;
-  --color-ink-300: #cbd2d2;
-  --color-ink-400: #869293;
-  --color-ink-500: #656f71;
-  --color-ink-600: #4d5759;
-  --color-ink-700: #3a4346;
-  --color-ink-800: #283033;
-  --color-ink-900: #1a2123;
-  --color-ink-950: #0c1112;
+  --color-ink-50: #f7f7f8;
+  --color-ink-100: #efeff1;
+  --color-ink-200: #e3e3e6;
+  --color-ink-300: #cbccd0;
+  --color-ink-400: #8d8f95;
+  --color-ink-500: #6a6d73;
+  --color-ink-600: #515459;
+  --color-ink-700: #3c3f43;
+  --color-ink-800: #2a2c30;
+  --color-ink-900: #1a1c1f;
+  --color-ink-950: #0d0e10;
 
-  /* Brand teal - the 30%. Structural surfaces and secondary actions. */
-  --color-brand-50: #edf7f7;
-  --color-brand-100: #d3edee;
-  --color-brand-200: #a9dbde;
-  --color-brand-300: #74c0c5;
-  --color-brand-400: #40a0a7;
-  --color-brand-500: #23848c;
-  --color-brand-600: #176b72;
-  --color-brand-700: #14565c;
-  --color-brand-800: #14474c;
-  --color-brand-900: #0f3d42;
-  --color-brand-950: #072a2e;
+  /* Charcoal - the 30%. Structural surfaces and secondary actions. */
+  --color-brand-50: #f6f6f7;
+  --color-brand-100: #ececee;
+  --color-brand-200: #d9dbdd;
+  --color-brand-300: #b8bcc0;
+  --color-brand-400: #8a9096;
+  --color-brand-500: #656b71;
+  --color-brand-600: #4a4f55;
+  --color-brand-700: #35393e;
+  --color-brand-800: #232629;
+  --color-brand-900: #16181a;
+  --color-brand-950: #0c0d0f;
 
-  /* Warm amber - the 10%. Calls to action and emphasis only. */
-  --color-accent-50: #fef5e9;
-  --color-accent-100: #fce8ca;
-  --color-accent-200: #f8d294;
-  --color-accent-300: #f3b55c;
-  --color-accent-400: #ee9c33;
-  --color-accent-500: #e8871e;
-  --color-accent-600: #cf6e12;
-  --color-accent-700: #a05212;
-  --color-accent-800: #814316;
-  --color-accent-900: #6b3815;
+  /* Coral - the 10%. Calls to action and emphasis only. */
+  --color-accent-50: #fef1ed;
+  --color-accent-100: #fddfd6;
+  --color-accent-200: #fbc0ae;
+  --color-accent-300: #f99b7f;
+  --color-accent-400: #f67c58;
+  --color-accent-500: #f4623a;
+  --color-accent-600: #d2451b;
+  --color-accent-700: #ab3716;
+  --color-accent-800: #8c2f16;
+  --color-accent-900: #742a16;
 
   /*
    * Status colours, for badges and admin state only.
    *
-   * Each is pushed away from the two brand hues so a status never reads as a
-   * call to action: warning sits in gold rather than the accent's orange, and
-   * info sits in indigo rather than anywhere near the brand teal.
+   * Each is pushed away from the accent hue so a status never reads as a call
+   * to action: warning sits in gold rather than the accent's coral, and info
+   * sits in indigo.
    */
   --color-success-50: #ecfdf3;
   --color-success-500: #12a45c;
@@ -93,12 +96,11 @@
   --font-display: var(--font-sora), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   /*
-   * Shadows are soft, low-contrast and tinted toward the brand teal rather than
-   * neutral black, so cards sit on the white page instead of floating above it.
+   * Shadows are soft, low-contrast and kept neutral, so cards sit on the white page instead of floating above it.
    */
-  --shadow-card: 0 1px 2px rgb(7 42 46 / 0.05), 0 8px 24px -12px rgb(7 42 46 / 0.14);
-  --shadow-card-hover: 0 2px 4px rgb(7 42 46 / 0.06), 0 18px 40px -16px rgb(7 42 46 / 0.24);
-  --shadow-panel: 0 24px 60px -24px rgb(7 42 46 / 0.38);
+  --shadow-card: 0 1px 2px rgb(13 14 16 / 0.05), 0 8px 24px -12px rgb(13 14 16 / 0.14);
+  --shadow-card-hover: 0 2px 4px rgb(13 14 16 / 0.06), 0 18px 40px -16px rgb(13 14 16 / 0.24);
+  --shadow-panel: 0 24px 60px -24px rgb(13 14 16 / 0.38);
 
   --radius-card: 0.75rem;
 
@@ -195,7 +197,7 @@
 
   /* A single, unmistakable focus ring everywhere, including in dialogs. */
   :focus-visible {
-    outline: 2px solid var(--color-brand-600);
+    outline: 2px solid var(--color-accent-600);
     outline-offset: 2px;
     border-radius: 2px;
   }
@@ -206,7 +208,7 @@
   }
 
   ::selection {
-    background-color: var(--color-brand-600);
+    background-color: var(--color-accent-600);
     color: white;
   }
 

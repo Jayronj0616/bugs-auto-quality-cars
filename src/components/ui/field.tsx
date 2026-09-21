@@ -94,7 +94,7 @@ const CONTROL_BASE =
 const CONTROL_STATE = (hasError: boolean) =>
   hasError
     ? 'border-danger-500 focus:border-danger-500'
-    : 'border-ink-300 hover:border-ink-400 focus:border-accent-500'
+    : 'border-ink-300 hover:border-ink-400 focus:border-accent-600'
 
 /** Wires a control to the surrounding Field's id / error ids. */
 function useControlProps(props: { id?: string; 'aria-describedby'?: string }) {

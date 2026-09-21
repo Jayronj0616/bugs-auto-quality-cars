@@ -1,6 +1,8 @@
+import { ChatAssistant } from '@/components/chat/chat-assistant'
 import { SetupNotice } from '@/components/layout/setup-notice'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { SiteHeader } from '@/components/layout/site-header'
+import { getChatContext } from '@/lib/data/chat'
 import { getDealershipSettings } from '@/lib/data/settings'
 
 /**
@@ -11,7 +13,7 @@ import { getDealershipSettings } from '@/lib/data/settings'
  * contact page, vehicle CTAs) share the same query rather than issuing another.
  */
 export default async function PublicLayout({ children }: LayoutProps<'/'>) {
-  const settings = await getDealershipSettings()
+  const [settings, chatContext] = await Promise.all([getDealershipSettings(), getChatContext()])
 
   return (
     <>
@@ -30,6 +32,9 @@ export default async function PublicLayout({ children }: LayoutProps<'/'>) {
       </main>
 
       <SiteFooter settings={settings} />
+
+      {/* Site-wide, so a question can be answered without leaving the page. */}
+      <ChatAssistant context={chatContext} />
     </>
   )
 }

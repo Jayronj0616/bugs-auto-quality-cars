@@ -1,11 +1,12 @@
 import Link from 'next/link'
-import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react'
+import { Mail, MapPin, Phone } from 'lucide-react'
 
 import { formatAddress, sortedBusinessHours, type DealershipSettings } from '@/lib/data/settings'
 import { formatTime, toMailtoHref, toTelHref } from '@/lib/format'
 import { titleCase } from '@/lib/constants'
 
 import { Brand } from './brand'
+import { FacebookIcon, InstagramIcon } from '@/components/ui/brand-icons'
 
 const EXPLORE_LINKS = [
   { href: '/cars', label: 'Browse cars' },
@@ -48,7 +49,7 @@ export function SiteFooter({ settings }: { settings: DealershipSettings }) {
                     className="inline-flex size-10 items-center justify-center rounded-md border border-white/15 text-white/70 transition-colors hover:border-white/30 hover:text-white"
                     aria-label={`${settings.business_name} on Facebook`}
                   >
-                    <Facebook className="size-4" aria-hidden="true" />
+                    <FacebookIcon className="size-4" aria-hidden="true" />
                   </a>
                 ) : null}
                 {settings.instagram_url ? (
@@ -59,7 +60,7 @@ export function SiteFooter({ settings }: { settings: DealershipSettings }) {
                     className="inline-flex size-10 items-center justify-center rounded-md border border-white/15 text-white/70 transition-colors hover:border-white/30 hover:text-white"
                     aria-label={`${settings.business_name} on Instagram`}
                   >
-                    <Instagram className="size-4" aria-hidden="true" />
+                    <InstagramIcon className="size-4" aria-hidden="true" />
                   </a>
                 ) : null}
               </div>

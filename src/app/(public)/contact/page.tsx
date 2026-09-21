@@ -1,5 +1,8 @@
+import * as React from 'react'
 import type { Metadata } from 'next'
-import { Clock, Facebook, Mail, MapPin, MessageCircle, Navigation, Phone } from 'lucide-react'
+import { Clock, Mail, MapPin, MessageCircle, Navigation, Phone } from 'lucide-react'
+
+import { FacebookIcon } from '@/components/ui/brand-icons'
 
 import { InquiryForm } from '@/components/forms/inquiry-form'
 import { Alert, Card, CardBody, SectionHeading } from '@/components/ui/surfaces'
@@ -112,7 +115,7 @@ export default async function ContactPage() {
 
                   {settings.facebook_url ? (
                     <ContactItem
-                      icon={Facebook}
+                      icon={FacebookIcon}
                       label="Facebook"
                       value="Visit our page"
                       href={settings.facebook_url}
@@ -220,7 +223,7 @@ function ContactItem({
   href,
   external,
 }: {
-  icon: typeof Phone
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
   label: string
   value: string
   href?: string

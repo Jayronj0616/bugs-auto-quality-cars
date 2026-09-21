@@ -192,7 +192,7 @@ export function VehicleGallery({
                 className={cn(
                   'relative block aspect-[4/3] w-full overflow-hidden rounded-md ring-offset-2 transition-all',
                   index === activeIndex
-                    ? 'ring-2 ring-accent-500'
+                    ? 'ring-2 ring-accent-600'
                     : 'opacity-70 hover:opacity-100',
                 )}
               >

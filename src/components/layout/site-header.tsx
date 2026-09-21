@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Facebook, MapPin, Phone } from 'lucide-react'
+import { MapPin, Phone } from 'lucide-react'
 
 import { formatShortAddress, type DealershipSettings } from '@/lib/data/settings'
 import { toMailtoHref, toTelHref } from '@/lib/format'
@@ -8,6 +8,7 @@ import { Brand } from './brand'
 import { MobileNav, type NavLink } from './mobile-nav'
 import { ActiveNavLink } from './active-nav-link'
 import { TodayHours } from './today-hours'
+import { FacebookIcon } from '@/components/ui/brand-icons'
 
 export const NAV_LINKS: NavLink[] = [
   { href: '/cars', label: 'Cars' },
@@ -64,7 +65,7 @@ export function SiteHeader({ settings }: { settings: DealershipSettings }) {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
                 >
-                  <Facebook className="size-3.5" aria-hidden="true" />
+                  <FacebookIcon className="size-3.5" aria-hidden="true" />
                   Facebook
                 </a>
               ) : null}
@@ -99,7 +100,7 @@ export function SiteHeader({ settings }: { settings: DealershipSettings }) {
 
           <Link
             href="/contact"
-            className="hidden h-10 items-center rounded-md bg-accent-500 px-4 text-sm font-semibold text-ink-950 transition-colors hover:bg-accent-600 sm:inline-flex"
+            className="hidden h-10 items-center rounded-md bg-accent-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-700 sm:inline-flex"
           >
             Inquire Now
           </Link>

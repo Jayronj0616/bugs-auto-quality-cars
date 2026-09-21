@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ChevronRight, Facebook } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 
 import { MobileActionBar } from '@/components/vehicles/mobile-action-bar'
 import { PurchasePanel } from '@/components/vehicles/purchase-panel'
@@ -27,6 +27,7 @@ import {
 } from '@/lib/data/vehicles'
 import { getSiteUrl } from '@/lib/env'
 import { formatPeso, toTelHref, truncate } from '@/lib/format'
+import { FacebookIcon } from '@/components/ui/brand-icons'
 
 export const revalidate = 300
 export const dynamicParams = true
@@ -235,7 +236,7 @@ export default async function VehicleDetailPage({ params }: PageProps<'/cars/[sl
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   href="/contact"
-                  className="inline-flex h-11 items-center rounded-md bg-accent-500 px-5 text-sm font-semibold text-ink-950 transition-colors hover:bg-accent-600"
+                  className="inline-flex h-11 items-center rounded-md bg-accent-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
                 >
                   Send an inquiry
                 </Link>
@@ -254,7 +255,7 @@ export default async function VehicleDetailPage({ params }: PageProps<'/cars/[sl
                     rel="noopener noreferrer"
                     className="inline-flex h-11 items-center gap-2 rounded-md border border-white/20 px-5 text-sm font-medium text-white transition-colors hover:bg-white/10"
                   >
-                    <Facebook className="size-4" aria-hidden="true" />
+                    <FacebookIcon className="size-4" aria-hidden="true" />
                     Message us
                   </a>
                 ) : null}
