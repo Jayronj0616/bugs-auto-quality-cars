@@ -119,7 +119,7 @@ export function VehicleCard({
           </ul>
         ) : null}
 
-        <p className="mt-4 text-sm font-semibold text-accent-600 transition-colors group-hover:text-accent-700">
+        <p className="mt-4 text-sm font-semibold text-accent-700 transition-colors group-hover:text-accent-800">
           View vehicle →
         </p>
       </div>

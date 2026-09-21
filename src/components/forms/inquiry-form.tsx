@@ -122,7 +122,7 @@ export function InquiryForm({
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Link
             href="/cars"
-            className="inline-flex h-11 items-center rounded-md bg-ink-900 px-5 text-sm font-semibold text-white transition-colors hover:bg-ink-800"
+            className="inline-flex h-11 items-center rounded-md bg-brand-800 px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
           >
             Continue browsing cars
           </Link>

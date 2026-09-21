@@ -74,7 +74,7 @@ export function InquiryStatusControl({
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-60',
                 active
-                  ? 'bg-ink-900 text-white'
+                  ? 'bg-brand-800 text-white'
                   : 'border border-ink-300 bg-white text-ink-600 hover:border-ink-400 hover:text-ink-900',
               )}
             >

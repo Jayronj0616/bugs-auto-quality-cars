@@ -76,8 +76,16 @@ export default async function HomePage() {
     <>
       <Hero settings={settings} vehicle={heroVehicle} inventoryCount={facets.total} />
 
-      {/* Search sits half over the hero so the first action is unmissable. */}
-      <section className="container-page -mt-8 sm:-mt-10" aria-label="Quick vehicle search">
+      {/*
+        Search sits half over the hero so the first action is unmissable.
+        `relative z-10` is required: the hero is an isolated stacking context
+        whose absolutely-positioned gradient overlays would otherwise paint on
+        top of this card and clip its first row.
+      */}
+      <section
+        className="relative z-10 container-page -mt-8 sm:-mt-10"
+        aria-label="Quick vehicle search"
+      >
         <QuickSearch brands={facets.brands} bodyTypes={facets.bodyTypes} />
       </section>
 
@@ -117,7 +125,7 @@ export default async function HomePage() {
         )}
       </section>
 
-      <section className="bg-white py-16 sm:py-20">
+      <section className="bg-brand-50 py-16 sm:py-20">
         <div className="container-page">
           <SectionHeading
             eyebrow="Why BUGS"
@@ -128,7 +136,7 @@ export default async function HomePage() {
           <ul className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {WHY_US.map((item, index) => (
               <Reveal as="li" key={item.title} delay={index * 70}>
-                <div className="flex size-11 items-center justify-center rounded-md bg-accent-50 text-accent-600">
+                <div className="flex size-11 items-center justify-center rounded-md bg-accent-50 text-accent-700">
                   <item.icon className="size-5" aria-hidden="true" />
                 </div>
                 <h3 className="mt-4 text-base font-semibold text-ink-900">{item.title}</h3>
@@ -141,10 +149,10 @@ export default async function HomePage() {
 
       {/* Financing CTA */}
       <section className="container-page py-16 sm:py-20">
-        <Reveal className="overflow-hidden rounded-card bg-ink-950 text-white">
+        <Reveal className="overflow-hidden rounded-card bg-brand-900 text-white">
           <div className="grid gap-8 p-8 sm:p-12 lg:grid-cols-2 lg:items-center">
             <div>
-              <p className="eyebrow text-accent-400">Financing</p>
+              <p className="eyebrow text-accent-300">Financing</p>
               <h2 className="mt-3 text-2xl font-semibold sm:text-3xl">
                 Know the monthly payment before you visit.
               </h2>
@@ -205,9 +213,9 @@ export default async function HomePage() {
       ) : null}
 
       {/* Contact CTA */}
-      <section className="bg-white py-16 sm:py-20">
+      <section className="bg-brand-50 py-16 sm:py-20">
         <div className="container-page">
-          <Reveal className="rounded-card border border-ink-200 bg-ink-50 p-8 text-center sm:p-12">
+          <Reveal className="rounded-card border border-brand-200 bg-white p-8 text-center sm:p-12">
             <h2 className="text-2xl font-semibold text-ink-900 sm:text-3xl">
               Ready to talk about a specific unit?
             </h2>

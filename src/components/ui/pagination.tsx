@@ -50,7 +50,7 @@ export function Pagination({
             className={cn(
               'inline-flex h-10 min-w-10 items-center justify-center rounded-md px-3 text-sm font-medium transition-colors',
               entry === page
-                ? 'bg-ink-900 text-white'
+                ? 'bg-brand-800 text-white'
                 : 'border border-ink-300 bg-white text-ink-700 hover:border-ink-400 hover:bg-ink-50',
             )}
           >

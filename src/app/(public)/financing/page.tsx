@@ -59,9 +59,9 @@ export default async function FinancingPage() {
 
   return (
     <>
-      <header className="bg-ink-950 text-white">
+      <header className="bg-brand-900 text-white">
         <div className="container-page py-14 sm:py-20">
-          <p className="eyebrow text-accent-400">Financing</p>
+          <p className="eyebrow text-accent-300">Financing</p>
           <h1 className="mt-3 max-w-2xl text-3xl leading-tight font-bold sm:text-4xl lg:text-5xl">
             Work out the monthly payment before you visit.
           </h1>
@@ -171,7 +171,7 @@ export default async function FinancingPage() {
                   <div key={entry.question} className="py-5">
                     <dt className="flex items-start gap-2.5 text-base font-semibold text-ink-900">
                       <CircleHelp
-                        className="mt-0.5 size-4 shrink-0 text-accent-600"
+                        className="mt-0.5 size-4 shrink-0 text-accent-700"
                         aria-hidden="true"
                       />
                       {entry.question}
@@ -186,7 +186,7 @@ export default async function FinancingPage() {
 
             {facets.priceRange ? (
               <Reveal>
-                <div className="rounded-card bg-ink-950 p-6 text-white sm:p-8">
+                <div className="rounded-card bg-brand-900 p-6 text-white sm:p-8">
                   <h2 className="text-xl font-semibold sm:text-2xl">
                     Vehicles from {formatPesoCompact(facets.priceRange.min)}
                   </h2>

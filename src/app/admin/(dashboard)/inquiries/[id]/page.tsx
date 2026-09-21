@@ -57,7 +57,7 @@ export default async function InquiryDetailPage({ params }: PageProps<'/admin/in
             {telHref ? (
               <a
                 href={telHref}
-                className="inline-flex h-11 items-center gap-2 rounded-md bg-accent-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
+                className="inline-flex h-11 items-center gap-2 rounded-md bg-accent-500 px-4 text-sm font-semibold text-ink-950 transition-colors hover:bg-accent-600"
               >
                 <Phone className="size-4" aria-hidden="true" />
                 Call customer
@@ -191,7 +191,7 @@ export default async function InquiryDetailPage({ params }: PageProps<'/admin/in
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Link
                       href={`/admin/vehicles/${inquiry.vehicle.id}`}
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-600 hover:text-accent-700"
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-700 hover:text-accent-800"
                     >
                       <Car className="size-3.5" aria-hidden="true" />
                       Manage vehicle
@@ -277,7 +277,7 @@ function ContactRow({
         <dt className="text-xs text-ink-500">{label}</dt>
         <dd className="text-sm text-ink-900">
           {href ? (
-            <a href={href} className="break-all hover:text-accent-600">
+            <a href={href} className="break-all hover:text-accent-700">
               {value}
             </a>
           ) : (

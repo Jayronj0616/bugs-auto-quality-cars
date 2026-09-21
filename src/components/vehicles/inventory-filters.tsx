@@ -57,7 +57,7 @@ export function InventoryFilters({
           <SlidersHorizontal className="size-4" aria-hidden="true" />
           Filters
           {activeCount > 0 ? (
-            <span className="ml-1 inline-flex size-5 items-center justify-center rounded-full bg-accent-600 text-[11px] font-semibold text-white">
+            <span className="ml-1 inline-flex size-5 items-center justify-center rounded-full bg-accent-500 text-[11px] font-semibold text-ink-950">
               {activeCount}
             </span>
           ) : null}
@@ -74,7 +74,7 @@ export function InventoryFilters({
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 animate-fade-in bg-ink-950/60"
+            className="absolute inset-0 animate-fade-in bg-brand-900/60"
             onClick={() => setDrawerOpen(false)}
             aria-label="Close filters"
             tabIndex={-1}
@@ -421,7 +421,7 @@ function CheckboxList<T extends string>({
               type="checkbox"
               checked={checked}
               onChange={() => onToggle(option.value)}
-              className="size-4 shrink-0 rounded-sm border-ink-300 accent-accent-600"
+              className="size-4 shrink-0 rounded-sm border-ink-300 accent-brand-600"
             />
             <label htmlFor={id} className="cursor-pointer text-sm text-ink-700 select-none">
               {option.label}
@@ -450,7 +450,7 @@ function SwitchRow({
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
-        className="size-4 shrink-0 rounded-sm border-ink-300 accent-accent-600"
+        className="size-4 shrink-0 rounded-sm border-ink-300 accent-brand-600"
       />
       <label htmlFor={id} className="cursor-pointer text-sm text-ink-700 select-none">
         {label}
@@ -568,7 +568,7 @@ export function ActiveFilterChips({ filters }: { filters: VehicleFilters }) {
       <button
         type="button"
         onClick={() => router.push(pathname)}
-        className="text-xs font-semibold text-accent-600 underline underline-offset-2 hover:text-accent-700"
+        className="text-xs font-semibold text-accent-700 underline underline-offset-2 hover:text-accent-800"
       >
         Clear all
       </button>

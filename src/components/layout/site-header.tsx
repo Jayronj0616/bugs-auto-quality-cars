@@ -29,7 +29,7 @@ export function SiteHeader({ settings }: { settings: DealershipSettings }) {
   const shortAddress = formatShortAddress(settings)
 
   return (
-    <header className="sticky top-0 z-40 bg-ink-950/95 backdrop-blur supports-[backdrop-filter]:bg-ink-950/85">
+    <header className="sticky top-0 z-40 bg-brand-900/95 backdrop-blur supports-[backdrop-filter]:bg-brand-900/85">
       {/* Announcement / contact bar - desktop only, it is noise on a phone. */}
       {telHref || shortAddress || settings.business_hours.length > 0 ? (
         <div className="hidden border-b border-white/10 lg:block">
@@ -99,7 +99,7 @@ export function SiteHeader({ settings }: { settings: DealershipSettings }) {
 
           <Link
             href="/contact"
-            className="hidden h-10 items-center rounded-md bg-accent-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-700 sm:inline-flex"
+            className="hidden h-10 items-center rounded-md bg-accent-500 px-4 text-sm font-semibold text-ink-950 transition-colors hover:bg-accent-600 sm:inline-flex"
           >
             Inquire Now
           </Link>

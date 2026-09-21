@@ -49,7 +49,7 @@ export function InventorySearch({ filters }: { filters: VehicleFilters }) {
         onChange={(event) => setValue(event.target.value)}
         placeholder="Search by brand, model or keyword"
         aria-label="Search inventory"
-        className="h-11 w-full rounded-md border border-ink-300 bg-white pr-9 pl-9 text-sm transition-colors placeholder:text-ink-400 hover:border-ink-400 focus:border-accent-600"
+        className="h-11 w-full rounded-md border border-ink-300 bg-white pr-9 pl-9 text-sm transition-colors placeholder:text-ink-400 hover:border-ink-400 focus:border-accent-500"
       />
       {value ? (
         <button
@@ -92,7 +92,7 @@ export function SortSelect({ filters }: { filters: VehicleFilters }) {
           })
           router.push(`${pathname}${query}`)
         }}
-        className="h-11 rounded-md border border-ink-300 bg-white px-3 text-sm transition-colors hover:border-ink-400 focus:border-accent-600"
+        className="h-11 rounded-md border border-ink-300 bg-white px-3 text-sm transition-colors hover:border-ink-400 focus:border-accent-500"
       >
         {SORT_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>

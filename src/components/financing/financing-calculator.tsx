@@ -240,7 +240,7 @@ export function FinancingCalculator({
               className={cn(
                 'rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
                 Math.round(downPaymentPercent) === preset
-                  ? 'bg-ink-900 text-white'
+                  ? 'bg-brand-800 text-white'
                   : 'border border-ink-300 bg-white text-ink-600 hover:border-ink-400 hover:text-ink-900',
               )}
             >

@@ -63,7 +63,7 @@ export function QuickSearch({ brands, bodyTypes }: { brands: string[]; bodyTypes
             name="keyword"
             placeholder="Search brand, model or keyword"
             aria-label="Search brand, model or keyword"
-            className="h-11 w-full rounded-md border border-ink-300 bg-white pr-3 pl-9 text-sm transition-colors placeholder:text-ink-400 hover:border-ink-400 focus:border-accent-600"
+            className="h-11 w-full rounded-md border border-ink-300 bg-white pr-3 pl-9 text-sm transition-colors placeholder:text-ink-400 hover:border-ink-400 focus:border-accent-500"
           />
         </div>
 

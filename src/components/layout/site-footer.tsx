@@ -28,7 +28,7 @@ export function SiteFooter({ settings }: { settings: DealershipSettings }) {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="mt-auto bg-ink-950 text-white">
+    <footer className="mt-auto bg-brand-900 text-white">
       <div className="container-page py-14">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
           <div className="lg:col-span-4">

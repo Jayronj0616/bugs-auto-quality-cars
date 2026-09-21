@@ -225,7 +225,7 @@ export default async function VehicleDetailPage({ params }: PageProps<'/cars/[sl
               </Reveal>
             ) : null}
 
-            <Reveal className="mt-10 rounded-card bg-ink-950 p-6 text-white sm:p-8">
+            <Reveal className="mt-10 rounded-card bg-brand-900 p-6 text-white sm:p-8">
               <h2 className="text-xl font-semibold sm:text-2xl">Interested in this vehicle?</h2>
               <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/70">
                 Talk to {settings.business_name}. Ask about availability, requirements, trade-in or
@@ -235,7 +235,7 @@ export default async function VehicleDetailPage({ params }: PageProps<'/cars/[sl
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   href="/contact"
-                  className="inline-flex h-11 items-center rounded-md bg-accent-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
+                  className="inline-flex h-11 items-center rounded-md bg-accent-500 px-5 text-sm font-semibold text-ink-950 transition-colors hover:bg-accent-600"
                 >
                   Send an inquiry
                 </Link>

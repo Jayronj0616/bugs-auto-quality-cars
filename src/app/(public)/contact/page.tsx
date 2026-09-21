@@ -41,9 +41,9 @@ export default async function ContactPage() {
 
   return (
     <>
-      <header className="border-b border-ink-200 bg-white">
+      <header className="border-b border-brand-100 bg-brand-50">
         <div className="container-page py-10 sm:py-14">
-          <p className="eyebrow text-accent-600">Contact</p>
+          <p className="eyebrow text-accent-700">Contact</p>
           <h1 className="mt-2 text-3xl font-bold text-ink-900 sm:text-4xl">
             Contact {settings.business_name}
           </h1>
@@ -151,7 +151,7 @@ export default async function ContactPage() {
                         href={settings.google_maps_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-3 inline-flex h-10 items-center gap-2 rounded-md bg-ink-900 px-4 text-sm font-semibold text-white transition-colors hover:bg-ink-800"
+                        className="mt-3 inline-flex h-10 items-center gap-2 rounded-md bg-brand-800 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
                       >
                         <Navigation className="size-4" aria-hidden="true" />
                         Get directions
@@ -243,7 +243,7 @@ function ContactItem({
           href={href}
           target={external ? '_blank' : undefined}
           rel={external ? 'noopener noreferrer' : undefined}
-          className="flex items-start gap-2.5 transition-colors hover:text-accent-600"
+          className="flex items-start gap-2.5 transition-colors hover:text-accent-700"
         >
           {content}
         </a>

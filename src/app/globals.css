@@ -3,59 +3,102 @@
 /* =============================================================================
    BUGS Auto Quality Cars - design system
    =============================================================================
-   Deliberately narrow: one neutral ramp (ink), one accent (a deep automotive
-   crimson used only for primary actions and promos), and a small set of
-   elevation and motion tokens. The vehicle photography is meant to carry the
-   page, so the chrome around it stays quiet.
+   Built on the 60-30-10 rule:
+
+     60%  white and near-white surfaces - the page is mostly light and open,
+          which lets the vehicle photography carry it.
+     30%  `brand` - a deep, friendly teal. Structural areas: header, footer,
+          hero, dark section panels, the admin sidebar.
+     10%  `accent` - a warm amber. Reserved for calls to action, price
+          emphasis and badges, so the eye goes where the action is.
+
+   `ink` is the neutral ramp for text, borders and quiet fills, warmed very
+   slightly so it sits comfortably beside the amber rather than fighting it.
+
+   Contrast notes, since a mid-tone accent is easy to get wrong:
+     * amber-500 carries DARK text (ink-950), not white - about 7:1.
+     * amber-700 is the smallest amber that passes on white, so it is the one
+       used for accent-coloured text.
+     * brand-700 and darker carry white text comfortably (8:1+).
    ========================================================================== */
 
 @theme {
-  /* Neutral ramp. Slightly cool, so photography reads warm against it. */
-  --color-ink-50: #f7f8f9;
-  --color-ink-100: #eef0f2;
-  --color-ink-200: #dde1e5;
-  --color-ink-300: #c2c8ce;
-  --color-ink-400: #98a1aa;
-  --color-ink-500: #6f7a85;
-  --color-ink-600: #525c66;
-  --color-ink-700: #3c444c;
-  --color-ink-800: #23292f;
-  --color-ink-900: #14181c;
-  --color-ink-950: #0a0c0e;
+  /*
+   * Neutral ramp (part of the 60).
+   *
+   * The mid steps are tuned against measured contrast rather than by eye:
+   *   ink-400  3.0:1 on white - icons and decorative rules only, never text.
+   *   ink-500  5.2:1 on white, 4.8:1 on ink-50 - the lightest step allowed for
+   *            body or meta text at any size.
+   *   ink-600+ comfortably above AA everywhere.
+   */
+  --color-ink-50: #f7f8f8;
+  --color-ink-100: #eff1f1;
+  --color-ink-200: #e2e6e6;
+  --color-ink-300: #cbd2d2;
+  --color-ink-400: #869293;
+  --color-ink-500: #656f71;
+  --color-ink-600: #4d5759;
+  --color-ink-700: #3a4346;
+  --color-ink-800: #283033;
+  --color-ink-900: #1a2123;
+  --color-ink-950: #0c1112;
 
-  /* Accent: primary buttons, active states, price emphasis. */
-  --color-accent-50: #fdf3f4;
-  --color-accent-100: #fbe4e7;
-  --color-accent-200: #f6ccd2;
-  --color-accent-300: #eda3ae;
-  --color-accent-400: #e07084;
-  --color-accent-500: #cc4259;
-  --color-accent-600: #b91c2e;
-  --color-accent-700: #9b1526;
-  --color-accent-800: #811624;
-  --color-accent-900: #6f1622;
+  /* Brand teal - the 30%. Structural surfaces and secondary actions. */
+  --color-brand-50: #edf7f7;
+  --color-brand-100: #d3edee;
+  --color-brand-200: #a9dbde;
+  --color-brand-300: #74c0c5;
+  --color-brand-400: #40a0a7;
+  --color-brand-500: #23848c;
+  --color-brand-600: #176b72;
+  --color-brand-700: #14565c;
+  --color-brand-800: #14474c;
+  --color-brand-900: #0f3d42;
+  --color-brand-950: #072a2e;
 
-  /* Status colours, used for badges and admin state only. */
+  /* Warm amber - the 10%. Calls to action and emphasis only. */
+  --color-accent-50: #fef5e9;
+  --color-accent-100: #fce8ca;
+  --color-accent-200: #f8d294;
+  --color-accent-300: #f3b55c;
+  --color-accent-400: #ee9c33;
+  --color-accent-500: #e8871e;
+  --color-accent-600: #cf6e12;
+  --color-accent-700: #a05212;
+  --color-accent-800: #814316;
+  --color-accent-900: #6b3815;
+
+  /*
+   * Status colours, for badges and admin state only.
+   *
+   * Each is pushed away from the two brand hues so a status never reads as a
+   * call to action: warning sits in gold rather than the accent's orange, and
+   * info sits in indigo rather than anywhere near the brand teal.
+   */
   --color-success-50: #ecfdf3;
   --color-success-500: #12a45c;
   --color-success-700: #0a7a43;
-  --color-warning-50: #fff8eb;
-  --color-warning-500: #d18700;
-  --color-warning-700: #9a6300;
+  --color-warning-50: #fdf8e7;
+  --color-warning-500: #b8900c;
+  --color-warning-700: #856507;
   --color-danger-50: #fef2f2;
   --color-danger-500: #dc2626;
   --color-danger-700: #a51b1b;
-  --color-info-50: #eff6ff;
-  --color-info-500: #2563eb;
-  --color-info-700: #1d4ed8;
+  --color-info-50: #eef0fe;
+  --color-info-500: #4f46e5;
+  --color-info-700: #4338ca;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: var(--font-sora), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
-  /* Shadows are soft and low-contrast: cards should sit on the page, not float. */
-  --shadow-card: 0 1px 2px rgb(10 12 14 / 0.04), 0 8px 24px -12px rgb(10 12 14 / 0.12);
-  --shadow-card-hover: 0 2px 4px rgb(10 12 14 / 0.05), 0 18px 40px -16px rgb(10 12 14 / 0.22);
-  --shadow-panel: 0 24px 60px -24px rgb(10 12 14 / 0.35);
+  /*
+   * Shadows are soft, low-contrast and tinted toward the brand teal rather than
+   * neutral black, so cards sit on the white page instead of floating above it.
+   */
+  --shadow-card: 0 1px 2px rgb(7 42 46 / 0.05), 0 8px 24px -12px rgb(7 42 46 / 0.14);
+  --shadow-card-hover: 0 2px 4px rgb(7 42 46 / 0.06), 0 18px 40px -16px rgb(7 42 46 / 0.24);
+  --shadow-panel: 0 24px 60px -24px rgb(7 42 46 / 0.38);
 
   --radius-card: 0.75rem;
 
@@ -127,8 +170,10 @@
     scroll-behavior: smooth;
   }
 
+  /* White is the 60%: the page itself is white, and quiet fills are used
+     sparingly to separate sections rather than tinting everything. */
   body {
-    background-color: var(--color-ink-50);
+    background-color: #ffffff;
     color: var(--color-ink-900);
     font-family: var(--font-sans);
     font-feature-settings: 'cv02', 'cv03', 'cv04';
@@ -150,7 +195,7 @@
 
   /* A single, unmistakable focus ring everywhere, including in dialogs. */
   :focus-visible {
-    outline: 2px solid var(--color-accent-600);
+    outline: 2px solid var(--color-brand-600);
     outline-offset: 2px;
     border-radius: 2px;
   }
@@ -161,7 +206,7 @@
   }
 
   ::selection {
-    background-color: var(--color-accent-600);
+    background-color: var(--color-brand-600);
     color: white;
   }
 

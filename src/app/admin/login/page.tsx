@@ -19,7 +19,7 @@ export default async function AdminLoginPage({ searchParams }: PageProps<'/admin
   const nextParam = Array.isArray(params.next) ? params.next[0] : params.next
 
   return (
-    <div className="flex min-h-dvh flex-col bg-ink-950 text-white">
+    <div className="flex min-h-dvh flex-col bg-brand-900 text-white">
       <div className="container-page py-6">
         <Link
           href="/"
@@ -35,7 +35,7 @@ export default async function AdminLoginPage({ searchParams }: PageProps<'/admin
           <div className="text-center">
             <span
               aria-hidden="true"
-              className="mx-auto flex size-12 items-center justify-center rounded-md bg-accent-600"
+              className="mx-auto flex size-12 items-center justify-center rounded-md bg-accent-500"
             >
               <ShieldCheck className="size-6" />
             </span>

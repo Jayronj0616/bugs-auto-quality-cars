@@ -91,7 +91,7 @@ export function VideosEditor({
                   key={video.id}
                   className="flex items-center gap-3 rounded-md border border-ink-200 p-3"
                 >
-                  <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-md bg-ink-900">
+                  <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-md bg-brand-800">
                     {thumbnail ? (
                       <Image
                         src={thumbnail}
@@ -116,7 +116,7 @@ export function VideosEditor({
                       href={video.video_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="truncate text-xs text-accent-600 hover:underline"
+                      className="truncate text-xs text-accent-700 hover:underline"
                     >
                       {video.video_url}
                     </a>

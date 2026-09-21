@@ -134,7 +134,7 @@ export function VehicleGallery({
       ) : null}
 
       <div
-        className="group relative aspect-[16/10] overflow-hidden rounded-card bg-ink-900 outline-none"
+        className="group relative aspect-[16/10] overflow-hidden rounded-card bg-brand-800 outline-none"
         tabIndex={0}
         role="region"
         aria-roledescription="carousel"
@@ -165,14 +165,14 @@ export function VehicleGallery({
         <button
           type="button"
           onClick={() => setFullscreen(true)}
-          className="absolute right-3 bottom-3 inline-flex h-9 items-center gap-1.5 rounded-md bg-ink-950/70 px-3 text-xs font-medium text-white backdrop-blur transition-colors hover:bg-ink-950/90"
+          className="absolute right-3 bottom-3 inline-flex h-9 items-center gap-1.5 rounded-md bg-brand-900/70 px-3 text-xs font-medium text-white backdrop-blur transition-colors hover:bg-brand-900/90"
         >
           <Expand className="size-3.5" aria-hidden="true" />
           View fullscreen
         </button>
 
         {total > 1 ? (
-          <div className="absolute bottom-3 left-3 rounded-md bg-ink-950/70 px-2.5 py-1.5 text-xs font-medium text-white backdrop-blur">
+          <div className="absolute bottom-3 left-3 rounded-md bg-brand-900/70 px-2.5 py-1.5 text-xs font-medium text-white backdrop-blur">
             <span aria-live="polite">
               {Math.min(activeIndex, total - 1) + 1} / {total}
             </span>
@@ -192,7 +192,7 @@ export function VehicleGallery({
                 className={cn(
                   'relative block aspect-[4/3] w-full overflow-hidden rounded-md ring-offset-2 transition-all',
                   index === activeIndex
-                    ? 'ring-2 ring-accent-600'
+                    ? 'ring-2 ring-accent-500'
                     : 'opacity-70 hover:opacity-100',
                 )}
               >
@@ -220,7 +220,7 @@ export function VehicleGallery({
         onClose={() => setFullscreen(false)}
         onKeyDown={handleKeyDown}
         aria-label={`${vehicleTitle} photo viewer`}
-        className="h-full max-h-none w-full max-w-none bg-ink-950/98 p-0 backdrop:bg-ink-950"
+        className="h-full max-h-none w-full max-w-none bg-brand-900/98 p-0 backdrop:bg-brand-900"
       >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-4 py-3 text-white">
@@ -294,7 +294,7 @@ function CategoryChip({
       className={cn(
         'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
         active
-          ? 'bg-ink-900 text-white'
+          ? 'bg-brand-800 text-white'
           : 'border border-ink-300 bg-white text-ink-600 hover:border-ink-400 hover:text-ink-900',
       )}
     >
@@ -322,7 +322,7 @@ function GalleryArrow({
         'absolute top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full text-white transition-all',
         side === 'left' ? 'left-3' : 'right-3',
         variant === 'inline'
-          ? 'bg-ink-950/60 opacity-0 backdrop-blur group-hover:opacity-100 focus-visible:opacity-100 max-md:opacity-100'
+          ? 'bg-brand-900/60 opacity-0 backdrop-blur group-hover:opacity-100 focus-visible:opacity-100 max-md:opacity-100'
           : 'bg-white/10 hover:bg-white/20',
       )}
     >

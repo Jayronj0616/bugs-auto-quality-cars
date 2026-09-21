@@ -78,7 +78,7 @@ export function MobileNav({ links, contact }: { links: NavLink[]; contact: Mobil
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 animate-fade-in bg-ink-950/60 backdrop-blur-[2px]"
+            className="absolute inset-0 animate-fade-in bg-brand-900/60 backdrop-blur-[2px]"
             onClick={() => setOpen(false)}
             aria-label="Close menu"
             tabIndex={-1}
@@ -91,7 +91,7 @@ export function MobileNav({ links, contact }: { links: NavLink[]; contact: Mobil
             aria-modal="true"
             aria-label="Site navigation"
             tabIndex={-1}
-            className="absolute inset-y-0 right-0 flex w-[min(20rem,88vw)] animate-slide-in-right flex-col bg-ink-950 text-white shadow-panel outline-none"
+            className="absolute inset-y-0 right-0 flex w-[min(20rem,88vw)] animate-slide-in-right flex-col bg-brand-900 text-white shadow-panel outline-none"
           >
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
               <span className="eyebrow text-white/50">Menu</span>
@@ -131,7 +131,7 @@ export function MobileNav({ links, contact }: { links: NavLink[]; contact: Mobil
             <div className="space-y-2 border-t border-white/10 px-5 py-5">
               <Link
                 href="/contact"
-                className="flex h-11 w-full items-center justify-center rounded-md bg-accent-600 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
+                className="flex h-11 w-full items-center justify-center rounded-md bg-accent-500 text-sm font-semibold text-ink-950 transition-colors hover:bg-accent-600"
               >
                 Inquire Now
               </Link>

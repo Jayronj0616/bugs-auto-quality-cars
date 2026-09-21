@@ -45,7 +45,7 @@ export function Brand({
             aria-hidden="true"
             className={cn(
               'flex size-9 items-center justify-center rounded-md font-display text-sm font-bold',
-              tone === 'light' ? 'bg-accent-600 text-white' : 'bg-ink-900 text-white',
+              tone === 'light' ? 'bg-accent-500 text-ink-950' : 'bg-brand-800 text-white',
             )}
           >
             {first?.slice(0, 2).toUpperCase() ?? 'BA'}

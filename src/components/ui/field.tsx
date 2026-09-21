@@ -62,7 +62,7 @@ export function Field({
           <label htmlFor={id} className="block text-sm font-medium text-ink-800">
             {label}
             {required ? (
-              <span className="ml-0.5 text-accent-600" aria-hidden="true">
+              <span className="ml-0.5 text-accent-700" aria-hidden="true">
                 *
               </span>
             ) : null}
@@ -94,7 +94,7 @@ const CONTROL_BASE =
 const CONTROL_STATE = (hasError: boolean) =>
   hasError
     ? 'border-danger-500 focus:border-danger-500'
-    : 'border-ink-300 hover:border-ink-400 focus:border-accent-600'
+    : 'border-ink-300 hover:border-ink-400 focus:border-accent-500'
 
 /** Wires a control to the surrounding Field's id / error ids. */
 function useControlProps(props: { id?: string; 'aria-describedby'?: string }) {
@@ -181,7 +181,7 @@ export const Checkbox = React.forwardRef<
         type="checkbox"
         {...props}
         id={id}
-        className="mt-0.5 size-4 shrink-0 rounded-sm border-ink-300 text-accent-600 accent-accent-600"
+        className="mt-0.5 size-4 shrink-0 rounded-sm border-ink-300 text-accent-700 accent-brand-600"
       />
       <label htmlFor={id} className="text-sm leading-5 text-ink-700 select-none">
         {label}

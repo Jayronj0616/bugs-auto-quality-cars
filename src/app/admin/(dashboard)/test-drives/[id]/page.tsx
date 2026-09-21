@@ -48,7 +48,7 @@ export default async function TestDriveDetailPage({
           telHref ? (
             <a
               href={telHref}
-              className="inline-flex h-11 items-center gap-2 rounded-md bg-accent-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
+              className="inline-flex h-11 items-center gap-2 rounded-md bg-accent-500 px-4 text-sm font-semibold text-ink-950 transition-colors hover:bg-accent-600"
             >
               <Phone className="size-4" aria-hidden="true" />
               Call customer
@@ -141,7 +141,7 @@ export default async function TestDriveDetailPage({
                     <dt className="text-xs text-ink-500">Mobile</dt>
                     <dd className="text-ink-900">
                       {telHref ? (
-                        <a href={telHref} className="hover:text-accent-600">
+                        <a href={telHref} className="hover:text-accent-700">
                           {request.customer_phone}
                         </a>
                       ) : (
@@ -157,7 +157,7 @@ export default async function TestDriveDetailPage({
                     <dt className="text-xs text-ink-500">Email</dt>
                     <dd className="break-all text-ink-900">
                       {mailtoHref ? (
-                        <a href={mailtoHref} className="hover:text-accent-600">
+                        <a href={mailtoHref} className="hover:text-accent-700">
                           {request.customer_email}
                         </a>
                       ) : (
@@ -190,7 +190,7 @@ export default async function TestDriveDetailPage({
                   <div className="mt-4 flex flex-wrap gap-3">
                     <Link
                       href={`/admin/vehicles/${request.vehicle.id}`}
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-600 hover:text-accent-700"
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-700 hover:text-accent-800"
                     >
                       <Car className="size-3.5" aria-hidden="true" />
                       Manage vehicle

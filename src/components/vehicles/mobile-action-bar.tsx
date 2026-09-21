@@ -81,7 +81,7 @@ export function MobileActionBar({
           <button
             type="button"
             onClick={() => setInquiryOpen(true)}
-            className="inline-flex h-11 shrink-0 items-center gap-2 rounded-md bg-accent-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
+            className="inline-flex h-11 shrink-0 items-center gap-2 rounded-md bg-accent-500 px-5 text-sm font-semibold text-ink-950 transition-colors hover:bg-accent-600"
           >
             <MessageSquare className="size-4" aria-hidden="true" />
             Inquire

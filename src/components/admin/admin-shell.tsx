@@ -59,7 +59,7 @@ export function AdminShell({
       <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-white/10 px-5">
         <span
           aria-hidden="true"
-          className="flex size-8 items-center justify-center rounded-md bg-accent-600 font-display text-xs font-bold text-white"
+          className="flex size-8 items-center justify-center rounded-md bg-accent-500 font-display text-xs font-bold text-ink-950"
         >
           {businessName.slice(0, 2).toUpperCase()}
         </span>
@@ -126,7 +126,7 @@ export function AdminShell({
   return (
     <div className="min-h-dvh bg-ink-50">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 bg-ink-950 lg:block">{sidebar}</aside>
+      <aside className="fixed inset-y-0 left-0 hidden w-64 bg-brand-900 lg:block">{sidebar}</aside>
 
       {/* Mobile top bar */}
       <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-ink-200 bg-white px-4 lg:hidden">
@@ -147,7 +147,7 @@ export function AdminShell({
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 animate-fade-in bg-ink-950/60"
+            className="absolute inset-0 animate-fade-in bg-brand-900/60"
             onClick={() => setOpenedOn(null)}
             aria-label="Close dashboard menu"
             tabIndex={-1}
@@ -156,7 +156,7 @@ export function AdminShell({
             role="dialog"
             aria-modal="true"
             aria-label="Dashboard navigation"
-            className="absolute inset-y-0 left-0 w-[min(17rem,85vw)] animate-fade-in bg-ink-950 shadow-panel"
+            className="absolute inset-y-0 left-0 w-[min(17rem,85vw)] animate-fade-in bg-brand-900 shadow-panel"
           >
             <button
               type="button"

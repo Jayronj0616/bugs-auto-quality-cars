@@ -78,7 +78,7 @@ export function Modal({
       aria-describedby={description ? descriptionId : undefined}
       className={cn(
         'm-auto w-[calc(100vw-2rem)] rounded-card bg-white p-0 text-ink-900 shadow-panel',
-        'backdrop:bg-ink-950/55 backdrop:backdrop-blur-[2px]',
+        'backdrop:bg-brand-900/55 backdrop:backdrop-blur-[2px]',
         'open:animate-scale-in',
         sizeClass,
       )}
@@ -164,7 +164,7 @@ export function ConfirmDialog({
             disabled={isPending}
             className={cn(
               'inline-flex h-9 items-center rounded-md px-3.5 text-sm font-medium text-white disabled:opacity-55',
-              tone === 'danger' ? 'bg-danger-500 hover:bg-danger-700' : 'bg-accent-600 hover:bg-accent-700',
+              tone === 'danger' ? 'bg-danger-500 hover:bg-danger-700' : 'bg-accent-500 hover:bg-accent-600',
             )}
           >
             {isPending ? 'Working…' : confirmLabel}

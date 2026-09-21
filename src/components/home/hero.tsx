@@ -29,7 +29,7 @@ export function Hero({
   const backgroundImage = heroImage?.url ?? settings.hero_image_url
 
   return (
-    <section className="relative isolate overflow-hidden bg-ink-950 text-white">
+    <section className="relative isolate overflow-hidden bg-brand-900 text-white">
       {backgroundImage ? (
         <>
           <Image
@@ -44,18 +44,18 @@ export function Hero({
               image into the page at the bottom. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/25"
+            className="absolute inset-0 bg-gradient-to-r from-brand-900 via-brand-900/85 to-brand-900/25"
           />
           <div
             aria-hidden="true"
-            className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-ink-950 to-transparent"
+            className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-brand-900 to-transparent"
           />
         </>
       ) : null}
 
       <div className="container-page relative py-20 sm:py-28 lg:py-36">
         <div className="max-w-2xl">
-          <p className="eyebrow animate-fade-in text-accent-400">
+          <p className="eyebrow animate-fade-in text-accent-300">
             {inventoryCount > 0
               ? `${inventoryCount} ${inventoryCount === 1 ? 'vehicle' : 'vehicles'} available now`
               : settings.business_name}
@@ -110,9 +110,9 @@ export function Hero({
           >
             <Link
               href={`/cars/${vehicle.slug}`}
-              className="block rounded-card border border-white/15 bg-ink-950/70 p-5 backdrop-blur-md transition-colors hover:border-white/30"
+              className="block rounded-card border border-white/15 bg-brand-900/70 p-5 backdrop-blur-md transition-colors hover:border-white/30"
             >
-              <p className="eyebrow text-accent-400">Featured</p>
+              <p className="eyebrow text-accent-300">Featured</p>
               <p className="mt-2 text-lg leading-snug font-semibold">
                 {vehicle.year} {vehicle.brand} {vehicle.model}
               </p>
@@ -136,7 +136,7 @@ export function Hero({
                 ) : null}
               </div>
 
-              <p className="mt-4 text-sm font-semibold text-accent-400">
+              <p className="mt-4 text-sm font-semibold text-accent-300">
                 View this vehicle →
               </p>
             </Link>

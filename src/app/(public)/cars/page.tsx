@@ -39,9 +39,9 @@ export default async function InventoryPage({ searchParams }: PageProps<'/cars'>
 
   return (
     <>
-      <header className="border-b border-ink-200 bg-white">
+      <header className="border-b border-brand-100 bg-brand-50">
         <div className="container-page py-10 sm:py-12">
-          <p className="eyebrow text-accent-600">Inventory</p>
+          <p className="eyebrow text-accent-700">Inventory</p>
           <h1 className="mt-2 text-3xl font-bold text-ink-900 sm:text-4xl">Browse cars</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-600 sm:text-base">
             {facets.total > 0

@@ -111,7 +111,7 @@ export function FeatureList({ features }: { features: string[] }) {
         <li key={feature} className="flex items-start gap-2.5 text-sm text-ink-700">
           <span
             aria-hidden="true"
-            className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent-600"
+            className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent-500"
           />
           {feature}
         </li>

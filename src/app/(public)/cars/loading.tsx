@@ -9,7 +9,7 @@ import { VehicleCardSkeleton } from '@/components/vehicles/vehicle-card'
 export default function InventoryLoading() {
   return (
     <>
-      <header className="border-b border-ink-200 bg-white">
+      <header className="border-b border-brand-100 bg-brand-50">
         <div className="container-page py-10 sm:py-12">
           <div className="shimmer h-3 w-20 rounded" />
           <div className="shimmer mt-3 h-9 w-56 rounded" />

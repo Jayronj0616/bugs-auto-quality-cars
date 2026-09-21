@@ -57,9 +57,9 @@ export default async function AboutPage() {
 
   return (
     <>
-      <header className="bg-ink-950 text-white">
+      <header className="bg-brand-900 text-white">
         <div className="container-page py-14 sm:py-20">
-          <p className="eyebrow text-accent-400">About</p>
+          <p className="eyebrow text-accent-300">About</p>
           <h1 className="mt-3 max-w-3xl text-3xl leading-tight font-bold sm:text-4xl lg:text-5xl">
             {settings.business_name}
           </h1>
@@ -119,7 +119,7 @@ export default async function AboutPage() {
                     href={settings.google_maps_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-3 inline-block text-sm font-semibold text-accent-600 hover:text-accent-700"
+                    className="mt-3 inline-block text-sm font-semibold text-accent-700 hover:text-accent-800"
                   >
                     Get directions →
                   </a>
@@ -130,7 +130,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-white py-14 sm:py-20">
+      <section className="bg-brand-50 py-14 sm:py-20">
         <div className="container-page">
           <SectionHeading
             eyebrow="How we work"
@@ -141,7 +141,7 @@ export default async function AboutPage() {
           <ul className="mt-10 grid gap-8 sm:grid-cols-2">
             {VALUES.map((value, index) => (
               <Reveal as="li" key={value.title} delay={index * 70} className="flex gap-4">
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-accent-50 text-accent-600">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-accent-50 text-accent-700">
                   <value.icon className="size-5" aria-hidden="true" />
                 </span>
                 <div>

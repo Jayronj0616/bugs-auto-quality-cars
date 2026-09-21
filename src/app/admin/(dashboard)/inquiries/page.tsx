@@ -86,7 +86,7 @@ export default async function InquiriesPage({ searchParams }: PageProps<'/admin/
                     className={cn(
                       'inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
                       active
-                        ? 'bg-ink-900 text-white'
+                        ? 'bg-brand-800 text-white'
                         : 'text-ink-600 hover:bg-ink-100 hover:text-ink-900',
                     )}
                   >
@@ -146,7 +146,7 @@ export default async function InquiriesPage({ searchParams }: PageProps<'/admin/
                       <td className="px-4 py-3">
                         <Link
                           href={`/admin/inquiries/${inquiry.id}`}
-                          className="font-medium text-ink-900 hover:text-accent-600"
+                          className="font-medium text-ink-900 hover:text-accent-700"
                         >
                           {inquiry.customer_name}
                         </Link>
@@ -211,7 +211,7 @@ export default async function InquiriesPage({ searchParams }: PageProps<'/admin/
                     {telHref ? (
                       <a
                         href={telHref}
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-600"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-700"
                       >
                         <Phone className="size-3.5" aria-hidden="true" />
                         Call

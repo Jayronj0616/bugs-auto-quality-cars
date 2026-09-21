@@ -142,7 +142,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps<'/a
               action={
                 <Link
                   href="/admin/inquiries"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:text-accent-700"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-accent-700 hover:text-accent-800"
                 >
                   View all
                   <ArrowRight className="size-3.5" aria-hidden="true" />
@@ -195,7 +195,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps<'/a
               action={
                 <Link
                   href="/admin/test-drives"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:text-accent-700"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-accent-700 hover:text-accent-800"
                 >
                   View all
                   <ArrowRight className="size-3.5" aria-hidden="true" />
@@ -248,7 +248,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps<'/a
               action={
                 <Link
                   href="/admin/vehicles"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:text-accent-700"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-accent-700 hover:text-accent-800"
                 >
                   View all
                   <ArrowRight className="size-3.5" aria-hidden="true" />
@@ -353,7 +353,7 @@ function StatCard({
           className={cn(
             'flex size-9 shrink-0 items-center justify-center rounded-md',
             tone === 'accent'
-              ? 'bg-accent-50 text-accent-600'
+              ? 'bg-accent-50 text-accent-700'
               : tone === 'warning'
                 ? 'bg-warning-50 text-warning-700'
                 : 'bg-ink-100 text-ink-500',

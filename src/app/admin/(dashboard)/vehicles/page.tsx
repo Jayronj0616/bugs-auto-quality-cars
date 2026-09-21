@@ -91,7 +91,7 @@ export default async function AdminVehiclesPage({ searchParams }: PageProps<'/ad
                     className={cn(
                       'inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
                       active
-                        ? 'bg-ink-900 text-white'
+                        ? 'bg-brand-800 text-white'
                         : 'text-ink-600 hover:bg-ink-100 hover:text-ink-900',
                     )}
                   >
@@ -112,7 +112,7 @@ export default async function AdminVehiclesPage({ searchParams }: PageProps<'/ad
             className={cn(
               'inline-flex h-10 items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors',
               featuredOnly
-                ? 'border-accent-600 bg-accent-50 text-accent-700'
+                ? 'border-accent-500 bg-accent-50 text-accent-800'
                 : 'border-ink-300 bg-white text-ink-600 hover:border-ink-400',
             )}
           >
@@ -182,7 +182,7 @@ export default async function AdminVehiclesPage({ searchParams }: PageProps<'/ad
                           <div className="min-w-0">
                             <Link
                               href={`/admin/vehicles/${vehicle.id}`}
-                              className="block truncate font-medium text-ink-900 hover:text-accent-600"
+                              className="block truncate font-medium text-ink-900 hover:text-accent-700"
                             >
                               {label}
                             </Link>

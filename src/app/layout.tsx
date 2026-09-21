@@ -46,7 +46,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={`${inter.variable} ${sora.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-ink-50 text-ink-900">{children}</body>
+      {/* White is the 60% of the palette, so the page itself is white and
+          sections tint themselves where separation is actually wanted. */}
+      <body className="flex min-h-full flex-col bg-white text-ink-900">{children}</body>
     </html>
   )
 }
