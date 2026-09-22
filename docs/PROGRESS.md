@@ -2,8 +2,9 @@
 
 Living status of the implementation. Update as phases land.
 
-**Last updated:** 2026-09-21 (live with real inventory)
+**Last updated:** 2026-09-22 (deployed to production)
 **Stack:** Next.js 16.3.5 (App Router) · React 19.2 · TypeScript · Tailwind v4 · Supabase (Postgres + Auth + Storage)
+**Live:** https://bugs-auto-quality-cars.vercel.app · Repo: https://github.com/Jayronj0616/bugs-auto-quality-cars
 
 ---
 
@@ -16,6 +17,7 @@ Living status of the implementation. Update as phases land.
 | Unit tests | ✅ 49 passing (`npm run test`) |
 | Production build | ✅ passing (`npm run build`) |
 | **Run against a real database** | ✅ live on a hosted Supabase project (`npm run db:verify`) |
+| **Deployed** | ✅ live on Vercel, auto-deploying from `main` on every push |
 
 Phases 1–10 are code complete and the system now runs against a live hosted Supabase
 project. The customer-to-dashboard loop has been walked end to end with real data:
@@ -40,6 +42,11 @@ Connected to a hosted Supabase project (`ap-southeast-2`) with the dealership's 
 - **Contact details** applied: both phone numbers, Plaridel/Bulacan location, logo.
 - `npm run db:verify` passes, including that anonymous visitors cannot read customer data or
   write to any table.
+- **Deployed to Vercel** ([bugs-auto-quality-cars.vercel.app](https://bugs-auto-quality-cars.vercel.app)),
+  connected to [github.com/Jayronj0616/bugs-auto-quality-cars](https://github.com/Jayronj0616/bugs-auto-quality-cars)
+  for auto-deploy on push. The inquiry form was submitted end to end on the live deployment -
+  public form -> Server Action -> Supabase -> admin dashboard - confirmed correct, then the
+  test row was deleted so it doesn't sit in the dealership's real CRM as a fake lead.
 
 ### Reproducing the setup elsewhere
 
