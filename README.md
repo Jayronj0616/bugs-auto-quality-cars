@@ -6,6 +6,12 @@ inquiries and dealership information.
 
 **Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Supabase (Postgres, Auth, Storage)**
 
+**Live:** [bugs-auto-quality-cars.vercel.app](https://bugs-auto-quality-cars.vercel.app)
+**Repo:** [github.com/Jayronj0616/bugs-auto-quality-cars](https://github.com/Jayronj0616/bugs-auto-quality-cars)
+
+Every push to `main` deploys to production automatically (Vercel is connected directly to
+this GitHub repo) - there is no separate deploy step to run.
+
 Build status and what is left to do: **[`docs/PROGRESS.md`](docs/PROGRESS.md)**
 
 ---
@@ -62,6 +68,26 @@ Admin accounts are provisioned deliberately; there is no public signup. Set
 ```bash
 npm run create-admin
 ```
+
+---
+
+## Deploying
+
+The production site is hosted on Vercel and connected directly to this repo's `main` branch,
+so `git push` is the entire deploy step.
+
+To point a new Vercel project at a fork, set three environment variables (Project Settings ->
+Environment Variables) - these are the only ones the app reads at runtime:
+
+| Variable | Where it's used |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Safe to expose - read by the browser |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Safe to expose - Row Level Security is what actually protects the data |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Server only.** Store it as a Secret, never as a public/config value |
+
+`NEXT_PUBLIC_SITE_URL` does not need to be set on Vercel - `src/lib/env.ts` falls back to
+Vercel's own `VERCEL_PROJECT_PRODUCTION_URL` automatically. The database schema itself is
+applied separately with `npm run db:push` (see above); Vercel only builds and serves the app.
 
 ---
 
