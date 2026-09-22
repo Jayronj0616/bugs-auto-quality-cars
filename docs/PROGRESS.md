@@ -212,16 +212,29 @@ All editable at `/admin/settings`.
 ### 🟡 Phase 11 — Responsive, accessibility and performance
 
 Done:
-- Palette rebuilt on 60-30-10 (white 60 / brand teal 30 / warm amber 10).
+- Palette rebuilt on 60-30-10 (white 60 / charcoal 30 / coral 10) after a reference design
+  the dealership supplied. An earlier pass used brand teal for the 30 and warm amber for the
+  10; the dealership compared the two live and confirmed the charcoal-and-coral version is
+  the one to keep.
 - Contrast measured in-browser rather than eyeballed, which caught `text-ink-500`
   failing AA at 4.1:1 across 91 usages, and white-on-amber buttons at 2.9:1. The neutral
   ramp was retuned and amber fills now carry dark text.
 - Automated contrast audit run over `/`, `/cars`, `/financing` and `/contact`: clean.
+- Zero horizontal overflow confirmed programmatically at every spec breakpoint (1920 / 1440 /
+  1280 / 1024 / 768 / 430 / 390 / 375) across the public site and every admin page. Found and
+  fixed two real breaks along the way: the dashboard's summary-card grid forced a wider track
+  than the mobile viewport because CSS grid items default to `min-width: auto` (fixed with
+  `min-w-0` on each card - `src/app/admin/(dashboard)/page.tsx`), and a video URL link on the
+  vehicle edit page ignored `truncate` because it is an inline `<a>` and `truncate` needs a
+  block box to clip against (fixed with `block` - `src/components/admin/videos-editor.tsx`).
+
+- Keyboard-only pass: tab order is correct site-wide, the mobile drawer traps focus and
+  returns it to the trigger button on Escape, modals are built on the native `<dialog>`
+  element (free focus trap, Escape-to-close, top-layer stacking), and a full scan of every
+  `onClick` handler in the codebase (90 of them) confirmed none are attached to a non-interactive
+  element - so nothing depends on mouse-only affordances.
 
 Outstanding:
-- Sweep the remaining breakpoints from the UI spec (1920 / 1440 / 1280 / 1024 / 768 / 430 /
-  390 / 375), especially the admin tables and the vehicle gallery.
-- Keyboard-only pass over the gallery, modals and the mobile drawer.
 - Lighthouse pass once real photography is in.
 
 ### 🟡 Phase 12 — End-to-end verification

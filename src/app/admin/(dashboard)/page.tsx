@@ -134,9 +134,17 @@ export default async function AdminDashboardPage({ searchParams }: PageProps<'/a
         ) : null}
       </div>
 
+      {/*
+        Grid items default to min-width: auto, which stops a track
+        shrinking below its content's intrinsic width. On the single
+        mobile column that let these cards force the grid past the
+        viewport, so the "Recent inquiries" card's "View all" link ran
+        off-screen on a phone with no way to scroll to it. min-w-0 on each
+        card overrides that and lets the track shrink to the container.
+      */}
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         {stats.crm ? (
-          <Card>
+          <Card className="min-w-0">
             <CardHeader
               title="Recent inquiries"
               action={
@@ -189,7 +197,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps<'/a
         ) : null}
 
         {stats.crm ? (
-          <Card>
+          <Card className="min-w-0">
             <CardHeader
               title="Upcoming test drives"
               action={
@@ -242,7 +250,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps<'/a
         ) : null}
 
         {stats.vehicles ? (
-          <Card>
+          <Card className="min-w-0">
             <CardHeader
               title="Recently updated vehicles"
               action={
@@ -296,7 +304,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps<'/a
           </Card>
         ) : null}
 
-        <Card>
+        <Card className="min-w-0">
           <CardHeader title="Recent activity" description="What changed, and who changed it." />
           {data.recentActivity.length > 0 ? (
             <ul className="divide-y divide-ink-100">

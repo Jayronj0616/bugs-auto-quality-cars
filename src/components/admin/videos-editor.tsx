@@ -112,11 +112,14 @@ export function VideosEditor({
                     <p className="truncate text-xs text-ink-500">
                       {labelFor('videoType', video.video_type)} · {video.provider}
                     </p>
+                    {/* `truncate` needs a block box to clip against - an <a> is
+                        inline by default, so without `block` this ran past its
+                        container instead of ellipsising like the lines above it. */}
                     <a
                       href={video.video_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="truncate text-xs text-accent-700 hover:underline"
+                      className="block truncate text-xs text-accent-700 hover:underline"
                     >
                       {video.video_url}
                     </a>
