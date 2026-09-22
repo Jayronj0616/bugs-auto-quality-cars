@@ -48,3 +48,6 @@ next-env.d.ts
 
 # Dealership source photography (large, already uploaded to Supabase Storage)
 /images/
+
+.vercel
+.env*
