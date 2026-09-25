@@ -40,3 +40,11 @@ export function revalidateCrm() {
   revalidatePath('/admin/inquiries')
   revalidatePath('/admin/test-drives')
 }
+
+/** The /sold showcase, after a past deal or its photos change. */
+export function revalidatePastDeals(slug?: string | null) {
+  revalidatePath('/sold')
+  revalidatePath('/sitemap.xml')
+  if (slug) revalidatePath(`/sold/${slug}`)
+  revalidatePath('/admin/sold-vehicles')
+}

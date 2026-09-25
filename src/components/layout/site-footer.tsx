@@ -13,6 +13,7 @@ const EXPLORE_LINKS = [
   { href: '/cars?featured=1', label: 'Featured vehicles' },
   { href: '/cars?promo=1', label: 'Promo units' },
   { href: '/financing', label: 'Financing calculator' },
+  { href: '/sold', label: 'Sold vehicles' },
 ]
 
 const COMPANY_LINKS = [

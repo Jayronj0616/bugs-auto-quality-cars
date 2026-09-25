@@ -244,6 +244,30 @@ Done:
 Outstanding:
 - Lighthouse pass once real photography is in.
 
+### ✅ Phase 13 — Sold Archive (past deals showcase)
+
+The dealership has 20+ years of sold units with no price, specs or original listing left on
+record - just photos and, sometimes, a memory of what the car was. Forcing those into
+`vehicles` would mean either inventing numbers nobody has or fighting a required `selling_price`
+through the calculator, chat script and inquiry flow everywhere it's assumed. Built as a
+separate, much smaller table instead: `past_deals` / `past_deal_images`, a title, an optional
+note, an optional approximate sold date, and photos - nothing else. A real listing that later
+gets sold stays a `vehicles` row exactly as before; this is only for units with nothing left to
+show but pictures.
+
+- Public: `/sold` (grid) and `/sold/[slug]` (gallery + title + a CTA back to `/cars`, since
+  nothing here is actually for sale). Included in the sitemap.
+- Admin: `/admin/sold-vehicles`, gated by the same `inventory` capability as the vehicles list.
+  Create, edit, publish/unpublish, delete (with storage cleanup), and a photo manager (upload,
+  drag reorder, set cover, delete) that mirrors the vehicle one minus the fields a past deal
+  doesn't have.
+- Verified end to end against the live database: created a test entry, uploaded a real photo,
+  confirmed it rendered correctly on `/sold` and `/sold/[slug]`, deleted it from the admin list,
+  and confirmed both the database rows and the storage object were actually gone - not just
+  hidden.
+- Zero horizontal overflow confirmed at all eight spec breakpoints across every new page, public
+  and admin, using the same programmatic sweep from Phase 11.
+
 ### 🟡 Phase 12 — End-to-end verification
 
 Verified against the live database:

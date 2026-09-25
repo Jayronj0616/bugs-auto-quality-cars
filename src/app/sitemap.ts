@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 
+import { getPublishedPastDealSlugs } from '@/lib/data/past-deals'
 import { getPublishedVehicleSlugs } from '@/lib/data/vehicles'
 import { getSiteUrl } from '@/lib/env'
 
@@ -19,9 +20,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/financing`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${baseUrl}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/sold`, lastModified: now, changeFrequency: 'weekly', priority: 0.4 },
   ]
 
-  const vehicles = await getPublishedVehicleSlugs()
+  const [vehicles, pastDeals] = await Promise.all([
+    getPublishedVehicleSlugs(),
+    getPublishedPastDealSlugs(),
+  ])
 
   return [
     ...staticRoutes,
@@ -30,6 +35,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(vehicle.updated_at),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
+    })),
+    ...pastDeals.map((deal) => ({
+      url: `${baseUrl}/sold/${deal.slug}`,
+      lastModified: new Date(deal.updated_at),
+      changeFrequency: 'monthly' as const,
+      priority: 0.3,
     })),
   ]
 }

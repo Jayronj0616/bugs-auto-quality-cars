@@ -1,4 +1,5 @@
 import {
+  Archive,
   CalendarClock,
   Car,
   LayoutDashboard,
@@ -25,6 +26,13 @@ export type AdminNavItem = {
 export const ADMIN_NAV: AdminNavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/vehicles', label: 'Vehicles', icon: Car, capability: 'inventory', prefix: true },
+  {
+    href: '/admin/sold-vehicles',
+    label: 'Sold Archive',
+    icon: Archive,
+    capability: 'inventory',
+    prefix: true,
+  },
   {
     href: '/admin/inquiries',
     label: 'Inquiries',

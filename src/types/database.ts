@@ -270,6 +270,37 @@ export type VehicleVideoRow = {
   updated_at: string
 }
 
+/**
+ * A vehicle the dealership already sold, kept for the /sold showcase.
+ * Deliberately thin: no price, no specs, no financing - see the migration
+ * comment on `past_deals` for why that's a table of its own rather than a
+ * priceless `vehicles` row.
+ */
+export type PastDealRow = {
+  id: string
+  slug: string
+  title: string
+  note: string | null
+  /** Approximate - most of these predate this system and the exact date isn't known. */
+  sold_around: string | null
+  is_published: boolean
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type PastDealImageRow = {
+  id: string
+  past_deal_id: string
+  storage_path: string | null
+  url: string
+  alt_text: string | null
+  sort_order: number
+  is_primary: boolean
+  file_size: number | null
+  created_at: string
+}
+
 export type VehicleSpecificationRow = {
   id: string
   vehicle_id: string
@@ -390,6 +421,8 @@ export type Database = {
       test_drive_requests: TableDef<TestDriveRequestRow>
       admin_notes: TableDef<AdminNoteRow>
       activity_logs: TableDef<ActivityLogRow>
+      past_deals: TableDef<PastDealRow>
+      past_deal_images: TableDef<PastDealImageRow>
     }
     Views: Record<string, never>
     Functions: Record<string, never>
