@@ -23,7 +23,8 @@
     "db:seed": "node --experimental-strip-types scripts/run-sql.mts supabase/seed.sql",
     "db:sql": "node --experimental-strip-types scripts/run-sql.mts",
     "import:inventory": "node --experimental-strip-types scripts/import-inventory.mts",
-    "import:settings": "node --experimental-strip-types scripts/import-settings.mts"
+    "import:settings": "node --experimental-strip-types scripts/import-settings.mts",
+    "import:sold-archive": "node --experimental-strip-types scripts/import-sold-archive.mts scripts/sold-archive-manifest.json"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
