@@ -26,26 +26,60 @@ function sortImages<T extends { is_primary: boolean; sort_order: number }>(image
   })
 }
 
-/** Every published deal, newest first - powers the /sold grid. */
-export const getPublishedPastDeals = cache(async (): Promise<PastDealSummary[]> => {
-  const supabase = createPublicSupabaseClient()
-  if (!supabase) return []
+export const PAST_DEALS_PER_PAGE = 24
 
-  const { data, error } = await supabase
+export type PastDealListResult = {
+  deals: PastDealSummary[]
+  total: number
+  page: number
+  perPage: number
+  totalPages: number
+}
+
+/**
+ * Published deals, newest first - powers the /sold grid.
+ *
+ * Paginated rather than returning everything: this archive is meant to grow
+ * without bound (every past sale, going back years), and a page rendering
+ * hundreds of full-size photos at once is slow to load for a visitor and
+ * heavy on Next's image optimizer for no benefit - nobody scrolls that far.
+ */
+export const getPublishedPastDeals = cache(async (page = 1): Promise<PastDealListResult> => {
+  const safePage = Math.max(1, page)
+  const supabase = createPublicSupabaseClient()
+  const empty: PastDealListResult = {
+    deals: [],
+    total: 0,
+    page: safePage,
+    perPage: PAST_DEALS_PER_PAGE,
+    totalPages: 0,
+  }
+  if (!supabase) return empty
+
+  const from = (safePage - 1) * PAST_DEALS_PER_PAGE
+  const { data, error, count } = await supabase
     .from('past_deals')
-    .select(SUMMARY_SELECT)
+    .select(SUMMARY_SELECT, { count: 'exact' })
     .eq('is_published', true)
     .order('sold_around', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
-    .limit(500)
+    .range(from, from + PAST_DEALS_PER_PAGE - 1)
 
   if (error) {
     console.error('[past-deals] list failed:', error.message)
-    return []
+    return empty
   }
 
   const rows = (data ?? []) as unknown as PastDealSummary[]
-  return rows.map((row) => ({ ...row, images: sortImages(row.images) }))
+  const total = count ?? 0
+
+  return {
+    deals: rows.map((row) => ({ ...row, images: sortImages(row.images) })),
+    total,
+    page: safePage,
+    perPage: PAST_DEALS_PER_PAGE,
+    totalPages: Math.max(1, Math.ceil(total / PAST_DEALS_PER_PAGE)),
+  }
 })
 
 /** One deal with every photo - powers /sold/[slug]. */

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Archive } from 'lucide-react'
 
+import { Pagination } from '@/components/ui/pagination'
 import { Reveal } from '@/components/ui/reveal'
 import { EmptyState } from '@/components/ui/surfaces'
 import { PastDealCard } from '@/components/vehicles/past-deal-card'
@@ -16,8 +17,12 @@ export const metadata: Metadata = {
   alternates: { canonical: '/sold' },
 }
 
-export default async function SoldPage() {
-  const deals = await getPublishedPastDeals()
+export default async function SoldPage({ searchParams }: PageProps<'/sold'>) {
+  const params = await searchParams
+  const pageParam = Number(Array.isArray(params.page) ? params.page[0] : params.page)
+  const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1
+
+  const result = await getPublishedPastDeals(page)
 
   return (
     <>
@@ -26,28 +31,41 @@ export default async function SoldPage() {
           <p className="eyebrow text-accent-700">Track record</p>
           <h1 className="mt-2 text-3xl font-bold text-ink-900 sm:text-4xl">Sold vehicles</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-600 sm:text-base">
-            {deals.length > 0
-              ? `${formatNumber(deals.length)} ${deals.length === 1 ? 'vehicle' : 'vehicles'} already sold. These aren't for sale - they're here to show the kind of cars that come through.`
+            {result.total > 0
+              ? `${formatNumber(result.total)} ${result.total === 1 ? 'vehicle' : 'vehicles'} already sold. These aren't for sale - they're here to show the kind of cars that come through.`
               : 'Vehicles already sold will appear here.'}
           </p>
         </div>
       </header>
 
       <div className="container-page py-8 sm:py-10">
-        {deals.length === 0 ? (
+        {result.deals.length === 0 ? (
           <EmptyState
             icon={<Archive className="size-6" aria-hidden="true" />}
-            title="Nothing published yet"
-            description="Check back soon, or browse what's currently available."
+            title={result.total === 0 ? 'Nothing published yet' : 'Nothing on this page'}
+            description={
+              result.total === 0
+                ? "Check back soon, or browse what's currently available."
+                : 'Go back to the first page.'
+            }
           />
         ) : (
-          <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {deals.map((deal, index) => (
-              <Reveal as="li" key={deal.id} delay={Math.min(index, 6) * 50}>
-                <PastDealCard deal={deal} priority={index < 3} />
-              </Reveal>
-            ))}
-          </ul>
+          <>
+            <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {result.deals.map((deal, index) => (
+                <Reveal as="li" key={deal.id} delay={Math.min(index, 6) * 50}>
+                  <PastDealCard deal={deal} priority={index < 3} />
+                </Reveal>
+              ))}
+            </ul>
+
+            <Pagination
+              className="mt-10"
+              page={result.page}
+              totalPages={result.totalPages}
+              buildHref={(p) => (p > 1 ? `/sold?page=${p}` : '/sold')}
+            />
+          </>
         )}
       </div>
     </>

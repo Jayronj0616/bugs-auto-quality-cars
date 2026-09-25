@@ -265,6 +265,21 @@ show but pictures.
   confirmed it rendered correctly on `/sold` and `/sold/[slug]`, deleted it from the admin list,
   and confirmed both the database rows and the storage object were actually gone - not just
   hidden.
+- **328 real photos imported as 310 entries.** The dealership's actual archive had no per-photo
+  metadata to group by, so `scripts/import-sold-archive.mts` groups by EXIF capture-time
+  proximity (photos of one car are almost always shot within minutes of each other) and falls
+  back to one entry per photo where no timestamp exists or the gap is too large to trust. Each
+  entry's title was written by looking at the photo itself (via contact sheets of ~30 thumbnails
+  at a time, to make reviewing 310 photos tractable) rather than guessed blind; the five photos
+  that don't show the car clearly enough to identify got an honest generic title and a note
+  flagging them for the dealership to fix, instead of a fabricated make/model. Re-running the
+  script is safe - it's driven by `scripts/sold-archive-manifest.json`, which is version
+  controlled even though the source photos in `images/sold/` are not.
+- **`/sold` needed pagination it didn't have.** Built and tested against 0-2 entries, so nobody
+  noticed the grid had no page size limit until the real import landed 310 at once and the page
+  tried to load 310 full-size images simultaneously - Next's dev-mode image optimizer choked
+  under that burst and served intermittent 500s. Fixed with the same `Pagination` component
+  `/cars` already uses, 24 per page.
 - Zero horizontal overflow confirmed at all eight spec breakpoints across every new page, public
   and admin, using the same programmatic sweep from Phase 11.
 
