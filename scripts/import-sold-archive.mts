@@ -9,9 +9,12 @@
  * The manifest is produced separately (grouping photos by EXIF timestamp
  * proximity, with a title guessed by looking at each photo) - this script
  * only does the mechanical part: create a `past_deals` row per unit, upload
- * its photo(s), and link them. Idempotent by slug: re-running skips any unit
- * whose slug already has photos attached, so it's safe to re-run after fixing
- * a typo in the manifest without re-uploading everything.
+ * its photo(s), and link them.
+ *
+ * Not idempotent: re-running creates a second set of entries rather than
+ * skipping ones already imported (`uniqueSlug` just appends -2, -3… on a
+ * collision, it doesn't detect "this is the same unit as before"). Re-run
+ * only against an empty archive, or after deleting the previous run's rows.
  */
 
 import { readFileSync } from 'node:fs'

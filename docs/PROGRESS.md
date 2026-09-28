@@ -270,11 +270,18 @@ show but pictures.
   proximity (photos of one car are almost always shot within minutes of each other) and falls
   back to one entry per photo where no timestamp exists or the gap is too large to trust. Each
   entry's title was written by looking at the photo itself (via contact sheets of ~30 thumbnails
-  at a time, to make reviewing 310 photos tractable) rather than guessed blind; the five photos
-  that don't show the car clearly enough to identify got an honest generic title and a note
-  flagging them for the dealership to fix, instead of a fabricated make/model. Re-running the
-  script is safe - it's driven by `scripts/sold-archive-manifest.json`, which is version
-  controlled even though the source photos in `images/sold/` are not.
+  at a time, to make reviewing 310 photos tractable) rather than guessed blind. Not idempotent -
+  see the script's own header before re-running it against a non-empty archive.
+- **Titles are brand only, no color, no model.** The dealership asked for this after the first
+  pass (color + guessed model, e.g. "Black Toyota Fortuner") turned out to be right on the brand
+  but wrong on the model often enough to matter - a badge is legible at thumbnail size, the exact
+  trim of a mid-size SUV usually isn't. Re-derived from the photos as a dedicated pass (not by
+  stripping words from the old guess), then cross-checked against the original guesses: of 310,
+  only 4 disagreed between the two independent looks, and all 4 were resolved by viewing that one
+  photo again at full size - one turned out to be neither original guess (an Isuzu badge, guessed
+  Nissan then Mitsubishi). Nine photos don't show the vehicle clearly enough to identify even the
+  brand (paperwork handovers, two motorcycles) - those got the honest generic title "Sold vehicle"
+  and a note flagging them for the dealership to retitle, rather than a fabricated marque.
 - **`/sold` needed pagination it didn't have.** Built and tested against 0-2 entries, so nobody
   noticed the grid had no page size limit until the real import landed 310 at once and the page
   tried to load 310 full-size images simultaneously - Next's dev-mode image optimizer choked
