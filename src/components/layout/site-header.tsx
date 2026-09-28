@@ -12,6 +12,7 @@ import { FacebookIcon } from '@/components/ui/brand-icons'
 
 export const NAV_LINKS: NavLink[] = [
   { href: '/cars', label: 'Cars' },
+  { href: '/sold', label: 'Sold' },
   { href: '/financing', label: 'Financing' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
