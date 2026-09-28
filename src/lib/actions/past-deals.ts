@@ -3,6 +3,7 @@
 import { z } from 'zod'
 
 import { AuthorizationError, authorizeAction, recordActivity, type AdminSession } from '@/lib/auth'
+import { labelFor } from '@/lib/constants'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { slugify } from '@/lib/utils'
 import {
@@ -26,6 +27,9 @@ import { actionError, actionSuccess, internalError, zodErrors, type ActionResult
 
 const uuid = z.uuid()
 
+/** Matches the fallback title `getPastDealBySlug` / the public pages read. */
+const UNCLEAR_TITLE = 'Sold vehicle'
+
 export async function savePastDeal(
   input: PastDealFormInput & { dealId?: string | null },
 ): Promise<ActionResult<{ dealId: string; slug: string }>> {
@@ -47,12 +51,17 @@ export async function savePastDeal(
   }
 
   const values = parsed.data
+  // Derived, not typed: the brand a photo's badge shows is the only thing an
+  // admin actually picks. A null brand means no legible badge, same meaning
+  // it's always had.
+  const title = values.brand ? labelFor('pastDealBrand', values.brand) : UNCLEAR_TITLE
 
   try {
-    const slug = await resolveSlug(session, values.slug || slugify(values.title), dealId)
+    const slug = await resolveSlug(session, values.slug || slugify(title), dealId)
 
     const row = {
-      title: values.title,
+      title,
+      brand: values.brand,
       slug,
       note: values.note,
       sold_around: values.soldAround,
@@ -73,7 +82,7 @@ export async function savePastDeal(
         action: 'past_deal.updated',
         entityType: 'past_deal',
         entityId: data.id,
-        entityLabel: values.title,
+        entityLabel: title,
       })
 
       revalidatePastDeals(data.slug)
@@ -92,7 +101,7 @@ export async function savePastDeal(
       action: 'past_deal.created',
       entityType: 'past_deal',
       entityId: data.id,
-      entityLabel: values.title,
+      entityLabel: title,
     })
 
     revalidatePastDeals(data.slug)

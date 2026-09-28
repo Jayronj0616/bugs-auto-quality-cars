@@ -51,9 +51,42 @@ const MIME: Record<string, string> = {
 type ManifestUnit = {
   photos: string[]
   sold_around: string | null
-  title: string
+  /** One of `PAST_DEAL_BRANDS` in src/lib/constants.ts, or null if no legible badge. */
+  brand: string | null
   note: string | null
 }
+
+// Mirrors PAST_DEAL_BRANDS in src/lib/constants.ts - kept in sync by hand,
+// the same way this script already duplicates rather than imports the app's
+// slugify() below (a standalone script, no path aliases to resolve).
+const BRAND_LABELS: Record<string, string> = {
+  toyota: 'Toyota',
+  mitsubishi: 'Mitsubishi',
+  honda: 'Honda',
+  ford: 'Ford',
+  nissan: 'Nissan',
+  hyundai: 'Hyundai',
+  mazda: 'Mazda',
+  suzuki: 'Suzuki',
+  kia: 'Kia',
+  chevrolet: 'Chevrolet',
+  isuzu: 'Isuzu',
+  lexus: 'Lexus',
+  subaru: 'Subaru',
+  volkswagen: 'Volkswagen',
+  bmw: 'BMW',
+  mercedes_benz: 'Mercedes-Benz',
+  volvo: 'Volvo',
+  peugeot: 'Peugeot',
+  mg: 'MG',
+  byd: 'BYD',
+  geely: 'Geely',
+  foton: 'Foton',
+  jeep: 'Jeep',
+  other: 'Other',
+}
+const UNCLEAR_TITLE = 'Sold vehicle'
+const titleFor = (brand: string | null) => (brand ? (BRAND_LABELS[brand] ?? brand) : UNCLEAR_TITLE)
 
 const manifestPath = process.argv[2] ?? 'scripts/sold-archive-manifest.json'
 const units: ManifestUnit[] = JSON.parse(readFileSync(manifestPath, 'utf8'))
@@ -85,13 +118,15 @@ async function main() {
   let photosUploaded = 0
 
   for (const [index, unit] of units.entries()) {
-    const label = `[${index + 1}/${units.length}] ${unit.title}`
-    const slug = await uniqueSlug(slugify(unit.title))
+    const title = titleFor(unit.brand)
+    const label = `[${index + 1}/${units.length}] ${title}`
+    const slug = await uniqueSlug(slugify(title))
 
     const { data: deal, error: dealError } = await supabase
       .from('past_deals')
       .insert({
-        title: unit.title,
+        title,
+        brand: unit.brand,
         slug,
         note: unit.note,
         sold_around: unit.sold_around,
@@ -138,7 +173,7 @@ async function main() {
         past_deal_id: deal.id,
         storage_path: storagePath,
         url: publicUrl,
-        alt_text: `${unit.title} photo`,
+        alt_text: `${title} photo`,
         sort_order: order,
         is_primary: order === 0,
         file_size: bytes.byteLength,

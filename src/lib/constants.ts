@@ -17,6 +17,7 @@ import type {
   ImageCategory,
   InquiryStatus,
   InquiryType,
+  PastDealBrand,
   TestDriveStatus,
   TransmissionType,
   VehicleCondition,
@@ -50,6 +51,38 @@ export const VEHICLE_CONDITIONS: Option<VehicleCondition>[] = [
   option('brand_new', 'Brand New'),
   option('used', 'Pre-owned'),
   option('certified_pre_owned', 'Certified Pre-owned'),
+]
+
+/**
+ * Sold Archive brands. A fixed list rather than free text: a badge is
+ * legible in a photo far more reliably than a specific trim or model is, and
+ * a fixed list is what makes filtering /sold by brand possible at all.
+ */
+export const PAST_DEAL_BRANDS: Option<PastDealBrand>[] = [
+  option('toyota', 'Toyota'),
+  option('mitsubishi', 'Mitsubishi'),
+  option('honda', 'Honda'),
+  option('ford', 'Ford'),
+  option('nissan', 'Nissan'),
+  option('hyundai', 'Hyundai'),
+  option('mazda', 'Mazda'),
+  option('suzuki', 'Suzuki'),
+  option('kia', 'Kia'),
+  option('chevrolet', 'Chevrolet'),
+  option('isuzu', 'Isuzu'),
+  option('lexus', 'Lexus'),
+  option('subaru', 'Subaru'),
+  option('volkswagen', 'Volkswagen'),
+  option('bmw', 'BMW'),
+  option('mercedes_benz', 'Mercedes-Benz'),
+  option('volvo', 'Volvo'),
+  option('peugeot', 'Peugeot'),
+  option('mg', 'MG'),
+  option('byd', 'BYD'),
+  option('geely', 'Geely'),
+  option('foton', 'Foton'),
+  option('jeep', 'Jeep'),
+  option('other', 'Other'),
 ]
 
 export const BODY_TYPES: Option<BodyType>[] = [
@@ -232,6 +265,7 @@ const buildLookup = <T extends string>(options: Option<T>[]) =>
 const LOOKUPS = {
   status: buildLookup(VEHICLE_STATUSES),
   condition: buildLookup(VEHICLE_CONDITIONS),
+  pastDealBrand: buildLookup(PAST_DEAL_BRANDS),
   bodyType: buildLookup(BODY_TYPES),
   fuelType: buildLookup(FUEL_TYPES),
   transmission: buildLookup(TRANSMISSIONS),

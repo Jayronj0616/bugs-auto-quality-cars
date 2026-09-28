@@ -5,20 +5,29 @@ import { useRouter } from 'next/navigation'
 import { Check, Save } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Checkbox, Field, Input, Textarea } from '@/components/ui/field'
+import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Alert, Card, CardBody, CardHeader } from '@/components/ui/surfaces'
 import { savePastDeal } from '@/lib/actions/past-deals'
 import type { FieldErrors } from '@/lib/actions/result'
+import { PAST_DEAL_BRANDS, labelFor } from '@/lib/constants'
 import type { AdminPastDealDetail } from '@/lib/data/past-deals'
 import { slugify } from '@/lib/utils'
+import type { PastDealBrand } from '@/types/database'
+
+const UNCLEAR_TITLE = 'Sold vehicle'
 
 /**
  * Past-deal create/edit form.
  *
- * Deliberately three fields next to `VehicleForm`'s forty: a title, an
+ * Deliberately three fields next to `VehicleForm`'s forty: a brand, an
  * optional note, an optional approximate sold date, and whether it's public.
  * There is no price or spec section because a past deal has neither - see the
  * migration comment on `past_deals` for why.
+ *
+ * Brand is a dropdown, not a typed title - a badge is legible in a photo far
+ * more reliably than an exact model is, and a fixed list is what makes
+ * filtering /sold by brand possible at all. The displayed title is derived
+ * from the chosen brand server-side.
  */
 export function PastDealForm({ deal }: { deal?: AdminPastDealDetail | null }) {
   const router = useRouter()
@@ -28,11 +37,12 @@ export function PastDealForm({ deal }: { deal?: AdminPastDealDetail | null }) {
   const [savedMessage, setSavedMessage] = React.useState<string | null>(null)
   const statusRef = React.useRef<HTMLDivElement>(null)
 
-  const [title, setTitle] = React.useState(deal?.title ?? '')
+  const [brand, setBrand] = React.useState<PastDealBrand | ''>(deal?.brand ?? '')
   const [slug, setSlug] = React.useState(deal?.slug ?? '')
   const [slugEdited, setSlugEdited] = React.useState(Boolean(deal?.slug))
 
-  const previewSlug = slugEdited ? slug : slugify(title)
+  const brandTitle = brand ? labelFor('pastDealBrand', brand) : UNCLEAR_TITLE
+  const previewSlug = slugEdited ? slug : slugify(brandTitle)
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -45,7 +55,7 @@ export function PastDealForm({ deal }: { deal?: AdminPastDealDetail | null }) {
 
     const payload = {
       dealId: deal?.id ?? null,
-      title: text('title'),
+      brand: text('brand') || null,
       slug: slugEdited ? slug : previewSlug,
       note: text('note'),
       soldAround: text('soldAround'),
@@ -53,7 +63,7 @@ export function PastDealForm({ deal }: { deal?: AdminPastDealDetail | null }) {
     }
 
     startTransition(async () => {
-      const result = await savePastDeal(payload)
+      const result = await savePastDeal(payload as Parameters<typeof savePastDeal>[0])
 
       if (!result.ok) {
         setFormError(result.message)
@@ -99,14 +109,24 @@ export function PastDealForm({ deal }: { deal?: AdminPastDealDetail | null }) {
           description="Only what's actually known about the sale - leave the rest blank."
         />
         <CardBody className="space-y-4">
-          <Field label="Title" required error={fieldErrors.title}>
-            <Input
-              name="title"
-              required
-              defaultValue={deal?.title ?? ''}
-              placeholder="2019 Toyota Vios"
-              onChange={(event) => setTitle(event.target.value)}
-            />
+          <Field
+            label="Brand"
+            error={fieldErrors.brand}
+            description="Picked from the photo's badge, not typed - pick “Not sure” if the photo doesn't show one clearly."
+            className="sm:max-w-xs"
+          >
+            <Select
+              name="brand"
+              value={brand}
+              onChange={(event) => setBrand(event.target.value as PastDealBrand | '')}
+            >
+              <option value="">Not sure / no badge visible</option>
+              {PAST_DEAL_BRANDS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
           </Field>
 
           <Field
@@ -121,7 +141,7 @@ export function PastDealForm({ deal }: { deal?: AdminPastDealDetail | null }) {
                 setSlugEdited(true)
                 setSlug(slugify(event.target.value))
               }}
-              placeholder="Generated from the title"
+              placeholder="Generated from the brand"
             />
           </Field>
 

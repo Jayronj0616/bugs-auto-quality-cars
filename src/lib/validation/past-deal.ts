@@ -1,17 +1,20 @@
 import { z } from 'zod'
 
+import { PAST_DEAL_BRANDS } from '@/lib/constants'
 import { slugify } from '@/lib/utils'
-import { formBoolean, optionalIsoDateSchema, optionalText, requiredText } from '@/lib/validation/shared'
+import { enumFromOptions, formBoolean, optionalIsoDateSchema, optionalText } from '@/lib/validation/shared'
 
 /**
  * Past deal form.
  *
- * Deliberately small next to `vehicleSchema` - a past deal is a title and some
- * photos, not a listing. The one thing worth validating carefully is the slug,
- * for the same reason vehicles validate it: it becomes a public URL.
+ * Deliberately small next to `vehicleSchema` - a past deal is a brand and
+ * some photos, not a listing. `brand` is a fixed list rather than free text:
+ * a badge is legible in a photo far more reliably than an exact model is,
+ * and a fixed list is what makes filtering /sold by brand possible. `title`
+ * is derived from it server-side, not collected here.
  */
 export const pastDealSchema = z.object({
-  title: requiredText('Title', { min: 1, max: 160 }),
+  brand: enumFromOptions(PAST_DEAL_BRANDS).nullable().catch(null),
   slug: z
     .string()
     .trim()

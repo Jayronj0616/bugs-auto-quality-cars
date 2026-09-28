@@ -4,7 +4,7 @@ import { cache } from 'react'
 
 import type { AdminSession } from '@/lib/auth'
 import { createPublicSupabaseClient } from '@/lib/supabase/server'
-import type { PastDealImageRow, PastDealRow } from '@/types/database'
+import type { PastDealBrand, PastDealImageRow, PastDealRow } from '@/types/database'
 
 /**
  * Reads for the /sold showcase and its admin management screens.
@@ -44,42 +44,81 @@ export type PastDealListResult = {
  * hundreds of full-size photos at once is slow to load for a visitor and
  * heavy on Next's image optimizer for no benefit - nobody scrolls that far.
  */
-export const getPublishedPastDeals = cache(async (page = 1): Promise<PastDealListResult> => {
-  const safePage = Math.max(1, page)
-  const supabase = createPublicSupabaseClient()
-  const empty: PastDealListResult = {
-    deals: [],
-    total: 0,
-    page: safePage,
-    perPage: PAST_DEALS_PER_PAGE,
-    totalPages: 0,
-  }
-  if (!supabase) return empty
+export const getPublishedPastDeals = cache(
+  async (page = 1, brand?: PastDealBrand): Promise<PastDealListResult> => {
+    const safePage = Math.max(1, page)
+    const supabase = createPublicSupabaseClient()
+    const empty: PastDealListResult = {
+      deals: [],
+      total: 0,
+      page: safePage,
+      perPage: PAST_DEALS_PER_PAGE,
+      totalPages: 0,
+    }
+    if (!supabase) return empty
 
-  const from = (safePage - 1) * PAST_DEALS_PER_PAGE
-  const { data, error, count } = await supabase
+    const from = (safePage - 1) * PAST_DEALS_PER_PAGE
+    let query = supabase
+      .from('past_deals')
+      .select(SUMMARY_SELECT, { count: 'exact' })
+      .eq('is_published', true)
+
+    if (brand) query = query.eq('brand', brand)
+
+    const { data, error, count } = await query
+      .order('sold_around', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false })
+      .range(from, from + PAST_DEALS_PER_PAGE - 1)
+
+    if (error) {
+      console.error('[past-deals] list failed:', error.message)
+      return empty
+    }
+
+    const rows = (data ?? []) as unknown as PastDealSummary[]
+    const total = count ?? 0
+
+    return {
+      deals: rows.map((row) => ({ ...row, images: sortImages(row.images) })),
+      total,
+      page: safePage,
+      perPage: PAST_DEALS_PER_PAGE,
+      totalPages: Math.max(1, Math.ceil(total / PAST_DEALS_PER_PAGE)),
+    }
+  },
+)
+
+/**
+ * Brands with at least one published entry, most common first - powers the
+ * filter bar on /sold. A brand with zero published entries isn't offered, so
+ * the filter never leads to a guaranteed-empty page.
+ */
+export const getPastDealBrandFacets = cache(async (): Promise<
+  { brand: PastDealBrand; count: number }[]
+> => {
+  const supabase = createPublicSupabaseClient()
+  if (!supabase) return []
+
+  const { data, error } = await supabase
     .from('past_deals')
-    .select(SUMMARY_SELECT, { count: 'exact' })
+    .select('brand')
     .eq('is_published', true)
-    .order('sold_around', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false })
-    .range(from, from + PAST_DEALS_PER_PAGE - 1)
+    .not('brand', 'is', null)
+    .limit(5000)
 
   if (error) {
-    console.error('[past-deals] list failed:', error.message)
-    return empty
+    console.error('[past-deals] brand facets failed:', error.message)
+    return []
   }
 
-  const rows = (data ?? []) as unknown as PastDealSummary[]
-  const total = count ?? 0
-
-  return {
-    deals: rows.map((row) => ({ ...row, images: sortImages(row.images) })),
-    total,
-    page: safePage,
-    perPage: PAST_DEALS_PER_PAGE,
-    totalPages: Math.max(1, Math.ceil(total / PAST_DEALS_PER_PAGE)),
+  const counts = new Map<PastDealBrand, number>()
+  for (const row of (data ?? []) as { brand: PastDealBrand }[]) {
+    counts.set(row.brand, (counts.get(row.brand) ?? 0) + 1)
   }
+
+  return [...counts.entries()]
+    .map(([brand, count]) => ({ brand, count }))
+    .sort((a, b) => b.count - a.count)
 })
 
 /** One deal with every photo - powers /sold/[slug]. */
@@ -131,7 +170,7 @@ export async function getPublishedPastDealSlugs(): Promise<
 
 export type AdminPastDealListItem = Pick<
   PastDealRow,
-  'id' | 'slug' | 'title' | 'sold_around' | 'is_published' | 'updated_at'
+  'id' | 'slug' | 'title' | 'brand' | 'sold_around' | 'is_published' | 'updated_at'
 > & {
   images: Pick<PastDealImageRow, 'url' | 'alt_text' | 'is_primary'>[]
 }
@@ -140,7 +179,7 @@ export async function listAdminPastDeals(session: AdminSession): Promise<AdminPa
   const { data, error } = await session.supabase
     .from('past_deals')
     .select(
-      'id, slug, title, sold_around, is_published, updated_at, images:past_deal_images(url, alt_text, is_primary)',
+      'id, slug, title, brand, sold_around, is_published, updated_at, images:past_deal_images(url, alt_text, is_primary)',
     )
     .order('updated_at', { ascending: false })
     .limit(500)

@@ -282,6 +282,15 @@ show but pictures.
   Nissan then Mitsubishi). Nine photos don't show the vehicle clearly enough to identify even the
   brand (paperwork handovers, two motorcycles) - those got the honest generic title "Sold vehicle"
   and a note flagging them for the dealership to retitle, rather than a fabricated marque.
+- **Brand is a dropdown, not free text - and `/sold` filters by it.** The dealership found more
+  wrong entries after the retitle pass and asked for a fixed list instead of typing, both so
+  correcting one is a click rather than a spelling exercise and so the public page can filter by
+  it at all. `past_deals.brand` is now a CHECK-constrained column (`toyota`, `mitsubishi`, … plus
+  `other`, covering the Philippine used-car market with room to extend); `title` is derived from
+  it server-side rather than collected from the admin, so there's no longer a free-text field to
+  disagree with the dropdown. A null brand keeps meaning "no legible badge" and still renders as
+  "Sold vehicle". `/sold` gained a brand filter bar (chips, sorted by count, only showing brands
+  with at least one published entry) built the same way `/cars`' status tabs are.
 - **`/sold` needed pagination it didn't have.** Built and tested against 0-2 entries, so nobody
   noticed the grid had no page size limit until the real import landed 310 at once and the page
   tried to load 310 full-size images simultaneously - Next's dev-mode image optimizer choked

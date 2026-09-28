@@ -276,10 +276,38 @@ export type VehicleVideoRow = {
  * comment on `past_deals` for why that's a table of its own rather than a
  * priceless `vehicles` row.
  */
+export type PastDealBrand =
+  | 'toyota'
+  | 'mitsubishi'
+  | 'honda'
+  | 'ford'
+  | 'nissan'
+  | 'hyundai'
+  | 'mazda'
+  | 'suzuki'
+  | 'kia'
+  | 'chevrolet'
+  | 'isuzu'
+  | 'lexus'
+  | 'subaru'
+  | 'volkswagen'
+  | 'bmw'
+  | 'mercedes_benz'
+  | 'volvo'
+  | 'peugeot'
+  | 'mg'
+  | 'byd'
+  | 'geely'
+  | 'foton'
+  | 'jeep'
+  | 'other'
+
 export type PastDealRow = {
   id: string
   slug: string
   title: string
+  /** Picked from a fixed list, not typed - null means no legible badge in the photo. */
+  brand: PastDealBrand | null
   note: string | null
   /** Approximate - most of these predate this system and the exact date isn't known. */
   sold_around: string | null
