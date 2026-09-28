@@ -7,14 +7,35 @@ import { PastDealRowActions } from '@/components/admin/past-deal-row-actions'
 import { Badge } from '@/components/ui/badge'
 import { ButtonLink, Card, EmptyState } from '@/components/ui/surfaces'
 import { requireCapability } from '@/lib/auth'
-import { listAdminPastDeals, type AdminPastDealListItem } from '@/lib/data/past-deals'
-import { formatDate, formatRelativeTime } from '@/lib/format'
+import { labelFor } from '@/lib/constants'
+import {
+  getAdminPastDealBrandFacets,
+  listAdminPastDeals,
+  type AdminPastDealBrandFilter,
+  type AdminPastDealListItem,
+} from '@/lib/data/past-deals'
+import { formatDate, formatNumber, formatRelativeTime } from '@/lib/format'
+import { cn } from '@/lib/utils'
 
 export const metadata = { title: 'Sold Archive' }
 
-export default async function AdminPastDealsPage() {
+export default async function AdminPastDealsPage({
+  searchParams,
+}: PageProps<'/admin/sold-vehicles'>) {
   const session = await requireCapability('inventory', '/admin/sold-vehicles')
-  const deals = await listAdminPastDeals(session)
+  const params = await searchParams
+  const brandParam = Array.isArray(params.brand) ? params.brand[0] : params.brand
+
+  const facets = await getAdminPastDealBrandFacets(session)
+  const validBrand =
+    brandParam === 'unset' || facets.brands.some((facet) => facet.brand === brandParam)
+      ? (brandParam as AdminPastDealBrandFilter)
+      : undefined
+
+  const deals = await listAdminPastDeals(session, validBrand)
+
+  const buildHref = (brand: AdminPastDealBrandFilter | null) =>
+    brand ? `/admin/sold-vehicles?brand=${brand}` : '/admin/sold-vehicles'
 
   return (
     <>
@@ -29,16 +50,56 @@ export default async function AdminPastDealsPage() {
         }
       />
 
+      {facets.brands.length > 0 || facets.unsetCount > 0 ? (
+        <nav aria-label="Filter by brand" className="-mx-1 mb-4 overflow-x-auto px-1 pb-1">
+          <ul className="flex gap-1">
+            <li>
+              <FilterChip href={buildHref(null)} active={!validBrand} label="All" />
+            </li>
+            {facets.brands.map((facet) => (
+              <li key={facet.brand}>
+                <FilterChip
+                  href={buildHref(facet.brand)}
+                  active={validBrand === facet.brand}
+                  label={labelFor('pastDealBrand', facet.brand)}
+                  count={facet.count}
+                />
+              </li>
+            ))}
+            {facets.unsetCount > 0 ? (
+              <li>
+                <FilterChip
+                  href={buildHref('unset')}
+                  active={validBrand === 'unset'}
+                  label="Needs a brand"
+                  count={facets.unsetCount}
+                />
+              </li>
+            ) : null}
+          </ul>
+        </nav>
+      ) : null}
+
       {deals.length === 0 ? (
         <EmptyState
           icon={<Archive className="size-6" aria-hidden="true" />}
-          title="Nothing in the archive yet"
-          description="Add a past sale with whatever photos and a title you have - no price or specs required."
+          title={validBrand ? 'Nothing matches this filter' : 'Nothing in the archive yet'}
+          description={
+            validBrand
+              ? 'Try a different brand, or clear the filter.'
+              : 'Add a past sale with whatever photos and a title you have - no price or specs required.'
+          }
           action={
-            <ButtonLink href="/admin/sold-vehicles/new">
-              <Plus className="size-4" aria-hidden="true" />
-              Add sold vehicle
-            </ButtonLink>
+            validBrand ? (
+              <ButtonLink href="/admin/sold-vehicles" variant="outline">
+                Clear filter
+              </ButtonLink>
+            ) : (
+              <ButtonLink href="/admin/sold-vehicles/new">
+                <Plus className="size-4" aria-hidden="true" />
+                Add sold vehicle
+              </ButtonLink>
+            )
           }
         />
       ) : (
@@ -128,6 +189,36 @@ export default async function AdminPastDealsPage() {
         </Card>
       )}
     </>
+  )
+}
+
+function FilterChip({
+  href,
+  active,
+  label,
+  count,
+}: {
+  href: string
+  active: boolean
+  label: string
+  count?: number
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? 'page' : undefined}
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
+        active ? 'bg-brand-800 text-white' : 'text-ink-600 hover:bg-ink-100 hover:text-ink-900',
+      )}
+    >
+      {label}
+      {count !== undefined ? (
+        <span className={cn('text-xs', active ? 'text-white/60' : 'text-ink-400')}>
+          {formatNumber(count)}
+        </span>
+      ) : null}
+    </Link>
   )
 }
 

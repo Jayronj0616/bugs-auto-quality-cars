@@ -172,17 +172,26 @@ export type AdminPastDealListItem = Pick<
   PastDealRow,
   'id' | 'slug' | 'title' | 'brand' | 'sold_around' | 'is_published' | 'updated_at'
 > & {
-  images: Pick<PastDealImageRow, 'url' | 'alt_text' | 'is_primary'>[]
+  images: Pick<PastDealImageRow, 'id' | 'url' | 'alt_text' | 'is_primary'>[]
 }
 
-export async function listAdminPastDeals(session: AdminSession): Promise<AdminPastDealListItem[]> {
-  const { data, error } = await session.supabase
+/** `'unset'` selects the entries with no brand - the ones still needing a fix. */
+export type AdminPastDealBrandFilter = PastDealBrand | 'unset'
+
+export async function listAdminPastDeals(
+  session: AdminSession,
+  brand?: AdminPastDealBrandFilter,
+): Promise<AdminPastDealListItem[]> {
+  let query = session.supabase
     .from('past_deals')
     .select(
-      'id, slug, title, brand, sold_around, is_published, updated_at, images:past_deal_images(url, alt_text, is_primary)',
+      'id, slug, title, brand, sold_around, is_published, updated_at, images:past_deal_images(id, url, alt_text, is_primary)',
     )
-    .order('updated_at', { ascending: false })
-    .limit(500)
+
+  if (brand === 'unset') query = query.is('brand', null)
+  else if (brand) query = query.eq('brand', brand)
+
+  const { data, error } = await query.order('updated_at', { ascending: false }).limit(500)
 
   if (error) {
     console.error('[admin-past-deals] list failed:', error.message)
@@ -190,6 +199,42 @@ export async function listAdminPastDeals(session: AdminSession): Promise<AdminPa
   }
 
   return (data ?? []) as unknown as AdminPastDealListItem[]
+}
+
+/**
+ * Brand counts, most common first, plus how many still have no brand set -
+ * powers the filter bar on the admin list. Unlike `getPastDealBrandFacets`,
+ * this counts every entry regardless of published state, and the unset count
+ * is deliberately not thrown away: it's how an admin finds the ones still
+ * needing a fix.
+ */
+export async function getAdminPastDealBrandFacets(session: AdminSession): Promise<{
+  brands: { brand: PastDealBrand; count: number }[]
+  unsetCount: number
+}> {
+  const { data, error } = await session.supabase.from('past_deals').select('brand').limit(5000)
+
+  if (error) {
+    console.error('[admin-past-deals] brand facets failed:', error.message)
+    return { brands: [], unsetCount: 0 }
+  }
+
+  const counts = new Map<PastDealBrand, number>()
+  let unsetCount = 0
+  for (const row of (data ?? []) as { brand: PastDealBrand | null }[]) {
+    if (row.brand === null) {
+      unsetCount += 1
+      continue
+    }
+    counts.set(row.brand, (counts.get(row.brand) ?? 0) + 1)
+  }
+
+  return {
+    brands: [...counts.entries()]
+      .map(([brand, count]) => ({ brand, count }))
+      .sort((a, b) => b.count - a.count),
+    unsetCount,
+  }
 }
 
 export type AdminPastDealDetail = PastDealRow & { images: PastDealImageRow[] }
