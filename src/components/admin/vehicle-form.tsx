@@ -505,7 +505,7 @@ export function VehicleForm({ vehicle }: { vehicle?: AdminVehicleDetail | null }
       <Card>
         <CardHeader
           title="Publishing"
-          description="Only published, reserved and sold vehicles are visible on the website."
+          description="Only active, reserved and sold vehicles are visible on the website."
         />
         <CardBody className="space-y-4">
           <Field label="Status" error={fieldErrors.status}>

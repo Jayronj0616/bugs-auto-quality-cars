@@ -164,7 +164,7 @@ export function PastDealForm({ deal }: { deal?: AdminPastDealDetail | null }) {
 
           <Checkbox
             name="isPublished"
-            label="Published"
+            label="Active"
             hint="Visible on the public /sold page. Turn this off to hide an entry without deleting it."
             defaultChecked={deal?.is_published ?? true}
           />

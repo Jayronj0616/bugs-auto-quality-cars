@@ -76,7 +76,7 @@ export default async function AdminDashboardPage({ searchParams }: PageProps<'/a
         {stats.vehicles ? (
           <>
             <StatCard
-              label="Published vehicles"
+              label="Active vehicles"
               value={stats.vehicles.published}
               hint={`${formatNumber(stats.vehicles.total)} total in the system`}
               icon={Car}

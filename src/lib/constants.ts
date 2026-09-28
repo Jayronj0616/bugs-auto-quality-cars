@@ -35,7 +35,12 @@ const option = <T extends string>(value: T, label: string): Option<T> => ({ valu
 
 export const VEHICLE_STATUSES: Option<VehicleStatus>[] = [
   option('draft', 'Draft'),
-  option('published', 'Published'),
+  // Labelled "Active" rather than "Published" - the underlying value and
+  // every query/RLS policy that reads it stay `published`, this is only the
+  // word shown to an admin. Not "Available": `AVAILABLE_STATUSES` elsewhere
+  // in the codebase already means published *and* reserved together, and
+  // reusing that word here for published alone would fight that meaning.
+  option('published', 'Active'),
   option('reserved', 'Reserved'),
   option('sold', 'Sold'),
   option('archived', 'Archived'),

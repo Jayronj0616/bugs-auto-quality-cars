@@ -70,7 +70,7 @@ export default async function EditVehiclePage({
               to read it rather than assume a draft. */}
           {isPublic
             ? 'It is live on the website now. Add photos below — listings without photography get very few inquiries.'
-            : 'It is saved as a draft and is not visible on the website. Add photos below, then set the status to Published when it is ready to go live.'}
+            : 'It is saved as a draft and is not visible on the website. Add photos below, then set the status to Active when it is ready to go live.'}
         </Alert>
       ) : null}
 

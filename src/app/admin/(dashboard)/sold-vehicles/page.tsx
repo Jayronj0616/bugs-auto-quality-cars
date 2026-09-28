@@ -133,7 +133,7 @@ export default async function AdminPastDealsPage() {
 
 function PublishedBadge({ deal }: { deal: AdminPastDealListItem }) {
   return deal.is_published ? (
-    <Badge tone="success">Published</Badge>
+    <Badge tone="success">Active</Badge>
   ) : (
     <Badge tone="neutral">Hidden</Badge>
   )
