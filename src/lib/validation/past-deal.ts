@@ -13,8 +13,11 @@ import { enumFromOptions, formBoolean, optionalIsoDateSchema, optionalText } fro
  * and a fixed list is what makes filtering /sold by brand possible. `title`
  * is derived from it server-side, not collected here.
  */
+/** Shared with the quick-edit action - a bad or empty value just means "not set". */
+export const pastDealBrandSchema = enumFromOptions(PAST_DEAL_BRANDS).nullable().catch(null)
+
 export const pastDealSchema = z.object({
-  brand: enumFromOptions(PAST_DEAL_BRANDS).nullable().catch(null),
+  brand: pastDealBrandSchema,
   slug: z
     .string()
     .trim()

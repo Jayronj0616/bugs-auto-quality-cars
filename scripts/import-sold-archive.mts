@@ -100,12 +100,25 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
+/**
+ * Fetches every slug that could collide in one query rather than probing
+ * candidates one at a time - brand is now the title, and a brand like Toyota
+ * has 100+ entries, so probing sequentially needs a cap well past what used
+ * to be enough and is far slower besides.
+ */
 async function uniqueSlug(base: string): Promise<string> {
   const safeBase = base || 'sold-vehicle'
-  for (let attempt = 0; attempt < 200; attempt += 1) {
-    const candidate = attempt === 0 ? safeBase : `${safeBase}-${attempt + 1}`
-    const { data } = await supabase.from('past_deals').select('id').eq('slug', candidate).maybeSingle()
-    if (!data) return candidate
+  const { data } = await supabase
+    .from('past_deals')
+    .select('slug')
+    .or(`slug.eq.${safeBase},slug.like.${safeBase}-%`)
+    .limit(10000)
+  const taken = new Set((data ?? []).map((row) => row.slug as string))
+
+  if (!taken.has(safeBase)) return safeBase
+  for (let n = 2; n < 100000; n += 1) {
+    const candidate = `${safeBase}-${n}`
+    if (!taken.has(candidate)) return candidate
   }
   return `${safeBase}-${Date.now()}`
 }

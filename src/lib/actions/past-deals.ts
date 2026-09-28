@@ -7,6 +7,7 @@ import { labelFor } from '@/lib/constants'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { slugify } from '@/lib/utils'
 import {
+  pastDealBrandSchema,
   pastDealImageOrderSchema,
   pastDealSchema,
   type PastDealFormInput,
@@ -108,6 +109,55 @@ export async function savePastDeal(
     return actionSuccess('Created.', { dealId: data.id, slug: data.slug })
   } catch (error) {
     return internalError('past_deal.save', error)
+  }
+}
+
+/**
+ * Brand-only update for the quick-edit modal on the list page - deliberately
+ * narrower than `savePastDeal`: it touches title, brand and slug and nothing
+ * else, so fixing a wrong brand from the list never needs to know (or risk
+ * overwriting) the entry's note, sold-around date or published state.
+ */
+export async function updatePastDealBrand(input: {
+  dealId: string
+  brand: string | null
+}): Promise<ActionResult<{ slug: string; title: string }>> {
+  let session: AdminSession
+  try {
+    session = await authorizeAction('inventory')
+  } catch (error) {
+    return authError(error)
+  }
+
+  if (!uuid.safeParse(input.dealId).success) return actionError('That entry could not be found.')
+
+  const parsedBrand = pastDealBrandSchema.safeParse(input.brand)
+  const brand = parsedBrand.success ? parsedBrand.data : null
+  const title = brand ? labelFor('pastDealBrand', brand) : UNCLEAR_TITLE
+
+  try {
+    const slug = await resolveSlug(session, slugify(title), input.dealId)
+
+    const { data, error } = await session.supabase
+      .from('past_deals')
+      .update({ title, brand, slug })
+      .eq('id', input.dealId)
+      .select('id, slug')
+      .single()
+
+    if (error) return handleWriteError('past_deal.update_brand', error)
+
+    await recordActivity(session, {
+      action: 'past_deal.updated',
+      entityType: 'past_deal',
+      entityId: data.id,
+      entityLabel: title,
+    })
+
+    revalidatePastDeals(data.slug)
+    return actionSuccess('Saved.', { slug: data.slug, title })
+  } catch (error) {
+    return internalError('past_deal.update_brand', error)
   }
 }
 
@@ -292,7 +342,15 @@ async function revalidateDealById(session: AdminSession, dealId: string) {
   revalidatePastDeals(data?.slug ?? null)
 }
 
-/** Appends `-2`, `-3`… until the slug is free, scoped to past_deals. */
+/**
+ * Appends `-2`, `-3`… until the slug is free, scoped to past_deals.
+ *
+ * Fetches every slug that could possibly collide in one query rather than
+ * probing candidates one at a time - brand is now the title, and a brand
+ * like Toyota has 100+ entries, so probing sequentially would need well over
+ * the old 25-attempt cap and fall back to an ugly timestamp slug on every
+ * single save for a popular brand.
+ */
 async function resolveSlug(
   session: AdminSession,
   base: string,
@@ -300,14 +358,19 @@ async function resolveSlug(
 ): Promise<string> {
   const safeBase = base || 'sold-vehicle'
 
-  for (let attempt = 0; attempt < 25; attempt += 1) {
-    const candidate = attempt === 0 ? safeBase : `${safeBase}-${attempt + 1}`
+  let query = session.supabase
+    .from('past_deals')
+    .select('slug')
+    .or(`slug.eq.${safeBase},slug.like.${safeBase}-%`)
+  if (dealId) query = query.neq('id', dealId)
 
-    let query = session.supabase.from('past_deals').select('id').eq('slug', candidate)
-    if (dealId) query = query.neq('id', dealId)
+  const { data } = await query.limit(10000)
+  const taken = new Set((data ?? []).map((row) => row.slug))
 
-    const { data } = await query.maybeSingle()
-    if (!data) return candidate
+  if (!taken.has(safeBase)) return safeBase
+  for (let n = 2; n < 100000; n += 1) {
+    const candidate = `${safeBase}-${n}`
+    if (!taken.has(candidate)) return candidate
   }
 
   return `${safeBase}-${Date.now()}`
