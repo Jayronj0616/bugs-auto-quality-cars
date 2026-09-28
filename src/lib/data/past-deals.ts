@@ -43,47 +43,62 @@ export type PastDealListResult = {
  * without bound (every past sale, going back years), and a page rendering
  * hundreds of full-size photos at once is slow to load for a visitor and
  * heavy on Next's image optimizer for no benefit - nobody scrolls that far.
+ *
+ * Counts first and clamps the page to what actually exists: PostgREST errors
+ * with "Requested range not satisfiable" on a `.range()` past the last row,
+ * which a brand filter makes easy to hit (few matches, a bookmarked later
+ * page) - that error was previously swallowed into a misleading "total: 0".
  */
 export const getPublishedPastDeals = cache(
   async (page = 1, brand?: PastDealBrand): Promise<PastDealListResult> => {
-    const safePage = Math.max(1, page)
     const supabase = createPublicSupabaseClient()
     const empty: PastDealListResult = {
       deals: [],
       total: 0,
-      page: safePage,
+      page: 1,
       perPage: PAST_DEALS_PER_PAGE,
       totalPages: 0,
     }
     if (!supabase) return empty
 
-    const from = (safePage - 1) * PAST_DEALS_PER_PAGE
-    let query = supabase
+    let countQuery = supabase
       .from('past_deals')
-      .select(SUMMARY_SELECT, { count: 'exact' })
+      .select('id', { count: 'exact', head: true })
       .eq('is_published', true)
+    if (brand) countQuery = countQuery.eq('brand', brand)
 
+    const { count, error: countError } = await countQuery
+    if (countError) {
+      console.error('[past-deals] count failed:', countError.message)
+      return empty
+    }
+
+    const total = count ?? 0
+    const totalPages = Math.max(1, Math.ceil(total / PAST_DEALS_PER_PAGE))
+    const safePage = Math.min(Math.max(1, page), totalPages)
+
+    let query = supabase.from('past_deals').select(SUMMARY_SELECT).eq('is_published', true)
     if (brand) query = query.eq('brand', brand)
 
-    const { data, error, count } = await query
+    const from = (safePage - 1) * PAST_DEALS_PER_PAGE
+    const { data, error } = await query
       .order('sold_around', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
       .range(from, from + PAST_DEALS_PER_PAGE - 1)
 
     if (error) {
       console.error('[past-deals] list failed:', error.message)
-      return empty
+      return { ...empty, total, page: safePage, totalPages }
     }
 
     const rows = (data ?? []) as unknown as PastDealSummary[]
-    const total = count ?? 0
 
     return {
       deals: rows.map((row) => ({ ...row, images: sortImages(row.images) })),
       total,
       page: safePage,
       perPage: PAST_DEALS_PER_PAGE,
-      totalPages: Math.max(1, Math.ceil(total / PAST_DEALS_PER_PAGE)),
+      totalPages,
     }
   },
 )
@@ -178,27 +193,72 @@ export type AdminPastDealListItem = Pick<
 /** `'unset'` selects the entries with no brand - the ones still needing a fix. */
 export type AdminPastDealBrandFilter = PastDealBrand | 'unset'
 
+export const ADMIN_PAST_DEALS_PER_PAGE = 30
+
+export type AdminPastDealListResult = {
+  deals: AdminPastDealListItem[]
+  total: number
+  page: number
+  perPage: number
+  totalPages: number
+}
+
+/**
+ * Paginated for the same reason /sold is: at real volume, rendering every
+ * entry's photo on one page is slow to load and heavy on the image
+ * optimizer, and here it also made the quick-edit modal this list exists to
+ * support hard to even open while everything was still loading.
+ *
+ * Counts first and clamps the page to what actually exists: PostgREST errors
+ * with "Requested range not satisfiable" on a `.range()` past the last row
+ * (easy to hit here since a brand filter can leave very few rows - a filter
+ * bookmarked at page 2 that later has only one match, for instance), and that
+ * error was previously swallowed into a misleading "total: 0".
+ */
 export async function listAdminPastDeals(
   session: AdminSession,
   brand?: AdminPastDealBrandFilter,
-): Promise<AdminPastDealListItem[]> {
+  page = 1,
+): Promise<AdminPastDealListResult> {
+  let countQuery = session.supabase.from('past_deals').select('id', { count: 'exact', head: true })
+  if (brand === 'unset') countQuery = countQuery.is('brand', null)
+  else if (brand) countQuery = countQuery.eq('brand', brand)
+
+  const { count, error: countError } = await countQuery
+  if (countError) {
+    console.error('[admin-past-deals] count failed:', countError.message)
+    return { deals: [], total: 0, page: 1, perPage: ADMIN_PAST_DEALS_PER_PAGE, totalPages: 0 }
+  }
+
+  const total = count ?? 0
+  const totalPages = Math.max(1, Math.ceil(total / ADMIN_PAST_DEALS_PER_PAGE))
+  const safePage = Math.min(Math.max(1, page), totalPages)
+
   let query = session.supabase
     .from('past_deals')
     .select(
       'id, slug, title, brand, sold_around, is_published, updated_at, images:past_deal_images(id, url, alt_text, is_primary)',
     )
-
   if (brand === 'unset') query = query.is('brand', null)
   else if (brand) query = query.eq('brand', brand)
 
-  const { data, error } = await query.order('updated_at', { ascending: false }).limit(500)
+  const from = (safePage - 1) * ADMIN_PAST_DEALS_PER_PAGE
+  const { data, error } = await query
+    .order('updated_at', { ascending: false })
+    .range(from, from + ADMIN_PAST_DEALS_PER_PAGE - 1)
 
   if (error) {
     console.error('[admin-past-deals] list failed:', error.message)
-    return []
+    return { deals: [], total, page: safePage, perPage: ADMIN_PAST_DEALS_PER_PAGE, totalPages }
   }
 
-  return (data ?? []) as unknown as AdminPastDealListItem[]
+  return {
+    deals: (data ?? []) as unknown as AdminPastDealListItem[],
+    total,
+    page: safePage,
+    perPage: ADMIN_PAST_DEALS_PER_PAGE,
+    totalPages,
+  }
 }
 
 /**
