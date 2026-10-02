@@ -63,6 +63,9 @@ export const VEHICLE_CONDITIONS: Option<VehicleCondition>[] = [
  * legible in a photo far more reliably than a specific trim or model is, and
  * a fixed list is what makes filtering /sold by brand possible at all.
  */
+/** How many sold units the homepage features - matches the 1-5 check on past_deals.featured_rank. */
+export const FEATURED_PAST_DEAL_SLOTS = 5
+
 export const PAST_DEAL_BRANDS: Option<PastDealBrand>[] = [
   option('toyota', 'Toyota'),
   option('mitsubishi', 'Mitsubishi'),

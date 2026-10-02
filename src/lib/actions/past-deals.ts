@@ -3,7 +3,7 @@
 import { z } from 'zod'
 
 import { AuthorizationError, authorizeAction, recordActivity, type AdminSession } from '@/lib/auth'
-import { labelFor } from '@/lib/constants'
+import { FEATURED_PAST_DEAL_SLOTS, labelFor } from '@/lib/constants'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { slugify } from '@/lib/utils'
 import {
@@ -158,6 +158,75 @@ export async function updatePastDealBrand(input: {
     return actionSuccess('Saved.', { slug: data.slug, title })
   } catch (error) {
     return internalError('past_deal.update_brand', error)
+  }
+}
+
+/**
+ * Puts an entry in one of the five homepage spots (or takes it out with null).
+ *
+ * The spots are unique, so claiming an occupied one swaps: the entry that held
+ * it moves to the claimer's old spot, or drops out if the claimer had none.
+ * Ordered so no step ever briefly holds the same spot twice.
+ */
+export async function setPastDealFeaturedRank(input: {
+  dealId: string
+  rank: number | null
+}): Promise<ActionResult> {
+  let session: AdminSession
+  try {
+    session = await authorizeAction('inventory')
+  } catch (error) {
+    return authError(error)
+  }
+
+  if (!uuid.safeParse(input.dealId).success) return actionError('That entry could not be found.')
+  const { rank } = input
+  if (rank !== null && !(Number.isInteger(rank) && rank >= 1 && rank <= FEATURED_PAST_DEAL_SLOTS)) {
+    return actionError(`Pick a spot from 1 to ${FEATURED_PAST_DEAL_SLOTS}.`)
+  }
+
+  try {
+    const { data: current, error: readError } = await session.supabase
+      .from('past_deals')
+      .select('id, slug, featured_rank')
+      .eq('id', input.dealId)
+      .maybeSingle()
+    if (readError) return handleWriteError('past_deal.feature', readError)
+    if (!current) return actionError('That entry could not be found.')
+
+    const previous = current.featured_rank
+    if (previous === rank) return actionSuccess('Saved.')
+
+    let occupantId: string | null = null
+    if (rank !== null) {
+      const { data: occupant } = await session.supabase
+        .from('past_deals')
+        .select('id')
+        .eq('featured_rank', rank)
+        .maybeSingle()
+      occupantId = occupant?.id ?? null
+    }
+
+    const setRank = (id: string, value: number | null) =>
+      session.supabase.from('past_deals').update({ featured_rank: value }).eq('id', id)
+
+    if (previous !== null) {
+      const { error } = await setRank(current.id, null)
+      if (error) return handleWriteError('past_deal.feature', error)
+    }
+    if (occupantId) {
+      const { error } = await setRank(occupantId, previous)
+      if (error) return handleWriteError('past_deal.feature', error)
+    }
+    if (rank !== null) {
+      const { error } = await setRank(current.id, rank)
+      if (error) return handleWriteError('past_deal.feature', error)
+    }
+
+    revalidatePastDeals(current.slug)
+    return actionSuccess('Saved.')
+  } catch (error) {
+    return internalError('past_deal.feature', error)
   }
 }
 

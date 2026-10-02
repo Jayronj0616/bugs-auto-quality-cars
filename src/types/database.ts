@@ -312,6 +312,8 @@ export type PastDealRow = {
   /** Approximate - most of these predate this system and the exact date isn't known. */
   sold_around: string | null
   is_published: boolean
+  /** Spot 1-5 among the sold units featured on the homepage; null = not featured. */
+  featured_rank: number | null
   created_by: string | null
   created_at: string
   updated_at: string

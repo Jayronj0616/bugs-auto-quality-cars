@@ -43,6 +43,7 @@ export function revalidateCrm() {
 
 /** The /sold showcase, after a past deal or its photos change. */
 export function revalidatePastDeals(slug?: string | null) {
+  revalidatePath('/')
   revalidatePath('/sold')
   revalidatePath('/sitemap.xml')
   if (slug) revalidatePath(`/sold/${slug}`)

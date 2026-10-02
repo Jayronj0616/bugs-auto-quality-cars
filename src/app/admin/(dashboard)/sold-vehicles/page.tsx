@@ -10,6 +10,7 @@ import { ButtonLink, Card, EmptyState } from '@/components/ui/surfaces'
 import { requireCapability } from '@/lib/auth'
 import { labelFor } from '@/lib/constants'
 import {
+  getAdminFeaturedPastDeals,
   getAdminPastDealBrandFacets,
   listAdminPastDeals,
   type AdminPastDealBrandFilter,
@@ -29,7 +30,10 @@ export default async function AdminPastDealsPage({
   const pageParam = Number(Array.isArray(params.page) ? params.page[0] : params.page)
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1
 
-  const facets = await getAdminPastDealBrandFacets(session)
+  const [facets, featuredSlots] = await Promise.all([
+    getAdminPastDealBrandFacets(session),
+    getAdminFeaturedPastDeals(session),
+  ])
   const validBrand =
     brandParam === 'unset' || facets.brands.some((facet) => facet.brand === brandParam)
       ? (brandParam as AdminPastDealBrandFilter)
@@ -164,6 +168,8 @@ export default async function AdminPastDealsPage({
                             dealId={deal.id}
                             title={deal.title}
                             brand={deal.brand}
+                            featuredRank={deal.featured_rank}
+                            featuredSlots={featuredSlots}
                             images={deal.images}
                           />
                           <Link
@@ -179,7 +185,10 @@ export default async function AdminPastDealsPage({
                         {deal.sold_around ? formatDate(deal.sold_around) : '—'}
                       </td>
                       <td className="px-4 py-3">
-                        <PublishedBadge deal={deal} />
+                        <div className="flex flex-wrap gap-1.5">
+                          <PublishedBadge deal={deal} />
+                          <TopBadge rank={deal.featured_rank} />
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-xs whitespace-nowrap text-ink-500">
                         {formatRelativeTime(deal.updated_at)}
@@ -201,6 +210,8 @@ export default async function AdminPastDealsPage({
                     dealId={deal.id}
                     title={deal.title}
                     brand={deal.brand}
+                    featuredRank={deal.featured_rank}
+                    featuredSlots={featuredSlots}
                     images={deal.images}
                   />
                   <div className="min-w-0 flex-1">
@@ -214,8 +225,9 @@ export default async function AdminPastDealsPage({
                       {deal.images.length} photo{deal.images.length === 1 ? '' : 's'}
                       {deal.sold_around ? ` · ${formatDate(deal.sold_around)}` : ''}
                     </p>
-                    <div className="mt-2">
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                       <PublishedBadge deal={deal} />
+                      <TopBadge rank={deal.featured_rank} />
                     </div>
                   </div>
                   <PastDealRowActions dealId={deal.id} title={deal.title} />
@@ -264,6 +276,11 @@ function FilterChip({
       ) : null}
     </Link>
   )
+}
+
+function TopBadge({ rank }: { rank: number | null }) {
+  if (rank === null) return null
+  return <Badge tone="accent">Homepage #{rank}</Badge>
 }
 
 function PublishedBadge({ deal }: { deal: AdminPastDealListItem }) {

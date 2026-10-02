@@ -16,8 +16,10 @@ import { Hero } from '@/components/home/hero'
 import { QuickSearch } from '@/components/home/quick-search'
 import { Reveal } from '@/components/ui/reveal'
 import { ButtonLink, EmptyState, SectionHeading } from '@/components/ui/surfaces'
+import { PastDealCard } from '@/components/vehicles/past-deal-card'
 import { VehicleCard } from '@/components/vehicles/vehicle-card'
 import { defaultsFromSettings } from '@/lib/data/financing'
+import { getFeaturedPastDeals } from '@/lib/data/past-deals'
 import { getDealershipSettings } from '@/lib/data/settings'
 import { getFeaturedVehicles, getInventoryFacets, getLatestVehicles } from '@/lib/data/vehicles'
 import { toTelHref } from '@/lib/format'
@@ -59,10 +61,11 @@ export default async function HomePage() {
   const settings = await getDealershipSettings()
   const defaults = defaultsFromSettings(settings)
 
-  const [featured, latest, facets] = await Promise.all([
+  const [featured, latest, facets, soldTop] = await Promise.all([
     getFeaturedVehicles(defaults, 6),
     getLatestVehicles(defaults, 8),
     getInventoryFacets(),
+    getFeaturedPastDeals(),
   ])
 
   // Fall back to the newest listings so the hero still features real vehicles
@@ -209,6 +212,29 @@ export default async function HomePage() {
               </Reveal>
             ))}
           </div>
+        </section>
+      ) : null}
+
+      {soldTop.length > 0 ? (
+        <section className="container-page pb-16 sm:pb-20">
+          <SectionHeading
+            eyebrow="Track record"
+            title="Recently sold"
+            description="A few of the cars that have already found a home."
+            action={
+              <ButtonLink href="/sold" variant="ghost">
+                View all sold
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </ButtonLink>
+            }
+          />
+          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {soldTop.map((deal, index) => (
+              <Reveal as="li" key={deal.id} delay={index * 60}>
+                <PastDealCard deal={deal} />
+              </Reveal>
+            ))}
+          </ul>
         </section>
       ) : null}
 

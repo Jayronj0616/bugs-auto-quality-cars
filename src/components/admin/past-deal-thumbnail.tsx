@@ -9,12 +9,15 @@ import { Button } from '@/components/ui/button'
 import { Field, Select } from '@/components/ui/field'
 import { Modal } from '@/components/ui/modal'
 import { Alert } from '@/components/ui/surfaces'
-import { updatePastDealBrand } from '@/lib/actions/past-deals'
-import { PAST_DEAL_BRANDS } from '@/lib/constants'
+import { setPastDealFeaturedRank, updatePastDealBrand } from '@/lib/actions/past-deals'
+import { FEATURED_PAST_DEAL_SLOTS, PAST_DEAL_BRANDS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import type { PastDealBrand } from '@/types/database'
 
 type ThumbnailImage = { id: string; url: string; alt_text: string | null; is_primary: boolean }
+
+/** A homepage spot and who holds it now. */
+export type FeaturedSlot = { id: string; title: string; featured_rank: number }
 
 function sortByPrimaryFirst(images: ThumbnailImage[]): ThumbnailImage[] {
   return [...images].sort((a, b) => Number(b.is_primary) - Number(a.is_primary))
@@ -23,20 +26,24 @@ function sortByPrimaryFirst(images: ThumbnailImage[]): ThumbnailImage[] {
 /**
  * Clickable thumbnail for the Sold Archive list.
  *
- * Opens a modal showing the photo much larger, with the brand dropdown right
- * next to it - fixing a wrong brand (or just taking a proper look at the
- * photo) never has to leave the list for the full edit page or open the
- * photo in another tab.
+ * Opens a modal showing the photo much larger, with the brand dropdown and
+ * homepage spot right next to it - fixing a wrong brand, featuring a unit
+ * (or just taking a proper look at the photo) never has to leave the list for
+ * the full edit page or open the photo in another tab.
  */
 export function PastDealThumbnail({
   dealId,
   title,
   brand,
+  featuredRank,
+  featuredSlots,
   images,
 }: {
   dealId: string
   title: string
   brand: PastDealBrand | null
+  featuredRank: number | null
+  featuredSlots: FeaturedSlot[]
   images: ThumbnailImage[]
 }) {
   const [open, setOpen] = React.useState(false)
@@ -68,6 +75,8 @@ export function PastDealThumbnail({
           dealId={dealId}
           title={title}
           brand={brand}
+          featuredRank={featuredRank}
+          featuredSlots={featuredSlots}
           images={sorted}
           onClose={() => setOpen(false)}
         />
@@ -80,18 +89,23 @@ function PastDealQuickEditModal({
   dealId,
   title,
   brand,
+  featuredRank,
+  featuredSlots,
   images,
   onClose,
 }: {
   dealId: string
   title: string
   brand: PastDealBrand | null
+  featuredRank: number | null
+  featuredSlots: FeaturedSlot[]
   images: ThumbnailImage[]
   onClose: () => void
 }) {
   const router = useRouter()
   const [index, setIndex] = React.useState(0)
   const [selectedBrand, setSelectedBrand] = React.useState<PastDealBrand | ''>(brand ?? '')
+  const [selectedRank, setSelectedRank] = React.useState<string>(featuredRank ? String(featuredRank) : '')
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
 
@@ -102,10 +116,22 @@ function PastDealQuickEditModal({
   function handleSave() {
     setError(null)
     startTransition(async () => {
-      const result = await updatePastDealBrand({ dealId, brand: selectedBrand || null })
-      if (!result.ok) {
-        setError(result.message)
-        return
+      // Only call what actually changed, so a rank-only edit can't rewrite the
+      // title/slug and a brand-only edit can't disturb the homepage spots.
+      if ((selectedBrand || null) !== brand) {
+        const result = await updatePastDealBrand({ dealId, brand: selectedBrand || null })
+        if (!result.ok) {
+          setError(result.message)
+          return
+        }
+      }
+      const nextRank = selectedRank ? Number(selectedRank) : null
+      if (nextRank !== featuredRank) {
+        const result = await setPastDealFeaturedRank({ dealId, rank: nextRank })
+        if (!result.ok) {
+          setError(result.message)
+          return
+        }
       }
       router.refresh()
       onClose()
@@ -130,7 +156,7 @@ function PastDealQuickEditModal({
           </button>
           <Button size="sm" onClick={handleSave} isLoading={isPending} loadingText="Saving…">
             <Save className="size-4" aria-hidden="true" />
-            Save brand
+            Save
           </Button>
         </>
       }
@@ -194,19 +220,40 @@ function PastDealQuickEditModal({
           </ul>
         ) : null}
 
-        <Field label="Brand" description="Picked from the photo's badge." className="sm:max-w-xs">
-          <Select
-            value={selectedBrand}
-            onChange={(event) => setSelectedBrand(event.target.value as PastDealBrand | '')}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Brand" description="Picked from the photo's badge.">
+            <Select
+              value={selectedBrand}
+              onChange={(event) => setSelectedBrand(event.target.value as PastDealBrand | '')}
+            >
+              <option value="">Not sure / no badge visible</option>
+              {PAST_DEAL_BRANDS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+
+          <Field
+            label="Homepage top 5"
+            description="Choosing a taken spot swaps places with that unit."
           >
-            <option value="">Not sure / no badge visible</option>
-            {PAST_DEAL_BRANDS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
-        </Field>
+            <Select value={selectedRank} onChange={(event) => setSelectedRank(event.target.value)}>
+              <option value="">Not featured</option>
+              {Array.from({ length: FEATURED_PAST_DEAL_SLOTS }, (_, i) => i + 1).map((spot) => {
+                const holder = featuredSlots.find((slot) => slot.featured_rank === spot)
+                const taken = holder && holder.id !== dealId
+                return (
+                  <option key={spot} value={spot}>
+                    {`#${spot}`}
+                    {taken ? ` - now ${holder.title}` : ''}
+                  </option>
+                )
+              })}
+            </Select>
+          </Field>
+        </div>
       </div>
     </Modal>
   )

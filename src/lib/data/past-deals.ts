@@ -3,6 +3,7 @@ import 'server-only'
 import { cache } from 'react'
 
 import type { AdminSession } from '@/lib/auth'
+import { FEATURED_PAST_DEAL_SLOTS } from '@/lib/constants'
 import { createPublicSupabaseClient } from '@/lib/supabase/server'
 import type { PastDealBrand, PastDealImageRow, PastDealRow } from '@/types/database'
 
@@ -136,6 +137,28 @@ export const getPastDealBrandFacets = cache(async (): Promise<
     .sort((a, b) => b.count - a.count)
 })
 
+/** The dealership's top sold units, spot 1 first - powers the homepage "Recently sold" row. */
+export const getFeaturedPastDeals = cache(async (): Promise<PastDealSummary[]> => {
+  const supabase = createPublicSupabaseClient()
+  if (!supabase) return []
+
+  const { data, error } = await supabase
+    .from('past_deals')
+    .select(SUMMARY_SELECT)
+    .eq('is_published', true)
+    .not('featured_rank', 'is', null)
+    .order('featured_rank', { ascending: true })
+    .limit(FEATURED_PAST_DEAL_SLOTS)
+
+  if (error) {
+    console.error('[past-deals] featured failed:', error.message)
+    return []
+  }
+
+  const rows = (data ?? []) as unknown as PastDealSummary[]
+  return rows.map((row) => ({ ...row, images: sortImages(row.images) }))
+})
+
 /** One deal with every photo - powers /sold/[slug]. */
 export const getPastDealBySlug = cache(async (slug: string): Promise<PastDealSummary | null> => {
   const supabase = createPublicSupabaseClient()
@@ -185,7 +208,7 @@ export async function getPublishedPastDealSlugs(): Promise<
 
 export type AdminPastDealListItem = Pick<
   PastDealRow,
-  'id' | 'slug' | 'title' | 'brand' | 'sold_around' | 'is_published' | 'updated_at'
+  'id' | 'slug' | 'title' | 'brand' | 'sold_around' | 'is_published' | 'featured_rank' | 'updated_at'
 > & {
   images: Pick<PastDealImageRow, 'id' | 'url' | 'alt_text' | 'is_primary'>[]
 }
@@ -237,7 +260,7 @@ export async function listAdminPastDeals(
   let query = session.supabase
     .from('past_deals')
     .select(
-      'id, slug, title, brand, sold_around, is_published, updated_at, images:past_deal_images(id, url, alt_text, is_primary)',
+      'id, slug, title, brand, sold_around, is_published, featured_rank, updated_at, images:past_deal_images(id, url, alt_text, is_primary)',
     )
   if (brand === 'unset') query = query.is('brand', null)
   else if (brand) query = query.eq('brand', brand)
@@ -297,7 +320,24 @@ export async function getAdminPastDealBrandFacets(session: AdminSession): Promis
   }
 }
 
-export type AdminPastDealDetail = PastDealRow & { images: PastDealImageRow[] }
+/** Who currently holds each homepage spot - lets the picker say what a spot would replace. */
+export async function getAdminFeaturedPastDeals(
+  session: AdminSession,
+): Promise<{ id: string; title: string; featured_rank: number }[]> {
+  const { data, error } = await session.supabase
+    .from('past_deals')
+    .select('id, title, featured_rank')
+    .not('featured_rank', 'is', null)
+    .order('featured_rank', { ascending: true })
+
+  if (error) {
+    console.error('[admin-past-deals] featured failed:', error.message)
+    return []
+  }
+  return (data ?? []) as { id: string; title: string; featured_rank: number }[]
+}
+
+export type AdminPastDealDetail =PastDealRow & { images: PastDealImageRow[] }
 
 export async function getAdminPastDeal(
   session: AdminSession,
