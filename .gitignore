@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (keep the example template tracked)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,7 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-!.env.example
 
 # supabase local stack
 /supabase/.branches
@@ -48,6 +48,3 @@ next-env.d.ts
 
 # Dealership source photography (large, already uploaded to Supabase Storage)
 /images/
-
-.vercel
-.env*
