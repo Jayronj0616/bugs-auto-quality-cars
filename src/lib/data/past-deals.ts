@@ -159,6 +159,35 @@ export const getFeaturedPastDeals = cache(async (): Promise<PastDealSummary[]> =
   return rows.map((row) => ({ ...row, images: sortImages(row.images) }))
 })
 
+/**
+ * The most recently sold published entries - the homepage fallback when no
+ * "top 5" has been picked.
+ *
+ * Ordered by the sold-around date only. Entries with no date sort last rather
+ * than being treated as new: most of the archive was imported without one, and
+ * falling back to created_at would make every undated import look brand new.
+ */
+export const getRecentlySoldPastDeals = cache(async (limit = 3): Promise<PastDealSummary[]> => {
+  const supabase = createPublicSupabaseClient()
+  if (!supabase) return []
+
+  const { data, error } = await supabase
+    .from('past_deals')
+    .select(SUMMARY_SELECT)
+    .eq('is_published', true)
+    .order('sold_around', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('[past-deals] recent failed:', error.message)
+    return []
+  }
+
+  const rows = (data ?? []) as unknown as PastDealSummary[]
+  return rows.map((row) => ({ ...row, images: sortImages(row.images) }))
+})
+
 /** One deal with every photo - powers /sold/[slug]. */
 export const getPastDealBySlug = cache(async (slug: string): Promise<PastDealSummary | null> => {
   const supabase = createPublicSupabaseClient()

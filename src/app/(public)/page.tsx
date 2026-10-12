@@ -19,7 +19,7 @@ import { ButtonLink, EmptyState, SectionHeading } from '@/components/ui/surfaces
 import { PastDealCard } from '@/components/vehicles/past-deal-card'
 import { VehicleCard } from '@/components/vehicles/vehicle-card'
 import { defaultsFromSettings } from '@/lib/data/financing'
-import { getFeaturedPastDeals } from '@/lib/data/past-deals'
+import { getFeaturedPastDeals, getRecentlySoldPastDeals } from '@/lib/data/past-deals'
 import { getDealershipSettings } from '@/lib/data/settings'
 import { getFeaturedVehicles, getInventoryFacets, getLatestVehicles } from '@/lib/data/vehicles'
 import { toTelHref } from '@/lib/format'
@@ -61,12 +61,16 @@ export default async function HomePage() {
   const settings = await getDealershipSettings()
   const defaults = defaultsFromSettings(settings)
 
-  const [featured, latest, facets, soldTop] = await Promise.all([
+  const [featured, latest, facets, pickedSold, recentSold] = await Promise.all([
     getFeaturedVehicles(defaults, 6),
     getLatestVehicles(defaults, 8),
     getInventoryFacets(),
     getFeaturedPastDeals(),
+    getRecentlySoldPastDeals(3),
   ])
+
+  // Units the dealership picked lead; with none picked, show the latest sales.
+  const soldTop = pickedSold.length > 0 ? pickedSold : recentSold
 
   // Fall back to the newest listings so the hero still features real vehicles
   // when nothing has been flagged as featured yet.
@@ -228,7 +232,13 @@ export default async function HomePage() {
               </ButtonLink>
             }
           />
-          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <ul
+            className={
+              soldTop.length > 3
+                ? 'mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
+                : 'mt-8 grid gap-5 sm:grid-cols-3'
+            }
+          >
             {soldTop.map((deal, index) => (
               <Reveal as="li" key={deal.id} delay={index * 60}>
                 <PastDealCard deal={deal} />
