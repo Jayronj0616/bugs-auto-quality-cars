@@ -23,6 +23,40 @@ export function PastDealCard({
   const cover = deal.images[0]
 
   return (
+    <SoldUnitCard
+      href={`/sold/${deal.slug}`}
+      title={deal.title}
+      imageUrl={cover?.url ?? null}
+      imageAlt={cover?.alt_text ?? null}
+      note={deal.sold_around ? `Sold around ${formatDate(deal.sold_around)}` : null}
+      priority={priority}
+      className={className}
+    />
+  )
+}
+
+/**
+ * The card itself, source-agnostic: the homepage shows archive entries and
+ * cars sold out of the live inventory side by side, and both look the same.
+ */
+export function SoldUnitCard({
+  href,
+  title,
+  imageUrl,
+  imageAlt,
+  note,
+  priority = false,
+  className,
+}: {
+  href: string
+  title: string
+  imageUrl: string | null
+  imageAlt: string | null
+  note: string | null
+  priority?: boolean
+  className?: string
+}) {
+  return (
     <article
       className={cn(
         'group lift relative flex flex-col overflow-hidden rounded-card border border-ink-200 bg-white shadow-card hover:border-ink-300 hover:shadow-card-hover',
@@ -30,10 +64,10 @@ export function PastDealCard({
       )}
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-ink-100">
-        {cover ? (
+        {imageUrl ? (
           <Image
-            src={cover.url}
-            alt={cover.alt_text ?? deal.title}
+            src={imageUrl}
+            alt={imageAlt ?? title}
             fill
             sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             priority={priority}
@@ -53,14 +87,12 @@ export function PastDealCard({
 
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         <h3 className="text-base leading-snug font-semibold text-ink-900">
-          <Link href={`/sold/${deal.slug}`} className="before:absolute before:inset-0">
-            {deal.title}
+          <Link href={href} className="before:absolute before:inset-0">
+            {title}
           </Link>
         </h3>
 
-        {deal.sold_around ? (
-          <p className="mt-1 text-xs font-medium text-ink-500">Sold around {formatDate(deal.sold_around)}</p>
-        ) : null}
+        {note ? <p className="mt-1 text-xs font-medium text-ink-500">{note}</p> : null}
       </div>
     </article>
   )

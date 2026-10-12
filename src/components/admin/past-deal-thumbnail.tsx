@@ -237,7 +237,7 @@ function PastDealQuickEditModal({
 
           <Field
             label="Homepage top 5"
-            description="Taken spots swap. With none picked, the homepage shows the 3 latest sales."
+            description="Taken spots swap. With none picked, the homepage shows the 3 latest sales, cars sold from inventory included."
           >
             <Select value={selectedRank} onChange={(event) => setSelectedRank(event.target.value)}>
               <option value="">Not featured</option>
