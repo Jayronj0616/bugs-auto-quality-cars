@@ -6,7 +6,7 @@ inquiries and dealership information.
 
 **Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Supabase (Postgres, Auth, Storage)**
 
-**Live:** [bugs-auto-quality-cars.vercel.app](https://bugs-auto-quality-cars.vercel.app)
+**Live:** [bugs-quality-cars.vercel.app](https://bugs-quality-cars.vercel.app)
 **Repo:** [github.com/Jayronj0616/bugs-auto-quality-cars](https://github.com/Jayronj0616/bugs-auto-quality-cars)
 
 Every push to `main` deploys to production automatically (Vercel is connected directly to

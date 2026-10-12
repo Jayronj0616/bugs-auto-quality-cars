@@ -4,7 +4,7 @@ Living status of the implementation. Update as phases land.
 
 **Last updated:** 2026-09-22 (deployed to production)
 **Stack:** Next.js 16.3.5 (App Router) · React 19.2 · TypeScript · Tailwind v4 · Supabase (Postgres + Auth + Storage)
-**Live:** https://bugs-auto-quality-cars.vercel.app · Repo: https://github.com/Jayronj0616/bugs-auto-quality-cars
+**Live:** https://bugs-quality-cars.vercel.app · Repo: https://github.com/Jayronj0616/bugs-auto-quality-cars
 
 ---
 
@@ -42,7 +42,7 @@ Connected to a hosted Supabase project (`ap-southeast-2`) with the dealership's 
 - **Contact details** applied: both phone numbers, Plaridel/Bulacan location, logo.
 - `npm run db:verify` passes, including that anonymous visitors cannot read customer data or
   write to any table.
-- **Deployed to Vercel** ([bugs-auto-quality-cars.vercel.app](https://bugs-auto-quality-cars.vercel.app)),
+- **Deployed to Vercel** ([bugs-quality-cars.vercel.app](https://bugs-quality-cars.vercel.app)),
   connected to [github.com/Jayronj0616/bugs-auto-quality-cars](https://github.com/Jayronj0616/bugs-auto-quality-cars)
   for auto-deploy on push. The inquiry form was submitted end to end on the live deployment -
   public form -> Server Action -> Supabase -> admin dashboard - confirmed correct, then the
