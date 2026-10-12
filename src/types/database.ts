@@ -236,6 +236,8 @@ export type VehicleRow = {
   created_at: string
   updated_at: string
   published_at: string | null
+  /** When status last became sold; null while not sold. Maintained by a database trigger. */
+  sold_at: string | null
   /** coalesce(promo_price, selling_price) - what the inventory filters on. */
   filter_price: number
   search_text: string
