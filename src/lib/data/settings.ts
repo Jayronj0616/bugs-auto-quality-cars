@@ -18,7 +18,7 @@ export type DealershipSettings = DealershipSettingsRow
 const FALLBACK_SETTINGS: DealershipSettings = {
   id: 'fallback',
   singleton: true,
-  business_name: 'BUGS Auto Quality Cars',
+  business_name: 'BUGS Quality Cars',
   tagline: 'Quality cars. Transparent deals.',
   about: null,
   phone: null,

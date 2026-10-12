@@ -63,7 +63,7 @@ try {
 /* -------------------------------------------------------------------------- */
 
 const update: Record<string, unknown> = {
-  business_name: 'BUGS Auto Quality Cars',
+  business_name: 'BUGS Quality Cars',
   tagline: 'Quality cars. Transparent deals.',
   // Both numbers appear in the dealership's own listings. The second is the
   // direct line given for the motorcycle unit.
@@ -74,7 +74,7 @@ const update: Record<string, unknown> = {
   city: 'Plaridel',
   province: 'Bulacan',
   country: 'Philippines',
-  about: `BUGS Auto Quality Cars sells quality pre-owned vehicles in Plaridel, Bulacan, just off the Sta. Rita exit from NLEX.
+  about: `BUGS Quality Cars sells quality pre-owned vehicles in Plaridel, Bulacan, just off the Sta. Rita exit from NLEX.
 
 Every unit is listed with its cash price, the financing figures we can actually arrange, real photographs and a walkaround video. Units are open to unlimited scan — bring your own mechanic.
 

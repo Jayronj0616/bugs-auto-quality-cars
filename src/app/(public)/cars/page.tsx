@@ -16,7 +16,7 @@ import { buildInventoryQuery, parseInventorySearchParams } from '@/lib/inventory
 export const metadata: Metadata = {
   title: 'Browse cars',
   description:
-    'Search and filter available vehicles at BUGS Auto Quality Cars by brand, body type, fuel, transmission, price and monthly budget.',
+    'Search and filter available vehicles at BUGS Quality Cars by brand, body type, fuel, transmission, price and monthly budget.',
   alternates: { canonical: '/cars' },
 }
 

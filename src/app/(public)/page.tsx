@@ -27,7 +27,7 @@ import { toTelHref } from '@/lib/format'
 export const metadata: Metadata = {
   title: 'Quality cars, transparent deals',
   description:
-    'Browse available vehicles at BUGS Auto Quality Cars. Clear cash pricing, estimated monthly payments, photos, specifications and easy inquiries.',
+    'Browse available vehicles at BUGS Quality Cars. Clear cash pricing, estimated monthly payments, photos, specifications and easy inquiries.',
   alternates: { canonical: '/' },
 }
 

@@ -21,16 +21,16 @@ const sora = Sora({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: 'BUGS Auto Quality Cars',
-    template: '%s | BUGS Auto Quality Cars',
+    default: 'BUGS Quality Cars',
+    template: '%s | BUGS Quality Cars',
   },
   description:
-    'Browse quality vehicles, see transparent cash and installment pricing, estimate your monthly payment and talk to BUGS Auto Quality Cars.',
-  applicationName: 'BUGS Auto Quality Cars',
+    'Browse quality vehicles, see transparent cash and installment pricing, estimate your monthly payment and talk to BUGS Quality Cars.',
+  applicationName: 'BUGS Quality Cars',
   formatDetection: { telephone: true, address: true, email: true },
   openGraph: {
     type: 'website',
-    siteName: 'BUGS Auto Quality Cars',
+    siteName: 'BUGS Quality Cars',
     locale: 'en_PH',
   },
   robots: { index: true, follow: true },

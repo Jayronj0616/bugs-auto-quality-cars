@@ -1,4 +1,4 @@
-# BUGS Auto Quality Cars
+# BUGS Quality Cars
 
 Dealership platform: a public storefront for browsing vehicles, estimating payments and
 sending inquiries, plus an admin dashboard for managing inventory, media, financing, customer

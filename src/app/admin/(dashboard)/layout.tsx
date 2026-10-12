@@ -6,7 +6,7 @@ import { requireAdmin } from '@/lib/auth'
 import { getDealershipSettings } from '@/lib/data/settings'
 
 export const metadata: Metadata = {
-  title: { default: 'Dashboard', template: '%s | BUGS Auto Dashboard' },
+  title: { default: 'Dashboard', template: '%s | BUGS Quality Cars Dashboard' },
   robots: { index: false, follow: false },
 }
 

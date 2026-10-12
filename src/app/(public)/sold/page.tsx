@@ -17,7 +17,7 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: 'Sold vehicles',
   description:
-    'Vehicles already sold by BUGS Auto Quality Cars - a look at units that have already found a home.',
+    'Vehicles already sold by BUGS Quality Cars - a look at units that have already found a home.',
   alternates: { canonical: '/sold' },
 }
 

@@ -27,7 +27,7 @@ export async function generateMetadata({
     return { title: 'Entry not found', robots: { index: false, follow: true } }
   }
 
-  const description = `${deal.title} - a vehicle already sold by BUGS Auto Quality Cars.`
+  const description = `${deal.title} - a vehicle already sold by BUGS Quality Cars.`
   const image = deal.images[0]
 
   return {

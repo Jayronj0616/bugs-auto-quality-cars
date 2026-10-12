@@ -95,7 +95,7 @@ if (settings) {
   // Contact details are deliberately left null: the site omits whatever is not
   // configured rather than showing a placeholder that reads as real.
   const { error } = await supabase.from('dealership_settings').insert({
-    business_name: 'BUGS Auto Quality Cars',
+    business_name: 'BUGS Quality Cars',
     tagline: 'Quality cars. Transparent deals.',
     business_hours: [
       { day: 'monday', open: '08:00', close: '18:00', closed: false },
