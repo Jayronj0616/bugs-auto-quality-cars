@@ -2,11 +2,17 @@
  * Imports the dealership's real inventory: vehicle records, photography,
  * walkaround videos, and the JACCS financing quotes.
  *
- *   npm run import:inventory
+ *   npm run import:inventory                          (every unit below)
+ *   npm run import:inventory -- --only slug-a,slug-b  (just those units)
  *
  * Idempotent by slug - re-running updates the vehicle record and leaves
  * already-uploaded media alone, so it is safe to run after editing a
  * description without re-uploading 130MB of photographs.
+ *
+ * Prefer --only when adding a unit: a full run rewrites every listed unit's
+ * description, price and specifications with the values below, discarding
+ * anything changed since in the admin. An existing unit's status is never
+ * touched, so a car marked sold in the admin stays sold.
  *
  * Financing note: the quotes below are fixed monthly figures from JACCS, not
  * interest rates. The script solves the amortisation formula backwards for each
@@ -81,8 +87,9 @@ const peso = (value: number) =>
 type Quote = {
   /** Price the JACCS sheet is calculated from, which can differ from the ad. */
   sheetPrice: number
-  financeAmount: number
-  downPayment: number
+  /** Not every ad states these; without them no rate can be derived, only shown. */
+  financeAmount?: number
+  downPayment?: number
   ltoFee?: number
   insuranceFirstPayment?: number
   processingFee?: number
@@ -116,6 +123,8 @@ type VehicleImport = {
   /** 1 leads the homepage hero; unset orders by newest listing. */
   featuredRank?: number
   contactPhone?: string
+  /** Status for a new record only; defaults to published. */
+  status?: 'published' | 'sold'
 }
 
 /*
@@ -357,6 +366,87 @@ Money back guarantee. Please call 0933 827 9839 for this unit.`,
       ],
     },
   },
+  {
+    folder: 'montero',
+    slug: 'mitsubishi-montero-sport-4x2-black-series-2022',
+    brand: 'Mitsubishi',
+    model: 'Montero Sport',
+    variant: '4x2 Black Series',
+    year: 2022,
+    condition: 'used',
+    bodyType: 'suv',
+    // The ad's "gas & go" means ready to drive, not the fuel: the Black Series
+    // is the 2.4 diesel, and the engine cover in the walkaround reads DI-D.
+    fuelType: 'diesel',
+    // Not in the ad, but the gated automatic shifter is in the photos.
+    transmission: 'automatic',
+    driveType: 'rwd',
+    mileage: 68000,
+    sellingPrice: 1_350_000,
+    brandNewPrice: 2_050_000,
+    description: `Another Class A unit, CASA maintained since day one with CASA records. 2022 Montero Sport 4x2 Black Series Edition — top of the line, with 68,000+ legitimate kilometres. Well kept and ready to drive, super fresh inside and out, on brand-new tyres.
+
+Registered until 2027 with complete and legal documents, two remote keys, the complete warranty booklet and a complete set of tools.
+
+Money back if the unit is tampered, flooded, has any history of accident, or has illegal documents. For serious buyers only.
+
+We accept cash, financing, trade-in and swap.`,
+    features: [
+      'Black Series Edition — top of the line',
+      'CASA maintained since day 1, with CASA records',
+      '68,000+ km legitimate mileage',
+      'Brand new tyres',
+      '360-degree camera',
+      'Push start / stop',
+      'Power seats',
+      'Leather seats (intact)',
+      'Deep dish matting',
+      'Power tailgate',
+      '2 remote keys',
+      'Complete warranty booklet',
+      'Complete set of tools',
+      'Registered until 2027',
+      'Complete and legal documents',
+      'Money back guarantee',
+    ],
+  },
+  {
+    folder: 'xpander',
+    slug: 'mitsubishi-xpander-gls-2022',
+    brand: 'Mitsubishi',
+    model: 'Xpander',
+    variant: 'GLS',
+    year: 2022,
+    condition: 'used',
+    bodyType: 'mpv',
+    fuelType: 'gasoline',
+    transmission: 'automatic',
+    mileage: 35000,
+    sellingPrice: 690_000,
+    status: 'sold',
+    description: `Another Class A unit. 2022 Mitsubishi Xpander GLS automatic with a 35,000km odometer reading — unlimited scan, bring your best mechanic. Well maintained, with two original keys, the complete manual and warranty booklet and complete tools. Registered until 2027.
+
+Money back if the unit is tampered, flooded, has any history of accident, or has illegal documents.
+
+We accept cash, financing, trade-in and swap.`,
+    features: [
+      'Automatic transmission',
+      '35,000 km odometer reading',
+      'Unlimited scan — bring your best mechanic',
+      'Well maintained',
+      '2 original keys',
+      'Complete manual / warranty booklet',
+      'Complete tools',
+      'Registered until 2027',
+      'Money back guarantee',
+    ],
+    quote: {
+      sheetPrice: 690_000,
+      totalCashOut: 102_781,
+      monthly: { 12: 61_494, 24: 36_124, 36: 26_275, 48: 21_548, 60: 18_965 },
+      inclusions: ['Transfer of ownership', 'Chattel mortgage', 'Comprehensive insurance 1st payment'],
+    },
+  },
 ]
 
 /* -------------------------------------------------------------------------- */
@@ -501,9 +591,18 @@ async function ensureProvider(): Promise<string | null> {
 async function run() {
   console.log(`\nImporting inventory into ${url}\n`)
 
+  const onlyIndex = process.argv.indexOf('--only')
+  const only = onlyIndex === -1 ? null : new Set((process.argv[onlyIndex + 1] ?? '').split(',').filter(Boolean))
+  const units = only ? INVENTORY.filter((item) => only.has(item.slug)) : INVENTORY
+  if (only && units.length !== only.size) {
+    const known = new Set(INVENTORY.map((item) => item.slug))
+    console.error(`Unknown slug(s): ${[...only].filter((slug) => !known.has(slug)).join(', ')}`)
+    process.exit(1)
+  }
+
   const providerId = await ensureProvider()
 
-  for (const item of INVENTORY) {
+  for (const item of units) {
     const label = [item.year, item.brand, item.model, item.variant].filter(Boolean).join(' ')
     console.log(`  ${label}`)
 
@@ -524,7 +623,6 @@ async function run() {
       description: item.description,
       features: item.features,
       selling_price: item.sellingPrice,
-      status: 'published' as const,
       is_featured: item.isFeatured ?? false,
       featured_rank: item.isFeatured ? (item.featuredRank ?? null) : null,
       // Derived from the *financed* amount rather than the sheet's down payment
@@ -532,7 +630,7 @@ async function run() {
       // sheet was built on, and anchoring on the financed amount is what makes
       // the site reproduce the quoted monthly exactly instead of under-quoting
       // it, which is the dangerous direction to be wrong in.
-      default_down_payment_percent: item.quote
+      default_down_payment_percent: item.quote?.financeAmount
         ? Number(((1 - item.quote.financeAmount / item.sellingPrice) * 100).toFixed(2))
         : null,
       default_term_months: item.quote
@@ -548,6 +646,7 @@ async function run() {
 
     let vehicleId: string
     if (existing) {
+      // Status deliberately left out: it is set in the admin once a unit exists.
       const { error } = await supabase.from('vehicles').update(row).eq('id', existing.id)
       if (error) {
         console.log(`    ! update failed: ${error.message}`)
@@ -556,7 +655,11 @@ async function run() {
       vehicleId = existing.id
       console.log('    record updated')
     } else {
-      const { data, error } = await supabase.from('vehicles').insert(row).select('id').single()
+      const { data, error } = await supabase
+        .from('vehicles')
+        .insert({ ...row, status: item.status ?? 'published' })
+        .select('id')
+        .single()
       if (error) {
         console.log(`    ! insert failed: ${error.message}`)
         continue
@@ -590,10 +693,8 @@ async function run() {
 
     if (item.quote) {
       const q = item.quote
-      specs.push(
-        { group_name: 'JACCS Financing', name: 'Down payment', value: peso(q.downPayment), sort_order: order++ },
-        { group_name: 'JACCS Financing', name: 'Amount financed', value: peso(q.financeAmount), sort_order: order++ },
-      )
+      if (q.downPayment) specs.push({ group_name: 'JACCS Financing', name: 'Down payment', value: peso(q.downPayment), sort_order: order++ })
+      if (q.financeAmount) specs.push({ group_name: 'JACCS Financing', name: 'Amount financed', value: peso(q.financeAmount), sort_order: order++ })
       if (q.ltoFee) specs.push({ group_name: 'JACCS Financing', name: 'LTO (dealer)', value: peso(q.ltoFee), sort_order: order++ })
       if (q.insuranceFirstPayment) specs.push({ group_name: 'JACCS Financing', name: 'Insurance first payment', value: peso(q.insuranceFirstPayment), sort_order: order++ })
       if (q.processingFee) specs.push({ group_name: 'JACCS Financing', name: 'Processing fee', value: peso(q.processingFee), sort_order: order++ })
@@ -632,18 +733,17 @@ async function run() {
     }
 
     /* Financing rates derived from the quoted monthlies. */
-    if (item.quote && providerId) {
+    const financed = item.quote?.financeAmount
+    if (item.quote && financed && providerId) {
       await supabase.from('financing_rates').delete().eq('vehicle_id', vehicleId)
 
-      const minimumDown = Number(
-        ((1 - item.quote.financeAmount / item.sellingPrice) * 100).toFixed(2),
-      )
+      const minimumDown = Number(((1 - financed / item.sellingPrice) * 100).toFixed(2))
 
       const rates = Object.entries(item.quote.monthly).map(([term, payment]) => ({
         provider_id: providerId,
         vehicle_id: vehicleId,
         term_months: Number(term),
-        interest_rate: annualRateFor(item.quote!.financeAmount, Number(term), payment),
+        interest_rate: annualRateFor(financed, Number(term), payment),
         minimum_down_payment_percent: minimumDown,
         is_active: true,
       }))
