@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 
 import { AuthorizationError, authorizeAction } from '@/lib/auth'
+import { withVariants } from '@/lib/image-variants'
 import { ALLOWED_IMAGE_TYPES, MEDIA_BUCKET, checkImageFile } from '@/lib/media'
+import { uploadImageVariants } from '@/lib/media-variants'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 
 /**
@@ -64,6 +66,11 @@ export async function POST(request: Request) {
   if (uploadError) {
     console.error('[branding.upload] storage:', uploadError.message)
     return NextResponse.json({ error: 'The upload failed. Please try again.' }, { status: 500 })
+  }
+
+  if (!(await uploadImageVariants(storage, storagePath, bytes))) {
+    await storage.storage.from(MEDIA_BUCKET).remove(withVariants([storagePath]))
+    return NextResponse.json({ error: 'The image could not be processed. Please try again.' }, { status: 500 })
   }
 
   const {

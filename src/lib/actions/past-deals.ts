@@ -12,6 +12,7 @@ import {
   pastDealSchema,
   type PastDealFormInput,
 } from '@/lib/validation/past-deal'
+import { withVariants } from '@/lib/image-variants'
 import { MEDIA_BUCKET } from '@/lib/media'
 
 import { revalidatePastDeals } from './revalidate'
@@ -262,7 +263,7 @@ export async function deletePastDeal(dealId: string): Promise<ActionResult> {
     if (paths.length > 0) {
       const storage = createServiceRoleClient()
       if (storage) {
-        const { error: storageError } = await storage.storage.from(MEDIA_BUCKET).remove(paths)
+        const { error: storageError } = await storage.storage.from(MEDIA_BUCKET).remove(withVariants(paths))
         // The rows are already gone; a failed object delete is a cleanup
         // problem, not a reason to tell the admin their action failed.
         if (storageError) console.error('[past_deal.delete] storage:', storageError.message)
@@ -370,7 +371,7 @@ export async function deletePastDealImage(imageId: string): Promise<ActionResult
       if (storage) {
         const { error: storageError } = await storage.storage
           .from(MEDIA_BUCKET)
-          .remove([data.storage_path])
+          .remove(withVariants([data.storage_path]))
         if (storageError) console.error('[past_deal_image.delete] storage:', storageError.message)
       }
     }

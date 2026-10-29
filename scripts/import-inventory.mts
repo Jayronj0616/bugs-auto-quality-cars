@@ -25,6 +25,8 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { extname, join } from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 
+import { makeVariants } from './image-variants.mts'
+
 /* -------------------------------------------------------------------------- */
 /* Environment                                                                 */
 /* -------------------------------------------------------------------------- */
@@ -498,6 +500,14 @@ async function uploadMedia(vehicleId: string, folder: string, label: string) {
 
     if (uploadError) {
       console.log(`    ! ${file}: ${uploadError.message}`)
+      continue
+    }
+
+    try {
+      await makeVariants(supabase, storagePath, bytes)
+    } catch (error) {
+      await supabase.storage.from(BUCKET).remove([storagePath])
+      console.log(`    ! ${file}: resizing failed: ${error instanceof Error ? error.message : error}`)
       continue
     }
 

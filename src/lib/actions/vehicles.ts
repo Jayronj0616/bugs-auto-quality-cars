@@ -1,6 +1,7 @@
 'use server'
 
 import { AuthorizationError, authorizeAction, recordActivity, type AdminSession } from '@/lib/auth'
+import { MEDIA_BUCKET, withVariants } from '@/lib/image-variants'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { buildVehicleSlug } from '@/lib/utils'
 import {
@@ -583,8 +584,8 @@ export async function deleteImage(imageId: string): Promise<ActionResult> {
       const storage = createServiceRoleClient()
       if (storage) {
         const { error: storageError } = await storage.storage
-          .from('vehicle-media')
-          .remove([data.storage_path])
+          .from(MEDIA_BUCKET)
+          .remove(withVariants([data.storage_path]))
         // The row is already gone; a failed object delete is a cleanup problem,
         // not a reason to tell the admin their action failed.
         if (storageError) console.error('[image.delete] storage:', storageError.message)

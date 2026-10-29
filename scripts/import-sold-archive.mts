@@ -21,6 +21,8 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 
+import { makeVariants } from './image-variants.mts'
+
 const env: Record<string, string> = {}
 for (const line of readFileSync('.env.local', 'utf8').split('\n')) {
   const trimmed = line.trim()
@@ -175,6 +177,14 @@ async function main() {
 
       if (uploadError) {
         console.log(`  ! ${label} (${file}): ${uploadError.message}`)
+        continue
+      }
+
+      try {
+        await makeVariants(supabase, storagePath, bytes)
+      } catch (error) {
+        await supabase.storage.from(BUCKET).remove([storagePath])
+        console.log(`  ! ${label} (${file}): resizing failed: ${error instanceof Error ? error.message : error}`)
         continue
       }
 

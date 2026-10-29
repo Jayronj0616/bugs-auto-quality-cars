@@ -38,12 +38,13 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'i.ytimg.com', pathname: '/**' },
       { protocol: 'https', hostname: 'img.youtube.com', pathname: '/**' },
     ],
-    // Matches the card, gallery and hero breakpoints actually used in the UI,
-    // so the optimizer is not asked to produce sizes nothing requests.
+    // Photos are served as pre-resized copies straight from Supabase (see
+    // src/lib/image-variants.ts) rather than through Vercel's optimizer, whose
+    // free monthly allowance the sold archive alone used up.
+    loader: 'custom',
+    loaderFile: './src/lib/image-loader.ts',
     deviceSizes: [375, 430, 640, 768, 1024, 1280, 1536, 1920],
     imageSizes: [96, 128, 192, 256, 384],
-    formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
 
   async headers() {

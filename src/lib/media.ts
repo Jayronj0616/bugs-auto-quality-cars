@@ -8,7 +8,7 @@ import 'server-only'
  * agree with it.
  */
 
-export const MEDIA_BUCKET = 'vehicle-media'
+export { MEDIA_BUCKET } from './image-variants'
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024
 
 /**

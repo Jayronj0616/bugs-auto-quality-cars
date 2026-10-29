@@ -5,7 +5,9 @@ import { AuthorizationError, authorizeAction, recordActivity } from '@/lib/auth'
 import { revalidatePastDeals } from '@/lib/actions/revalidate'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import type { PastDealImageRow } from '@/types/database'
+import { withVariants } from '@/lib/image-variants'
 import { ALLOWED_IMAGE_TYPES, MEDIA_BUCKET, checkImageFile } from '@/lib/media'
+import { uploadImageVariants } from '@/lib/media-variants'
 
 /**
  * Past-deal photo upload. Mirrors `media/upload/route.ts` (a Route Handler
@@ -15,6 +17,8 @@ import { ALLOWED_IMAGE_TYPES, MEDIA_BUCKET, checkImageFile } from '@/lib/media'
  */
 
 export const dynamic = 'force-dynamic'
+// Resizing up to 20 phone photos takes a while; the default limit is too tight.
+export const maxDuration = 60
 
 const MAX_FILES_PER_REQUEST = 20
 
@@ -109,6 +113,12 @@ export async function POST(request: Request) {
       continue
     }
 
+    if (!(await uploadImageVariants(storage, storagePath, bytes))) {
+      await storage.storage.from(MEDIA_BUCKET).remove(withVariants([storagePath]))
+      failures.push(`${file.name}: could not be resized.`)
+      continue
+    }
+
     const {
       data: { publicUrl },
     } = storage.storage.from(MEDIA_BUCKET).getPublicUrl(storagePath)
@@ -129,7 +139,7 @@ export async function POST(request: Request) {
       .single()
 
     if (insertError || !row) {
-      await storage.storage.from(MEDIA_BUCKET).remove([storagePath])
+      await storage.storage.from(MEDIA_BUCKET).remove(withVariants([storagePath]))
       console.error('[past-deal-media.upload] insert:', insertError?.message)
       failures.push(`${file.name}: could not be saved.`)
       continue

@@ -23,6 +23,7 @@
     "db:seed": "node --experimental-strip-types scripts/run-sql.mts supabase/seed.sql",
     "db:sql": "node --experimental-strip-types scripts/run-sql.mts",
     "import:inventory": "node --experimental-strip-types scripts/import-inventory.mts",
+    "images:variants": "node --experimental-strip-types scripts/image-variants.mts",
     "import:settings": "node --experimental-strip-types scripts/import-settings.mts",
     "import:sold-archive": "node --experimental-strip-types scripts/import-sold-archive.mts scripts/sold-archive-manifest.json"
   },
@@ -35,6 +36,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",
+    "sharp": "^0.35.5",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.5"
   },
