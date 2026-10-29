@@ -5,14 +5,22 @@ import { Archive } from 'lucide-react'
 import { Pagination } from '@/components/ui/pagination'
 import { Reveal } from '@/components/ui/reveal'
 import { EmptyState } from '@/components/ui/surfaces'
-import { PastDealCard } from '@/components/vehicles/past-deal-card'
+import { PastDealCard, SoldUnitCard } from '@/components/vehicles/past-deal-card'
 import { labelFor } from '@/lib/constants'
 import { getPastDealBrandFacets, getPublishedPastDeals } from '@/lib/data/past-deals'
+import {
+  countSoldVehicles,
+  getRecentlySoldVehicles,
+  getSoldVehicleBrandCounts,
+} from '@/lib/data/recent-sales'
 import { formatNumber } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { PastDealBrand } from '@/types/database'
 
 export const revalidate = 300
+
+/** Cars sold from the live inventory lead page 1; this caps how many. */
+const SOLD_CARS_ON_FIRST_PAGE = 12
 
 export const metadata: Metadata = {
   title: 'Sold vehicles',
@@ -27,12 +35,31 @@ export default async function SoldPage({ searchParams }: PageProps<'/sold'>) {
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1
 
   const brandParam = Array.isArray(params.brand) ? params.brand[0] : params.brand
-  const brandFacets = await getPastDealBrandFacets()
+  const [archiveFacets, soldCarBrands] = await Promise.all([
+    getPastDealBrandFacets(),
+    getSoldVehicleBrandCounts(),
+  ])
+  // Chip counts include cars sold from inventory, so they match the page.
+  const brandFacets = archiveFacets.map((facet) => ({
+    ...facet,
+    count: facet.count + (soldCarBrands.get(labelFor('pastDealBrand', facet.brand).toLowerCase()) ?? 0),
+  }))
   const brand = brandFacets.some((facet) => facet.brand === brandParam)
     ? (brandParam as PastDealBrand)
     : undefined
 
-  const result = await getPublishedPastDeals(page, brand)
+  // Archive brands are a fixed list; sold inventory cars are matched to the
+  // chosen brand by its label.
+  const brandLabel = brand ? labelFor('pastDealBrand', brand) : undefined
+  const [result, soldCarCount] = await Promise.all([
+    getPublishedPastDeals(page, brand),
+    countSoldVehicles(brandLabel),
+  ])
+  // The newest sales are cars sold out of the inventory, so they lead the
+  // first page, ahead of the older archive.
+  const soldCars =
+    result.page === 1 ? await getRecentlySoldVehicles(SOLD_CARS_ON_FIRST_PAGE, brandLabel) : []
+  const total = result.total + soldCarCount
 
   const buildHref = (overrides: { page?: number; brand?: PastDealBrand | null }) => {
     const nextBrand = overrides.brand === undefined ? brand : overrides.brand
@@ -51,8 +78,8 @@ export default async function SoldPage({ searchParams }: PageProps<'/sold'>) {
           <p className="eyebrow text-accent-700">Track record</p>
           <h1 className="mt-2 text-3xl font-bold text-ink-900 sm:text-4xl">Sold vehicles</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-600 sm:text-base">
-            {result.total > 0
-              ? `${formatNumber(result.total)} ${result.total === 1 ? 'vehicle' : 'vehicles'} already sold. These aren't for sale - they're here to show the kind of cars that come through.`
+            {total > 0
+              ? `${formatNumber(total)} ${total === 1 ? 'vehicle' : 'vehicles'} already sold. These aren't for sale - they're here to show the kind of cars that come through.`
               : 'Vehicles already sold will appear here.'}
           </p>
         </div>
@@ -105,12 +132,12 @@ export default async function SoldPage({ searchParams }: PageProps<'/sold'>) {
           </nav>
         ) : null}
 
-        {result.deals.length === 0 ? (
+        {result.deals.length === 0 && soldCars.length === 0 ? (
           <EmptyState
             icon={<Archive className="size-6" aria-hidden="true" />}
-            title={result.total === 0 ? 'Nothing published yet' : 'Nothing on this page'}
+            title={total === 0 ? 'Nothing published yet' : 'Nothing on this page'}
             description={
-              result.total === 0
+              total === 0
                 ? "Check back soon, or browse what's currently available."
                 : 'Go back to the first page.'
             }
@@ -118,11 +145,26 @@ export default async function SoldPage({ searchParams }: PageProps<'/sold'>) {
         ) : (
           <>
             <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {result.deals.map((deal, index) => (
-                <Reveal as="li" key={deal.id} delay={Math.min(index, 6) * 50}>
-                  <PastDealCard deal={deal} priority={index < 3} />
+              {soldCars.map((sale, index) => (
+                <Reveal as="li" key={sale.key} delay={Math.min(index, 6) * 50}>
+                  <SoldUnitCard
+                    href={sale.href}
+                    title={sale.title}
+                    imageUrl={sale.imageUrl}
+                    imageAlt={sale.imageAlt}
+                    note={sale.note}
+                    priority={index < 3}
+                  />
                 </Reveal>
               ))}
+              {result.deals.map((deal, index) => {
+                const position = soldCars.length + index
+                return (
+                  <Reveal as="li" key={deal.id} delay={Math.min(position, 6) * 50}>
+                    <PastDealCard deal={deal} priority={position < 3} />
+                  </Reveal>
+                )
+              })}
             </ul>
 
             <Pagination

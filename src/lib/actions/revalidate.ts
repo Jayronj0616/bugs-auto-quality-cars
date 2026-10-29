@@ -15,6 +15,8 @@ import { revalidatePath } from 'next/cache'
 export function revalidateInventory(slug?: string | null) {
   revalidatePath('/')
   revalidatePath('/cars')
+  // A car marked sold heads the /sold page.
+  revalidatePath('/sold')
   revalidatePath('/sitemap.xml')
   if (slug) revalidatePath(`/cars/${slug}`)
   revalidatePath('/admin/vehicles')
