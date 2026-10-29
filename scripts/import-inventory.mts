@@ -127,6 +127,11 @@ type VehicleImport = {
   contactPhone?: string
   /** Status for a new record only; defaults to published. */
   status?: 'published' | 'sold'
+  /**
+   * Other financing companies' offers, shown verbatim as their own
+   * specification group. Only the JACCS quote feeds the on-site calculator.
+   */
+  otherFinancing?: { name: string; rows: [label: string, value: string][] }[]
 }
 
 /*
@@ -449,6 +454,71 @@ We accept cash, financing, trade-in and swap.`,
       inclusions: ['Transfer of ownership', 'Chattel mortgage', 'Comprehensive insurance 1st payment'],
     },
   },
+  {
+    folder: 'trailblazer',
+    slug: 'chevrolet-trailblazer-lt-2016',
+    brand: 'Chevrolet',
+    model: 'Trailblazer',
+    variant: 'LT',
+    year: 2016,
+    condition: 'used',
+    bodyType: 'suv',
+    // Not in the ad; the rear badge reads 2.8 and the door badge DURAMAX.
+    fuelType: 'diesel',
+    engine: '2.8L Duramax diesel',
+    transmission: 'automatic',
+    mileage: 97000,
+    sellingPrice: 500_000,
+    isFeatured: true,
+    // The dealership sent a walkaround video but no photos, so the listing
+    // photos are stills taken from that video.
+    description: `Best buy — the price of a sedan for a full SUV. 2016 Chevrolet Trailblazer LT automatic with 97,000 legitimate kilometres and unlimited scan.
+
+CASA maintained and in A1 condition: all original paint, well maintained and fresh inside and out, on 20-inch mags with HID headlights, leather seats and deep dish matting. Seats 7 to 8. Complete tools and warranty booklet, registered until 2027.
+
+We accept cash, financing, trade-in and swap.`,
+    features: [
+      'Automatic transmission',
+      '97,000 km legitimate odometer',
+      'Unlimited scan',
+      'CASA maintained',
+      'A1 condition',
+      'All original paint',
+      'Fresh inside and out',
+      '20-inch mags',
+      'HID headlights',
+      'Leather seats',
+      'Deep dish matting',
+      '7 to 8 seaters',
+      'Complete tools',
+      'Complete warranty booklet',
+      'Registered until 2027',
+    ],
+    quote: {
+      sheetPrice: 500_000,
+      financeAmount: 250_000,
+      downPayment: 250_000,
+      ltoFee: 10_000,
+      insuranceFirstPayment: 10_000,
+      processingFee: 19_795,
+      totalCashOut: 289_795,
+      monthly: { 12: 24_210, 24: 14_222, 36: 10_344 },
+    },
+    otherFinancing: [
+      {
+        name: 'Global',
+        rows: [
+          ['Loanable', '₱360,000'],
+          ['Down payment', '₱140,000'],
+          ['Chattel mortgage', '₱25,200'],
+          ['Transfer', '₱15,000'],
+          ['Total down payment', '₱180,200'],
+          ['2 years (24 months)', '₱19,410 / month'],
+          ['3 years (36 months)', '₱14,410 / month'],
+        ],
+      },
+    ],
+  },
 ]
 
 /* -------------------------------------------------------------------------- */
@@ -722,6 +792,12 @@ async function run() {
 
       for (const inclusion of q.inclusions ?? []) {
         specs.push({ group_name: 'Included', name: inclusion, value: 'Included', sort_order: order++ })
+      }
+    }
+
+    for (const offer of item.otherFinancing ?? []) {
+      for (const [name, value] of offer.rows) {
+        specs.push({ group_name: `${offer.name} Financing`, name, value, sort_order: order++ })
       }
     }
 
