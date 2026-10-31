@@ -111,10 +111,12 @@ export default async function HomePage() {
         />
 
         {featuredGrid.length > 0 ? (
+          // No `priority` on these cards: the hero sits above them at every
+          // screen size, so preloading them only competes with the hero photo.
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {featuredGrid.map((vehicle, index) => (
               <Reveal key={vehicle.id} delay={index * 60}>
-                <VehicleCard vehicle={vehicle} priority={index < 3} />
+                <VehicleCard vehicle={vehicle} />
               </Reveal>
             ))}
           </div>
