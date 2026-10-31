@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: 'Financing calculator',
-    description: `Estimate a monthly payment on any vehicle at ${settings.business_name}. Set your down payment, loan term and interest rate to see what it would cost.`,
+    description: `Estimate a monthly payment on any vehicle at ${settings.business_name}. Enter a price and pick a loan term to see what it would cost.`,
     alternates: { canonical: '/financing' },
   }
 }
@@ -66,7 +66,7 @@ export default async function FinancingPage() {
             Work out the monthly payment before you visit.
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
-            Set a price, a down payment and a term, and see what it would cost each month. When the
+            Enter a price and pick a term, and see what it would cost each month. When the
             numbers work, send us an inquiry and we will handle the rest.
           </p>
         </div>

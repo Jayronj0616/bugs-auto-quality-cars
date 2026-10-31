@@ -219,7 +219,6 @@ export const TEST_DRIVE_TIME_SLOTS: Option<string>[] = [
 /** Loan terms the calculator offers, in months. */
 export const LOAN_TERMS = [12, 24, 36, 48, 60, 72] as const
 
-export const DOWN_PAYMENT_PRESETS = [10, 15, 20, 25, 30, 40, 50] as const
 
 /* -------------------------------------------------------------------------- */
 /* Admin roles                                                                 */

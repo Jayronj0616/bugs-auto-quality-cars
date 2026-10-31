@@ -4,16 +4,15 @@ import * as React from 'react'
 import { Info } from 'lucide-react'
 
 import { Field, Input, Select } from '@/components/ui/field'
-import { DOWN_PAYMENT_PRESETS } from '@/lib/constants'
 import type { FinancingConfiguration } from '@/lib/data/financing'
 import { formatPeso, formatPesoPrecise, formatPercent } from '@/lib/format'
 import {
   calculateFinancing,
-  downPaymentFromPercent,
+  fixedDownPayment,
   percentFromDownPayment,
   type FinancingResult,
 } from '@/lib/financing/calculator'
-import { cn, round, toNumber } from '@/lib/utils'
+import { cn, toNumber } from '@/lib/utils'
 
 export type CalculatorState = {
   vehiclePrice: number
@@ -32,8 +31,10 @@ export type CalculatorState = {
  * attached to an inquiry they are revalidated and recomputed on the server; the
  * figures posted from the browser are never trusted.
  *
- * Down payment is editable as either a percentage or a peso amount, and the two
- * stay in step.
+ * The down payment is fixed, not something the visitor adjusts: on a vehicle
+ * it is the dealership's quoted down payment, elsewhere the default set under
+ * Financing in the admin. Letting a visitor pick any amount produced monthly
+ * figures the dealership could not actually offer.
  */
 export function FinancingCalculator({
   configuration,
@@ -58,10 +59,8 @@ export function FinancingCalculator({
   )
   const [vehiclePrice, setVehiclePrice] = React.useState(initialPrice)
   const [termMonths, setTermMonths] = React.useState(defaults.termMonths)
-  const [downPaymentPercent, setDownPaymentPercent] = React.useState(defaults.downPaymentPercent)
-  const [downPayment, setDownPayment] = React.useState(() =>
-    downPaymentFromPercent(initialPrice, defaults.downPaymentPercent),
-  )
+  const downPayment = fixedDownPayment(vehiclePrice, defaults.downPaymentPercent)
+  const downPaymentPercent = percentFromDownPayment(vehiclePrice, downPayment)
   /** Null means "follow the configured rate"; a number is the customer's own. */
   const [rateOverride, setRateOverride] = React.useState<number | null>(null)
 
@@ -75,12 +74,11 @@ export function FinancingCalculator({
   const interestRate = rateOverride ?? selectedTerm?.interestRate ?? defaults.interestRate
 
   // A parent that swaps the vehicle price (switching units without unmounting)
-  // resets the amounts, keeping the customer's chosen percentage.
+  // resets it; the down payment follows from the price.
   const [lastInitialPrice, setLastInitialPrice] = React.useState(initialPrice)
   if (lastInitialPrice !== initialPrice) {
     setLastInitialPrice(initialPrice)
     setVehiclePrice(initialPrice)
-    setDownPayment(downPaymentFromPercent(initialPrice, downPaymentPercent))
   }
 
   const minimumDownPaymentPercent = selectedTerm?.minimumDownPaymentPercent ?? null
@@ -123,24 +121,8 @@ export function FinancingCalculator({
     minimumDownPaymentPercent,
   ])
 
-  function applyPercent(percent: number) {
-    const safePercent = round(Math.min(Math.max(percent, 0), 99.99), 2)
-    setDownPaymentPercent(safePercent)
-    setDownPayment(downPaymentFromPercent(vehiclePrice, safePercent))
-  }
-
-  function applyAmount(amount: number) {
-    const safeAmount = Math.max(amount, 0)
-    setDownPayment(safeAmount)
-    setDownPaymentPercent(percentFromDownPayment(vehiclePrice, safeAmount))
-  }
-
   function applyPrice(price: number) {
-    const safePrice = Math.max(price, 0)
-    setVehiclePrice(safePrice)
-    // Holding the percentage steady is what a shopper expects when they change
-    // the price they are considering.
-    setDownPayment(downPaymentFromPercent(safePrice, downPaymentPercent))
+    setVehiclePrice(Math.max(price, 0))
   }
 
   const terms = selectedProvider ? selectedProvider.terms.map((term) => term.termMonths) : availableTerms
@@ -186,69 +168,20 @@ export function FinancingCalculator({
         </div>
       )}
 
-      <Field
-        label="Down payment"
-        error={downPaymentIssue?.message}
-        description={
-          selectedTerm
-            ? `Minimum ${formatPercent(selectedTerm.minimumDownPaymentPercent)} for this provider and term.`
-            : undefined
-        }
-      >
-        <div className="grid grid-cols-[5.5rem_1fr] gap-2">
-          <div className="relative">
-            <Input
-              type="number"
-              inputMode="decimal"
-              min={0}
-              max={99}
-              step={1}
-              aria-label="Down payment percentage"
-              value={downPaymentPercent || ''}
-              onChange={(event) => applyPercent(toNumber(event.target.value) ?? 0)}
-              className="pr-7"
-            />
-            <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-ink-500">
-              %
+      <div className="border-b border-ink-200 pb-4">
+        <div className="flex items-baseline justify-between gap-4">
+          <span className="text-sm text-ink-600">Down payment</span>
+          <span className="tabular text-lg font-semibold text-ink-900">
+            {formatPeso(downPayment)}
+            <span className="ml-1.5 text-sm font-medium text-ink-500">
+              ({formatPercent(downPaymentPercent)})
             </span>
-          </div>
-
-          <div className="relative">
-            <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-ink-500">
-              ₱
-            </span>
-            <Input
-              type="number"
-              inputMode="numeric"
-              min={0}
-              step={5000}
-              aria-label="Down payment amount"
-              value={downPayment || ''}
-              onChange={(event) => applyAmount(toNumber(event.target.value) ?? 0)}
-              className="pl-7"
-            />
-          </div>
+          </span>
         </div>
-
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
-          {DOWN_PAYMENT_PRESETS.map((preset) => (
-            <button
-              key={preset}
-              type="button"
-              onClick={() => applyPercent(preset)}
-              aria-pressed={Math.round(downPaymentPercent) === preset}
-              className={cn(
-                'rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
-                Math.round(downPaymentPercent) === preset
-                  ? 'bg-brand-800 text-white'
-                  : 'border border-ink-300 bg-white text-ink-600 hover:border-ink-400 hover:text-ink-900',
-              )}
-            >
-              {preset}%
-            </button>
-          ))}
-        </div>
-      </Field>
+        {downPaymentIssue ? (
+          <p className="mt-1.5 text-sm text-danger-700">{downPaymentIssue.message}</p>
+        ) : null}
+      </div>
 
       <div className={cn('grid gap-4', compact ? 'grid-cols-1' : 'sm:grid-cols-2')}>
         <Field label="Loan term">

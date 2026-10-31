@@ -4,6 +4,7 @@ import {
   calculateFinancing,
   downPaymentFromPercent,
   estimateMonthlyPayment,
+  fixedDownPayment,
   monthlyPaymentFor,
   percentFromDownPayment,
 } from './calculator'
@@ -196,8 +197,26 @@ describe('down payment conversions', () => {
   })
 })
 
+describe('fixedDownPayment', () => {
+  it('recovers a quoted amount the two-decimal percentage cannot hold', () => {
+    // ₱750,000 down on ₱2,550,000 is stored as 29.41%, which alone gives ₱749,955.
+    expect(downPaymentFromPercent(2_550_000, 29.41)).toBe(749_955)
+    expect(fixedDownPayment(2_550_000, 29.41)).toBe(750_000)
+    expect(fixedDownPayment(1_040_000, 18.27)).toBe(190_000)
+  })
+
+  it('rounds to the nearest thousand pesos', () => {
+    expect(fixedDownPayment(948_000, 20)).toBe(190_000)
+    expect(fixedDownPayment(1_350_000, 20)).toBe(270_000)
+  })
+
+  it('is zero without a price', () => {
+    expect(fixedDownPayment(0, 20)).toBe(0)
+  })
+})
+
 describe('estimateMonthlyPayment', () => {
-  it('matches a full calculation for the same inputs', () => {
+  it('matches a full calculation using the down payment the calculator shows', () => {
     const estimate = estimateMonthlyPayment({
       vehiclePrice: 948_000,
       downPaymentPercent: 20,
@@ -207,7 +226,7 @@ describe('estimateMonthlyPayment', () => {
 
     const full = calculateFinancing({
       vehiclePrice: 948_000,
-      downPayment: 189_600,
+      downPayment: fixedDownPayment(948_000, 20),
       termMonths: 60,
       annualInterestRate: 7.5,
     })

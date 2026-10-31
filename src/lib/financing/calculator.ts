@@ -190,6 +190,16 @@ export function downPaymentFromPercent(vehiclePrice: number, percent: number): n
   return round((vehiclePrice * safePercent) / 100, 2)
 }
 
+/**
+ * The down payment visitors are shown - fixed, not something they adjust - to
+ * the nearest ₱1,000. Percentages are stored to two decimals, which can't hold
+ * a quoted amount exactly (₱750,000 of ₱2,550,000 is 29.4118%); rounding turns
+ * it back into the figure the dealership actually quoted.
+ */
+export function fixedDownPayment(vehiclePrice: number, percent: number): number {
+  return Math.round(downPaymentFromPercent(vehiclePrice, percent) / 1000) * 1000
+}
+
 /** Converts a peso down payment back into a percentage of the price. */
 export function percentFromDownPayment(vehiclePrice: number, downPayment: number): number {
   if (!Number.isFinite(vehiclePrice) || vehiclePrice <= 0) return 0
@@ -207,7 +217,7 @@ export function estimateMonthlyPayment(params: {
   termMonths: number
   annualInterestRate: number
 }): number {
-  const downPayment = downPaymentFromPercent(params.vehiclePrice, params.downPaymentPercent)
+  const downPayment = fixedDownPayment(params.vehiclePrice, params.downPaymentPercent)
   const principal = Math.max(params.vehiclePrice - downPayment, 0)
   return monthlyPaymentFor(principal, params.annualInterestRate, params.termMonths)
 }
