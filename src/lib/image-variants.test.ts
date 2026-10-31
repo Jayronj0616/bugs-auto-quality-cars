@@ -29,9 +29,10 @@ describe('image variants', () => {
     ])
   })
 
-  it('does not serve the thumbnail copy until existing photos have one', () => {
-    expect(pickVariantWidth(96)).toBe(384)
-    expect(pickVariantWidth(192)).toBe(384)
+  it('serves the thumbnail copy for thumbnail-sized requests', () => {
+    expect(pickVariantWidth(96)).toBe(192)
+    expect(pickVariantWidth(192)).toBe(192)
+    expect(pickVariantWidth(256)).toBe(384)
   })
 
   it('serves the smallest copy at least as wide as requested', () => {
