@@ -31,10 +31,12 @@ export type CalculatorState = {
  * attached to an inquiry they are revalidated and recomputed on the server; the
  * figures posted from the browser are never trusted.
  *
- * The down payment is fixed, not something the visitor adjusts: on a vehicle
- * it is the dealership's quoted down payment, elsewhere the default set under
- * Financing in the admin. Letting a visitor pick any amount produced monthly
- * figures the dealership could not actually offer.
+ * The down payment and interest rate are fixed, not something the visitor
+ * adjusts: on a vehicle they are the dealership's quote for the chosen provider
+ * and term, elsewhere the defaults set under Financing in the admin. Letting a
+ * visitor enter their own produced monthly figures the dealership could not
+ * actually offer. The visitor picks the provider, the term, and on /financing
+ * the price.
  */
 export function FinancingCalculator({
   configuration,
@@ -42,7 +44,6 @@ export function FinancingCalculator({
   priceEditable = false,
   onChange,
   className,
-  compact = false,
 }: {
   configuration: FinancingConfiguration
   initialPrice: number
@@ -50,7 +51,6 @@ export function FinancingCalculator({
   priceEditable?: boolean
   onChange?: (state: CalculatorState, result: FinancingResult) => void
   className?: string
-  compact?: boolean
 }) {
   const { options, defaults, availableTerms, disclaimer } = configuration
 
@@ -61,17 +61,13 @@ export function FinancingCalculator({
   const [termMonths, setTermMonths] = React.useState(defaults.termMonths)
   const downPayment = fixedDownPayment(vehiclePrice, defaults.downPaymentPercent)
   const downPaymentPercent = percentFromDownPayment(vehiclePrice, downPayment)
-  /** Null means "follow the configured rate"; a number is the customer's own. */
-  const [rateOverride, setRateOverride] = React.useState<number | null>(null)
 
   const selectedProvider = options.find((option) => option.provider.id === providerId) ?? null
   const selectedTerm = selectedProvider?.terms.find((term) => term.termMonths === termMonths) ?? null
 
-  // Derived rather than synced: the rate follows the chosen provider and term
-  // automatically, and only an explicit edit takes it over. No effect, and no
-  // frame where the displayed rate belongs to the previous provider.
-  const rateOverridden = rateOverride !== null
-  const interestRate = rateOverride ?? selectedTerm?.interestRate ?? defaults.interestRate
+  // Derived rather than synced: the rate follows the chosen provider and term,
+  // with no frame where the displayed rate belongs to the previous provider.
+  const interestRate = selectedTerm?.interestRate ?? defaults.interestRate
 
   // A parent that swaps the vehicle price (switching units without unmounting)
   // resets it; the down payment follows from the price.
@@ -134,10 +130,7 @@ export function FinancingCalculator({
         <Field label="Financing provider">
           <Select
             value={providerId ?? ''}
-            onChange={(event) => {
-              setProviderId(event.target.value || null)
-              setRateOverride(null)
-            }}
+            onChange={(event) => setProviderId(event.target.value || null)}
           >
             {options.map((option) => (
               <option key={option.provider.id} value={option.provider.id}>
@@ -183,43 +176,22 @@ export function FinancingCalculator({
         ) : null}
       </div>
 
-      <div className={cn('grid gap-4', compact ? 'grid-cols-1' : 'sm:grid-cols-2')}>
-        <Field label="Loan term">
-          <Select
-            value={termMonths}
-            onChange={(event) => {
-              setTermMonths(Number(event.target.value))
-              setRateOverride(null)
-            }}
-          >
-            {terms.map((term) => (
-              <option key={term} value={term}>
-                {term} months
-              </option>
-            ))}
-          </Select>
-        </Field>
+      <Field label="Loan term">
+        <Select value={termMonths} onChange={(event) => setTermMonths(Number(event.target.value))}>
+          {terms.map((term) => (
+            <option key={term} value={term}>
+              {term} months
+            </option>
+          ))}
+        </Select>
+      </Field>
 
-        <Field
-          label="Interest rate"
-          description={rateOverridden ? 'Using your rate instead of the configured one.' : undefined}
-        >
-          <div className="relative">
-            <Input
-              type="number"
-              inputMode="decimal"
-              min={0}
-              max={100}
-              step={0.25}
-              value={interestRate}
-              onChange={(event) => setRateOverride(toNumber(event.target.value) ?? 0)}
-              className="pr-7"
-            />
-            <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-ink-500">
-              %
-            </span>
-          </div>
-        </Field>
+      <div className="flex items-baseline justify-between gap-4 border-b border-ink-200 pb-4">
+        <span className="text-sm text-ink-600">Interest rate</span>
+        <span className="tabular text-lg font-semibold text-ink-900">
+          {formatPercent(interestRate)}
+          <span className="ml-1.5 text-sm font-medium text-ink-500">per year</span>
+        </span>
       </div>
 
       <CalculationSummary result={result} />

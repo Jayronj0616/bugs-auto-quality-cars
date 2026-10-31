@@ -30,7 +30,7 @@ const FAQ = [
   {
     question: 'Is this the amount I will actually pay?',
     answer:
-      'No. It is an estimate based on the figures you entered. Your actual rate, term and approval depend on the financing provider and your own qualifications, and there are usually additional charges such as registration, insurance and chattel mortgage fees.',
+      'No. It is an estimate for the price and term you chose, using our standard figures. Your actual rate, term and approval depend on the financing provider and your own qualifications, and there are usually additional charges such as registration, insurance and chattel mortgage fees.',
   },
   {
     question: 'What do I need to apply?',

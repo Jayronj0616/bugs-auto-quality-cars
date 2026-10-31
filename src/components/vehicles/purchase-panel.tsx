@@ -130,7 +130,6 @@ export function PurchasePanel({
             <FinancingCalculator
               configuration={configuration}
               initialPrice={pricing.price}
-              compact
               onChange={(state, result) => {
                 setCalculator(state)
                 setMonthly(result.isValid ? result.monthlyPayment : null)
