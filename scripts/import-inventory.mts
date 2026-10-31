@@ -87,7 +87,9 @@ const peso = (value: number) =>
 /* -------------------------------------------------------------------------- */
 
 type Quote = {
-  /** Price the JACCS sheet is calculated from, which can differ from the ad. */
+  /** Who the quote is from; defaults to JACCS. Shown to customers by name. */
+  provider?: { name: string; slug: string }
+  /** Price the quote sheet is calculated from, which can differ from the ad. */
   sheetPrice: number
   /** Not every ad states these; without them no rate can be derived, only shown. */
   financeAmount?: number
@@ -95,6 +97,8 @@ type Quote = {
   ltoFee?: number
   insuranceFirstPayment?: number
   processingFee?: number
+  chattelFee?: number
+  transferFee?: number
   totalCashOut?: number
   /** Quoted monthly payment, keyed by term in months. */
   monthly: Record<number, number>
@@ -206,7 +210,7 @@ Money back if the unit is tampered, flooded, has any history of accident, or has
     transmission: 'automatic',
     mileage: 19000,
     engine: '2.0L Turbocharged',
-    sellingPrice: 2_650_000,
+    sellingPrice: 2_550_000,
     brandNewPrice: 4_300_000,
     isFeatured: true,
     // The dealership wants the Camaro to be the first car a visitor sees.
@@ -234,13 +238,15 @@ We accept cash, financing, trade-in and swap.`,
       'LTO verified / HPG verified',
     ],
     quote: {
-      sheetPrice: 2_650_000,
+      // Price-drop ad: monthlies unchanged and the cash out exactly ₱100,000
+      // lower, so the financed amount stays and only the down payment drops.
+      sheetPrice: 2_550_000,
       financeAmount: 1_800_000,
-      downPayment: 850_000,
+      downPayment: 750_000,
       ltoFee: 10_000,
       insuranceFirstPayment: 10_000,
       processingFee: 44_617,
-      totalCashOut: 914_617,
+      totalCashOut: 814_617,
       monthly: { 12: 172_380, 24: 100_463, 36: 72_465, 48: 58_984 },
       inclusions: [
         'Transfer of ownership',
@@ -302,8 +308,9 @@ We accept cash, financing, trade-in and swap.`,
     transmission: 'automatic',
     driveType: 'rwd',
     mileage: 43000,
-    sellingPrice: 1_060_000,
+    sellingPrice: 1_040_000,
     brandNewPrice: 1_820_000,
+    isFeatured: true,
     description: `Class A unit. 43,000+ legitimate odometer reading with unlimited scan — bring your trusted mechanic. Fresh in and out with no dents and no scratches. Not flooded, no history of accident, 100% legal documents. LTO verified and HPG verified, with a money back guarantee.
 
 We accept cash, financing, swap and trade-in.`,
@@ -317,14 +324,14 @@ We accept cash, financing, swap and trade-in.`,
       'Money back guarantee',
     ],
     quote: {
-      sheetPrice: 1_070_000,
-      financeAmount: 740_000,
-      downPayment: 330_000,
-      ltoFee: 10_000,
-      insuranceFirstPayment: 10_000,
-      processingFee: 30_103,
-      totalCashOut: 380_103,
-      monthly: { 12: 70_867, 24: 41_301, 36: 29_791, 48: 24_249, 60: 21_213 },
+      provider: { name: 'Global', slug: 'global' },
+      sheetPrice: 1_040_000,
+      financeAmount: 850_000,
+      downPayment: 190_000,
+      chattelFee: 59_500,
+      transferFee: 15_000,
+      totalCashOut: 264_500,
+      monthly: { 36: 33_387, 48: 27_909, 60: 24_367 },
     },
   },
   {
@@ -391,6 +398,7 @@ Money back guarantee. Please call 0933 827 9839 for this unit.`,
     mileage: 68000,
     sellingPrice: 1_350_000,
     brandNewPrice: 2_050_000,
+    isFeatured: true,
     description: `Another Class A unit, CASA maintained since day one with CASA records. 2022 Montero Sport 4x2 Black Series Edition — top of the line, with 68,000+ legitimate kilometres. Well kept and ready to drive, super fresh inside and out, on brand-new tyres.
 
 Registered until 2027 with complete and legal documents, two remote keys, the complete warranty booklet and a complete set of tools.
@@ -639,32 +647,41 @@ async function uploadMedia(vehicleId: string, folder: string, label: string) {
 /* Import                                                                      */
 /* -------------------------------------------------------------------------- */
 
-async function ensureProvider(): Promise<string | null> {
+const JACCS = { name: 'JACCS', slug: 'jaccs' }
+const providerIds = new Map<string, string | null>()
+
+async function ensureProvider(provider: { name: string; slug: string }): Promise<string | null> {
+  if (providerIds.has(provider.slug)) return providerIds.get(provider.slug)!
+
   const { data: existing } = await supabase
     .from('financing_providers')
     .select('id')
-    .eq('slug', 'jaccs')
+    .eq('slug', provider.slug)
     .maybeSingle()
 
-  if (existing) return existing.id
+  if (existing) {
+    providerIds.set(provider.slug, existing.id)
+    return existing.id
+  }
 
   const { data, error } = await supabase
     .from('financing_providers')
     .insert({
-      name: 'JACCS',
-      slug: 'jaccs',
-      description:
-        'Quoted monthly payments per unit. Final terms and approval depend on JACCS and the applicant.',
+      name: provider.name,
+      slug: provider.slug,
+      description: `Quoted monthly payments per unit. Final terms and approval depend on ${provider.name} and the applicant.`,
       is_active: true,
-      sort_order: 0,
+      sort_order: providerIds.size,
     })
     .select('id')
     .single()
 
   if (error) {
-    console.error('  could not create the JACCS provider:', error.message)
+    console.error(`  could not create the ${provider.name} provider:`, error.message)
+    providerIds.set(provider.slug, null)
     return null
   }
+  providerIds.set(provider.slug, data.id)
   return data.id
 }
 
@@ -679,8 +696,6 @@ async function run() {
     console.error(`Unknown slug(s): ${[...only].filter((slug) => !known.has(slug)).join(', ')}`)
     process.exit(1)
   }
-
-  const providerId = await ensureProvider()
 
   for (const item of units) {
     const label = [item.year, item.brand, item.model, item.variant].filter(Boolean).join(' ')
@@ -773,17 +788,21 @@ async function run() {
 
     if (item.quote) {
       const q = item.quote
-      if (q.downPayment) specs.push({ group_name: 'JACCS Financing', name: 'Down payment', value: peso(q.downPayment), sort_order: order++ })
-      if (q.financeAmount) specs.push({ group_name: 'JACCS Financing', name: 'Amount financed', value: peso(q.financeAmount), sort_order: order++ })
-      if (q.ltoFee) specs.push({ group_name: 'JACCS Financing', name: 'LTO (dealer)', value: peso(q.ltoFee), sort_order: order++ })
-      if (q.insuranceFirstPayment) specs.push({ group_name: 'JACCS Financing', name: 'Insurance first payment', value: peso(q.insuranceFirstPayment), sort_order: order++ })
-      if (q.processingFee) specs.push({ group_name: 'JACCS Financing', name: 'Processing fee', value: peso(q.processingFee), sort_order: order++ })
-      if (q.totalCashOut) specs.push({ group_name: 'JACCS Financing', name: 'Total all-in cash out', value: peso(q.totalCashOut), sort_order: order++ })
+      const lender = (q.provider ?? JACCS).name
+      const group = `${lender} Financing`
+      if (q.downPayment) specs.push({ group_name: group, name: 'Down payment', value: peso(q.downPayment), sort_order: order++ })
+      if (q.financeAmount) specs.push({ group_name: group, name: 'Amount financed', value: peso(q.financeAmount), sort_order: order++ })
+      if (q.ltoFee) specs.push({ group_name: group, name: 'LTO (dealer)', value: peso(q.ltoFee), sort_order: order++ })
+      if (q.insuranceFirstPayment) specs.push({ group_name: group, name: 'Insurance first payment', value: peso(q.insuranceFirstPayment), sort_order: order++ })
+      if (q.processingFee) specs.push({ group_name: group, name: 'Processing fee', value: peso(q.processingFee), sort_order: order++ })
+      if (q.chattelFee) specs.push({ group_name: group, name: 'Chattel fee', value: peso(q.chattelFee), sort_order: order++ })
+      if (q.transferFee) specs.push({ group_name: group, name: 'Transfer fee', value: peso(q.transferFee), sort_order: order++ })
+      if (q.totalCashOut) specs.push({ group_name: group, name: 'Total all-in cash out', value: peso(q.totalCashOut), sort_order: order++ })
 
       for (const [term, payment] of Object.entries(q.monthly)) {
         const years = Number(term) / 12
         specs.push({
-          group_name: 'Monthly payment (JACCS)',
+          group_name: `Monthly payment (${lender})`,
           name: `${years} year${years === 1 ? '' : 's'} (${term} months)`,
           value: `${peso(payment)} / month`,
           sort_order: order++,
@@ -820,6 +839,7 @@ async function run() {
 
     /* Financing rates derived from the quoted monthlies. */
     const financed = item.quote?.financeAmount
+    const providerId = financed ? await ensureProvider(item.quote!.provider ?? JACCS) : null
     if (item.quote && financed && providerId) {
       await supabase.from('financing_rates').delete().eq('vehicle_id', vehicleId)
 
