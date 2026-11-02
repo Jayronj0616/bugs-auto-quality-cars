@@ -14,14 +14,6 @@ export const MEDIA_BUCKET = 'vehicle-media'
 
 export const IMAGE_VARIANT_WIDTHS = [192, 384, 768, 1280, 1920] as const
 
-/**
- * The copies the loader asks for. The 192px thumbnail copy is made for every
- * new upload, but photos stored before it existed only get theirs from
- * `npm run images:variants`; requesting it before that has run would break
- * their thumbnails.
- */
-const SERVED_VARIANT_WIDTHS = IMAGE_VARIANT_WIDTHS.filter((width) => width !== 192)
-
 export const IMAGE_VARIANT_PATTERN = /\.w\d+\.webp$/
 
 export function variantPath(path: string, width: number): string {
@@ -40,7 +32,7 @@ export function withVariants(paths: string[]): string[] {
 /** Smallest copy at least as wide as requested, or the largest there is. */
 export function pickVariantWidth(width: number): number {
   return (
-    SERVED_VARIANT_WIDTHS.find((candidate) => candidate >= width) ??
-    SERVED_VARIANT_WIDTHS[SERVED_VARIANT_WIDTHS.length - 1]
+    IMAGE_VARIANT_WIDTHS.find((candidate) => candidate >= width) ??
+    IMAGE_VARIANT_WIDTHS[IMAGE_VARIANT_WIDTHS.length - 1]
   )
 }
