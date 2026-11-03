@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { Car, ExternalLink, Mail, MessageCircle, Phone } from 'lucide-react'
 
 import { InquiryStatusControl } from '@/components/admin/inquiry-status-control'
+import { DeleteCustomerRecord } from '@/components/admin/delete-customer-record'
 import { NotesPanel } from '@/components/admin/notes-panel'
 import { AdminPageHeader } from '@/components/admin/page-header'
 import { Card, CardBody, CardHeader } from '@/components/ui/surfaces'
@@ -228,6 +229,10 @@ export default async function InquiryDetailPage({ params }: PageProps<'/admin/in
               ) : null}
             </CardBody>
           </Card>
+
+          {session.profile.role === 'admin' || session.profile.role === 'super_admin' ? (
+            <DeleteCustomerRecord kind="inquiry" id={inquiry.id} customerName={inquiry.customer_name} />
+          ) : null}
         </div>
       </div>
     </>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CalendarClock, Car, ExternalLink, Mail, Phone } from 'lucide-react'
 
+import { DeleteCustomerRecord } from '@/components/admin/delete-customer-record'
 import { NotesPanel } from '@/components/admin/notes-panel'
 import { AdminPageHeader } from '@/components/admin/page-header'
 import { TestDriveStatusControl } from '@/components/admin/test-drive-status-control'
@@ -223,6 +224,10 @@ export default async function TestDriveDetailPage({
             <CalendarClock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
             Updating a request does not notify the customer automatically.
           </p>
+
+          {session.profile.role === 'admin' || session.profile.role === 'super_admin' ? (
+            <DeleteCustomerRecord kind="test_drive" id={request.id} customerName={request.customer_name} />
+          ) : null}
         </div>
       </div>
     </>
