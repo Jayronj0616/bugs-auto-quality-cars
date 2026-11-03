@@ -19,6 +19,8 @@ const COMPANY_LINKS = [
   { href: '/about', label: 'About us' },
   { href: '/contact', label: 'Contact' },
   { href: '/cars?condition=used', label: 'Pre-owned' },
+  { href: '/privacy', label: 'Privacy policy' },
+  { href: '/data-deletion', label: 'Data deletion' },
 ]
 
 export function SiteFooter({ settings }: { settings: DealershipSettings }) {
