@@ -40,6 +40,21 @@ export async function listSyncUnits(): Promise<SyncUnit[]> {
   }))
 }
 
+/** Marks a unit for sale, reserved or sold. The database's own trigger records when it sold. */
+export async function setUnitStatus(
+  slug: string,
+  status: 'published' | 'reserved' | 'sold',
+): Promise<{ status: string; previousStatus: VehicleRow['status'] }> {
+  const supabase = serviceClient()
+  const { data: current, error: readError } = await supabase.from('vehicles').select('status').eq('slug', slug).maybeSingle()
+  if (readError) throw readError
+  if (!current) throw new UnitNotFoundError(slug)
+
+  const { error } = await supabase.from('vehicles').update({ status }).eq('slug', slug)
+  if (error) throw error
+  return { status, previousStatus: (current as Pick<VehicleRow, 'status'>).status }
+}
+
 /**
  * Sets the price customers see. A promo price would win over the new selling
  * price, so it is cleared: a price sent from the leads app is the whole answer.
