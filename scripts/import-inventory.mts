@@ -486,7 +486,7 @@ We accept cash, financing, trade-in and swap.`,
     engine: '2.8L Duramax diesel',
     transmission: 'automatic',
     mileage: 97000,
-    sellingPrice: 500_000,
+    sellingPrice: 480_000,
     isFeatured: true,
     // The dealership sent a walkaround video but no photos, so the listing
     // photos are stills taken from that video.
@@ -512,30 +512,18 @@ We accept cash, financing, trade-in and swap.`,
       'Complete warranty booklet',
       'Registered until 2027',
     ],
+    // Only Global was re-computed at the 480k price; the JACCS sheet was built on
+    // 500k, so it stays off the listing until the dealership sends a new one.
     quote: {
-      sheetPrice: 500_000,
-      financeAmount: 250_000,
-      downPayment: 250_000,
-      ltoFee: 10_000,
-      insuranceFirstPayment: 10_000,
-      processingFee: 19_795,
-      totalCashOut: 289_795,
-      monthly: { 12: 24_210, 24: 14_222, 36: 10_344 },
+      provider: { name: 'Global', slug: 'global' },
+      sheetPrice: 480_000,
+      financeAmount: 360_000,
+      downPayment: 120_000,
+      chattelFee: 25_200,
+      transferFee: 15_000,
+      totalCashOut: 160_200,
+      monthly: { 24: 19_410, 36: 14_410 },
     },
-    otherFinancing: [
-      {
-        name: 'Global',
-        rows: [
-          ['Loanable', '₱360,000'],
-          ['Down payment', '₱140,000'],
-          ['Chattel mortgage', '₱25,200'],
-          ['Transfer', '₱15,000'],
-          ['Total down payment', '₱180,200'],
-          ['2 years (24 months)', '₱19,410 / month'],
-          ['3 years (36 months)', '₱14,410 / month'],
-        ],
-      },
-    ],
   },
 ]
 
