@@ -22,13 +22,13 @@ const pesoPrecise = new Intl.NumberFormat(LOCALE, {
 
 const plainNumber = new Intl.NumberFormat(LOCALE)
 
-/** ₱948,000 - the default for prices, which are always quoted whole. */
+/** ₱948,000 - the default for prices and monthly payments, which are always quoted whole. */
 export function formatPeso(value: number | null | undefined): string {
   if (value === null || value === undefined || !Number.isFinite(value)) return '—'
   return pesoWhole.format(value)
 }
 
-/** ₱15,196.38 - for monthly payments, where the centavos matter. */
+/** ₱15,196.38 - for staff views of a stored estimate; customers see whole pesos, as on the dealership's sheets. */
 export function formatPesoPrecise(value: number | null | undefined): string {
   if (value === null || value === undefined || !Number.isFinite(value)) return '—'
   return pesoPrecise.format(value)

@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import type { FinancingConfiguration } from '@/lib/data/financing'
 import type { VehiclePricing } from '@/lib/pricing'
-import { formatPeso, formatPesoPrecise } from '@/lib/format'
+import { formatPeso } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { FinancingProviderRow, VehicleStatus } from '@/types/database'
 
@@ -177,7 +177,7 @@ export function PurchasePanel({
 
       {mode === 'installment' && monthly ? (
         <p className="tabular mt-4 text-center text-sm text-ink-600">
-          Estimated <span className="font-semibold text-ink-900">{formatPesoPrecise(monthly)}</span>
+          Estimated <span className="font-semibold text-ink-900">{formatPeso(monthly)}</span>
           /month
         </p>
       ) : null}

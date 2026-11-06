@@ -5,7 +5,7 @@ import { Info } from 'lucide-react'
 
 import { Field, Input, Select } from '@/components/ui/field'
 import type { FinancingConfiguration } from '@/lib/data/financing'
-import { formatPeso, formatPesoPrecise, formatPercent } from '@/lib/format'
+import { formatPeso, formatPercent } from '@/lib/format'
 import {
   calculateFinancing,
   fixedDownPayment,
@@ -222,7 +222,7 @@ function CalculationSummary({ result }: { result: FinancingResult }) {
       <p className="tabular mt-1 text-3xl font-bold text-ink-900 sm:text-4xl" aria-live="polite">
         {result.isValid ? (
           <>
-            {formatPesoPrecise(result.monthlyPayment)}
+            {formatPeso(result.monthlyPayment)}
             <span className="ml-1 text-base font-medium text-ink-500">/month</span>
           </>
         ) : (

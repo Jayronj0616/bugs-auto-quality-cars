@@ -4,7 +4,7 @@ import { Fuel, Gauge, Settings2, Users } from 'lucide-react'
 
 import { labelFor } from '@/lib/constants'
 import type { VehicleSummary } from '@/lib/data/vehicles'
-import { formatMileage, formatPeso, formatPesoPrecise } from '@/lib/format'
+import { formatMileage, formatPeso } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 import { VehicleBadges } from './vehicle-badges'
@@ -101,7 +101,7 @@ export function VehicleCard({
             <p className="tabular mt-0.5 text-sm text-ink-600">
               From{' '}
               <span className="font-semibold text-ink-800">
-                {formatPesoPrecise(vehicle.monthlyFrom)}
+                {formatPeso(vehicle.monthlyFrom)}
               </span>
               /month
             </p>

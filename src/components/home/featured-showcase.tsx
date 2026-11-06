@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
 import type { VehicleSummary } from '@/lib/data/vehicles'
-import { formatPeso, formatPesoPrecise } from '@/lib/format'
+import { formatPeso } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 /**
@@ -68,7 +68,7 @@ export function FeaturedShowcase({ vehicles }: { vehicles: VehicleSummary[] }) {
             <div className="text-right">
               <p className="text-[11px] tracking-wide text-white/45 uppercase">From</p>
               <p className="tabular text-sm font-semibold text-white">
-                {formatPesoPrecise(active.monthlyFrom)}
+                {formatPeso(active.monthlyFrom)}
                 <span className="font-normal text-white/50">/mo</span>
               </p>
             </div>

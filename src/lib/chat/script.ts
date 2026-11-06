@@ -11,7 +11,7 @@
  */
 
 import { labelFor } from '@/lib/constants'
-import { formatMileage, formatPeso, formatPesoPrecise, formatPercent, formatTime } from '@/lib/format'
+import { formatMileage, formatPeso, formatPercent, formatTime } from '@/lib/format'
 import type { BusinessHour } from '@/types/database'
 
 export type ChatVehicle = {
@@ -379,7 +379,7 @@ export const VEHICLE_QUESTIONS: ChatQuestion[] = [
 
       return {
         paragraphs: [
-          `At ${formatPercent(downPaymentPercent)} down (${formatPeso(downPayment)}) over ${termMonths} months, the ${vehicle.title} works out to roughly ${formatPesoPrecise(vehicle.monthly)} per month.`,
+          `At ${formatPercent(downPaymentPercent)} down (${formatPeso(downPayment)}) over ${termMonths} months, the ${vehicle.title} works out to roughly ${formatPeso(vehicle.monthly)} per month.`,
           context.financingDisclaimer,
         ],
         links: [

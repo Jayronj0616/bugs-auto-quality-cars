@@ -5,7 +5,7 @@ import { MessageSquare, Phone } from 'lucide-react'
 
 import { InquiryForm } from '@/components/forms/inquiry-form'
 import { Modal } from '@/components/ui/modal'
-import { formatPeso, formatPesoPrecise } from '@/lib/format'
+import { formatPeso } from '@/lib/format'
 import type { FinancingProviderRow, VehicleStatus } from '@/types/database'
 
 /**
@@ -61,7 +61,7 @@ export function MobileActionBar({
             <p className="tabular truncate text-base font-bold text-ink-900">{formatPeso(price)}</p>
             {monthlyFrom ? (
               <p className="tabular truncate text-xs text-ink-500">
-                from {formatPesoPrecise(monthlyFrom)}/mo
+                from {formatPeso(monthlyFrom)}/mo
               </p>
             ) : (
               <p className="truncate text-xs text-ink-500">{vehicleTitle}</p>
