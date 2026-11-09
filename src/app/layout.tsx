@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Sora } from 'next/font/google'
 
+import { AnalyticsScript } from '@/components/analytics-script'
 import { getSiteUrl } from '@/lib/env'
 
 import './globals.css'
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         className="flex min-h-full flex-col bg-white text-ink-900"
       >
         {children}
+        <AnalyticsScript />
       </body>
     </html>
   )
