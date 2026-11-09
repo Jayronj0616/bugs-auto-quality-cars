@@ -210,7 +210,7 @@ Money back if the unit is tampered, flooded, has any history of accident, or has
     transmission: 'automatic',
     mileage: 19000,
     engine: '2.0L Turbocharged',
-    sellingPrice: 2_550_000,
+    sellingPrice: 2_500_000,
     brandNewPrice: 4_300_000,
     isFeatured: true,
     // The dealership wants the Camaro to be the first car a visitor sees.
@@ -238,19 +238,19 @@ We accept cash, financing, trade-in and swap.`,
       'LTO verified / HPG verified',
     ],
     quote: {
-      // Price-drop ad: monthlies unchanged and the cash out exactly ₱100,000
-      // lower, so the financed amount stays and only the down payment drops.
-      sheetPrice: 2_550_000,
+      // The 2.5M sheet keeps the same financed amount and monthlies; only the
+      // down payment and cash out drop.
+      sheetPrice: 2_500_000,
       financeAmount: 1_800_000,
-      downPayment: 750_000,
+      downPayment: 700_000,
       ltoFee: 10_000,
       insuranceFirstPayment: 10_000,
       processingFee: 44_617,
-      totalCashOut: 814_617,
+      totalCashOut: 764_617,
       monthly: { 12: 172_380, 24: 100_463, 36: 72_465, 48: 58_984 },
       inclusions: [
         'Transfer of ownership',
-        'Comprehensive insurance',
+        'Comprehensive insurance (1st payment)',
         'LTO clearance',
         'HPG clearance',
         'Detailing',
