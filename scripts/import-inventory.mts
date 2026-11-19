@@ -541,8 +541,8 @@ We accept cash, financing, trade-in and swap.`,
     mileage: 41000,
     sellingPrice: 1_100_000,
     isFeatured: true,
-    // The dealership's photos are all close-ups, so the exterior shots are
-    // stills taken from the walkaround video.
+    // Only the dealership's own photos are listed, led by the roll bar with the
+    // RAPTOR decal; the walkaround video shows the whole truck.
     description: `Best buy with legit low mileage. 2021 Ford Ranger Raptor 4x4 with the 2.0 Bi-Turbo diesel and 10-speed automatic, 41,000+ kilometres with unlimited scan — bring your best mechanic.
 
 All original paint and well maintained, with a Panther roll bar and a Supra roller lid installed. Registered until 2027, complete documents.
