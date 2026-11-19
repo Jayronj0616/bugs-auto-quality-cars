@@ -525,6 +525,43 @@ We accept cash, financing, trade-in and swap.`,
       monthly: { 24: 19_410, 36: 14_410 },
     },
   },
+  {
+    folder: 'raptor',
+    slug: 'ford-ranger-raptor-2021',
+    brand: 'Ford',
+    model: 'Ranger',
+    variant: 'Raptor 4x4',
+    year: 2021,
+    condition: 'used',
+    bodyType: 'pickup',
+    fuelType: 'diesel',
+    engine: '2.0L Bi-Turbo diesel',
+    transmission: 'automatic',
+    driveType: '4wd',
+    mileage: 41000,
+    sellingPrice: 1_100_000,
+    isFeatured: true,
+    // The dealership's photos are all close-ups, so the exterior shots are
+    // stills taken from the walkaround video.
+    description: `Best buy with legit low mileage. 2021 Ford Ranger Raptor 4x4 with the 2.0 Bi-Turbo diesel and 10-speed automatic, 41,000+ kilometres with unlimited scan — bring your best mechanic.
+
+All original paint and well maintained, with a Panther roll bar and a Supra roller lid installed. Registered until 2027, complete documents.
+
+We accept cash, financing, trade-in and swap. For serious buyers only.`,
+    features: [
+      '10-speed automatic transmission',
+      '2.0L Bi-Turbo diesel',
+      '4x4',
+      '41,000+ km odometer reading',
+      'Unlimited scan — bring your best mechanic',
+      'All original paint',
+      'Well maintained',
+      'Roll bar installed (Panther)',
+      'Roller lid installed (Supra)',
+      'Registered until 2027',
+      'Complete documents',
+    ],
+  },
 ]
 
 /* -------------------------------------------------------------------------- */
