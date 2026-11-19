@@ -71,10 +71,10 @@ export default async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Everything except Next.js internals and static assets - the session
+     * Everything except Next.js internals, the OpenPanel proxy and static assets - the session
      * cookie has to be refreshed on public pages too, or it silently expires
      * while an admin is browsing the storefront.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|txt|xml)$).*)',
+    '/((?!api/op|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|txt|xml)$).*)',
   ],
 }

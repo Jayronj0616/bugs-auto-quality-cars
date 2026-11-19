@@ -3,6 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { CheckCircle2 } from 'lucide-react'
+import { useOpenPanel } from '@openpanel/nextjs'
 
 import { Button } from '@/components/ui/button'
 import { Field, Fieldset, Input, Select, Textarea } from '@/components/ui/field'
@@ -55,6 +56,7 @@ export function InquiryForm({
   compact?: boolean
   onSuccess?: () => void
 }) {
+  const { track } = useOpenPanel()
   const [isPending, startTransition] = React.useTransition()
   const [inquiryType, setInquiryType] = React.useState<InquiryType>(defaultType)
   const [selectedVehicleId, setSelectedVehicleId] = React.useState(vehicle?.id ?? '')
@@ -95,6 +97,7 @@ export function InquiryForm({
 
       if (result.ok) {
         setReference(result.data.reference)
+        track('inquiry_submitted')
         formRef.current?.reset()
         onSuccess?.()
       } else {
